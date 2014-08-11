@@ -121,7 +121,8 @@ public class Pkcs11 {
         for (Token t: mTokens.values()) {
             serials.add(t.serialNumber());
         }
-        return (String[])serials.toArray();
+        String[] serialsArray = new String[serials.size()];
+        return serials.toArray(serialsArray);
     };
     public Token tokenForSerialNumber(String serialNumber) {
         Integer slotId = mSerialSlotMap.get(serialNumber);
