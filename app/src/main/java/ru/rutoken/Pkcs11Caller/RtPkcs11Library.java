@@ -3,7 +3,7 @@ import com.sun.jna.Native;
 import ru.rutoken.Pkcs11.RtPkcs11;
 
 public class RtPkcs11Library {
-    public static RtPkcs11 instance;
+    public static RtPkcs11 instance = null;
 
     public static synchronized RtPkcs11 getInstance() {
         RtPkcs11 localInstance = instance;

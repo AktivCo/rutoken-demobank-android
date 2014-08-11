@@ -19,12 +19,8 @@ import ru.rutoken.Pkcs11.Pkcs11Constants;
  */
 public class EventHandler extends Thread {
     Context mContext;
-    EventHandler mInstance = null;
     public EventHandler(Context context) {
         mContext = context;
-    }
-    public EventHandler getInstance() {
-        return mInstance;
     }
     @Override
     public void run() {

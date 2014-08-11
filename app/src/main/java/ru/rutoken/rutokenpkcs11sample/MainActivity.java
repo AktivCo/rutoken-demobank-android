@@ -82,13 +82,12 @@ public class MainActivity extends Activity {
     Button loginButton;
     Button getInfoButton;
     Button logoutButton;
-    ru.rutoken.Pkcs11Caller.Pkcs11 pkcs11;
 
     private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log("Pkcs11 event " + intent.getAction());
-            for(String serial: pkcs11.serialNumbers()) {
+            for(String serial: ru.rutoken.Pkcs11Caller.Pkcs11.getInstance().serialNumbers()) {
                 Log(serial);
             }
         }
@@ -138,7 +137,7 @@ public class MainActivity extends Activity {
 //            Log("C_Initialize failed, code error: " + Integer.toHexString(rv) + "\n");
 //            return;
 //        }
-        pkcs11 = new ru.rutoken.Pkcs11Caller.Pkcs11(this.getApplicationContext());
+        ru.rutoken.Pkcs11Caller.Pkcs11.getInstance().init(this.getApplicationContext());
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(ru.rutoken.Pkcs11Caller.Pkcs11.TOKEN_WAS_ADDED);
         intentFilter.addAction(ru.rutoken.Pkcs11Caller.Pkcs11.TOKEN_WAS_REMOVED);
@@ -182,12 +181,7 @@ public class MainActivity extends Activity {
     protected void onDestroy()
     {
         super.onDestroy();
-
-        int rv = RtPkcs11Library.getInstance().C_Finalize(null);
-        if (rv != 0) {
-            Log("C_Finalize failed, code error: " + Integer.toHexString(rv) + "\n");
-            return;
-        }
+        ru.rutoken.Pkcs11Caller.Pkcs11.getInstance().destroy();
     }
 
     public void onUpdateListButtonClick(View view)
@@ -207,9 +201,10 @@ public class MainActivity extends Activity {
         switch ( view.getId() )
         {
             case R.id.loginButton:
-                String pinCode = passwordEditText.getText().toString();
-                byte[] pin = pinCode.getBytes(Charset.forName("US-ASCII"));
-                login(pin);
+                ru.rutoken.Pkcs11Caller.Pkcs11.getInstance().init(getApplicationContext());
+//                String pinCode = passwordEditText.getText().toString();
+//                byte[] pin = pinCode.getBytes(Charset.forName("US-ASCII"));
+//                login(pin);
             default:
                 break;
         }
@@ -219,7 +214,7 @@ public class MainActivity extends Activity {
         switch ( view.getId() )
         {
             case R.id.logoutButton:
-                logout();
+                ru.rutoken.Pkcs11Caller.Pkcs11.getInstance().destroy();
             default:
                 break;
         }

@@ -20,6 +20,7 @@ import ru.rutoken.Pkcs11.Pkcs11Constants;
  * Created by mironenko on 07.08.2014.
  */
 public class Pkcs11 {
+    private static Pkcs11 instance = null;
     private EventHandler mEventHandler;
     private Context mContext;
     private Map<String, Integer> mSerialSlotMap = Collections.synchronizedMap(new HashMap<String, Integer>());
@@ -50,9 +51,7 @@ public class Pkcs11 {
     public static final String INTERNAL_ERROR = EventHandler.class.getName()+".INTERNAL_ERROR";
 
 
-    public Pkcs11(Context context) {
-        mContext = context;
-
+    private Pkcs11() {
         Map<String,Method> temp = new HashMap<String, Method>();
         try {
             temp.put(EventHandler.SLOT_HAS_EVENT, Pkcs11.class.getDeclaredMethod("slotHasEvent", new Class[] {Intent.class}));
@@ -64,6 +63,25 @@ public class Pkcs11 {
             Log.e(getClass().getName(), e.getMessage());
         }
         mEventReceivers = Collections.unmodifiableMap(temp);
+    }
+
+    public static synchronized Pkcs11 getInstance() {
+        Pkcs11 localInstance = instance;
+        if (localInstance == null) {
+            synchronized (Pkcs11.class) {
+                localInstance = instance;
+                if (localInstance == null) {
+                    instance = localInstance = new Pkcs11();
+                }
+            }
+        }
+        return localInstance;
+    }
+
+    public synchronized void init(Context context) {
+        if(null != mContext)
+            return;
+        mContext = context;
 
         IntentFilter intentFilter = new IntentFilter();
         for (String action: mEventReceivers.keySet()) {
@@ -74,11 +92,25 @@ public class Pkcs11 {
 
         mEventHandler = new EventHandler(mContext);
         mEventHandler.start();
+    }
 
-    }
-    public void destroy() {
+    public synchronized void destroy() {
+        if(null == mContext)
+            return;
         RtPkcs11Library.getInstance().C_Finalize(null);
+        try {
+            mEventHandler.join();
+        } catch (InterruptedException e) { }
+        for (String serial: mSerialSlotMap.keySet()) {
+            Intent dict = (new Intent(TOKEN_WAS_REMOVED)).putExtra("serialNumber", serial);
+            LocalBroadcastManager.getInstance(mContext).sendBroadcast(dict);
+        }
+        mSerialSlotMap.clear();
+        mTokens.clear();
+        LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mBroadcastReceiver);
+        mContext = null;
     }
+
     private void enumerationFinished(Intent intent) {
         LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(ENUMERATION_FINISHED));
     };
