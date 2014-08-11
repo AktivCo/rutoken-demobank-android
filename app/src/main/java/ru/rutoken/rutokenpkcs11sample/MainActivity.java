@@ -8,9 +8,14 @@ import ru.rutoken.Pkcs11.CK_TOKEN_INFO;
 import ru.rutoken.Pkcs11.Pkcs11;
 import ru.rutoken.Pkcs11.Pkcs11Constants;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.app.Activity;
+import android.support.v4.content.LocalBroadcastManager;
 import android.text.method.ScrollingMovementMethod;
 import android.view.Menu;
 import android.view.MotionEvent;
@@ -79,6 +84,16 @@ public class MainActivity extends Activity {
     Button logoutButton;
     ru.rutoken.Pkcs11Caller.Pkcs11 pkcs11;
 
+    private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log("Pkcs11 event " + intent.getAction());
+            for(String serial: pkcs11.serialNumbers()) {
+                Log(serial);
+            }
+        }
+    };
+
 
     //variables
     Map<String, Token> tokens = Collections.synchronizedMap(new HashMap<String, Token>());
@@ -124,6 +139,11 @@ public class MainActivity extends Activity {
 //            return;
 //        }
         pkcs11 = new ru.rutoken.Pkcs11Caller.Pkcs11(this.getApplicationContext());
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(ru.rutoken.Pkcs11Caller.Pkcs11.TOKEN_WAS_ADDED);
+        intentFilter.addAction(ru.rutoken.Pkcs11Caller.Pkcs11.TOKEN_WAS_REMOVED);
+
+        LocalBroadcastManager.getInstance(this.getApplicationContext()).registerReceiver(mBroadcastReceiver, intentFilter);
 
 //        getTokensInfo();
 //        spinnerUpdate();
