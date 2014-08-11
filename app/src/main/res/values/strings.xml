@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Rutoken PKCS11 Sample</string>
+    <string name="welcome">This is sample application to show interaction with token through rtPKCS11ECP library via JNA.</string>
+    <string name="refresh">Refresh list</string>
+    <string name="login">Login</string>
+    <string name="tokenInfo">Show token information</string>
+    <string name="logout">Logout</string>
+    <string name="no_token">No token availible</string>
+</resources>

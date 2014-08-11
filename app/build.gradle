@@ -1,0 +1,120 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "com.android.tools.build:gradle:0.12.+"
+    }
+}
+
+apply plugin: "android"
+
+repositories {
+    mavenCentral()
+}
+
+android {
+    compileSdkVersion 19
+    buildToolsVersion "19.1"
+    lintOptions {
+        abortOnError false
+    }
+}
+
+def requireFileInDirectory(String directory, String file)
+{
+    if(fileTree(dir: directory, include: '**/'+file).isEmpty()) {
+        throw new GradleException('Not found ' + file + ' in ' + directory + ' directory')
+    }
+}
+
+def sdkCopyPkcs11()
+{
+    if(fileTree(dir: 'libs', include: '**/'+'librtpkcs11ecp.so').isEmpty() && !fileTree(dir: '../../../../../Libs/android/native/pkcs11/', include: 'librtpkcs11ecp.so').isEmpty()) {
+        copy {
+            from fileTree(dir: '../../../../../Libs/android/native/pkcs11/', include: 'librtpkcs11ecp.so')
+            into 'libs/'
+        }
+    }
+}
+
+task extractJniDispatchFromJar {
+    requireFileInDirectory('deps', 'android-arm.jar')
+    FileTree tree = zipTree('deps/android-arm.jar')
+    FileTree filtered = tree.matching {
+        include 'libjnidispatch.so'
+    }
+    copy {
+        from filtered
+        into buildDir.getPath()+"/native-libs/"
+    }
+    
+}
+
+task prepareNativeLibs() {
+    sdkCopyPkcs11()
+    requireFileInDirectory('libs', 'librtpkcs11ecp.so')
+    copy {
+        from fileTree(dir: 'libs', include: '**/*.so')
+        into buildDir.getPath()+'/native-libs/'
+    }
+}
+
+task nativeLibsToJar(type: Zip, description: 'create a jar archive of the native libs', dependsOn: ['prepareNativeLibs', 'extractJniDispatchFromJar']) {
+    requireFileInDirectory(buildDir.getPath()+"/native-libs", 'libjnidispatch.so')
+    requireFileInDirectory(buildDir.getPath()+"/native-libs", 'librtpkcs11ecp.so')
+    destinationDir file(buildDir.getPath()+"/native-libs")
+    baseName 'native-libs'
+    extension 'jar'
+    from fileTree(dir: buildDir.getPath()+'/native-libs', include: '**/*.so')
+    into 'lib/armeabi/'
+}
+
+task prepareEclipse(dependsOn: ['prepareNativeLibs', 'extractJniDispatchFromJar']) {
+    doLast {
+        requireFileInDirectory(buildDir.getPath()+"/native-libs", 'libjnidispatch.so')
+        requireFileInDirectory(buildDir.getPath()+"/native-libs", 'librtpkcs11ecp.so')
+        if ((new File('../eclipse-project/')).isDirectory()) {
+            throw new GradleException('Directory \"eclipse-project\" already exists. Remove directory or run \"gradle clean\" before to create eclipse project once more')
+        }
+        copy {
+            from fileTree(dir: buildDir.getPath()+'/native-libs/', include: '**/*.so')
+            into '../eclipse-project/libs/armeabi/'
+        }
+        copy {
+            from fileTree(dir: 'libs', include: '*.jar')
+            into '../eclipse-project/libs/'
+        }
+        copy {
+            from fileTree(dir: 'src/main/java', include: '**/*')
+            into '../eclipse-project/src/'
+        }
+        copy {
+            from fileTree(dir: 'src/main/res', include: '**/*')
+            into '../eclipse-project/res/'
+        }
+        copy {
+            from fileTree(dir: 'src/main', include: 'AndroidManifest.xml')
+            into '../eclipse-project/'
+        }
+    }
+}
+
+clean{
+    delete "../eclipse-project"
+}
+
+tasks.withType(Compile) {
+    compileTask -> compileTask.dependsOn(nativeLibsToJar)
+}
+
+dependencies {
+    compile fileTree(dir: "libs", include: "*.jar")
+}
+
+dependencies {
+    compile files("$buildDir/native-libs/native-libs.jar") {
+        builtBy 'nativeLibsToJar'
+    }
+    compile "com.android.support:support-v4:+"
+}
