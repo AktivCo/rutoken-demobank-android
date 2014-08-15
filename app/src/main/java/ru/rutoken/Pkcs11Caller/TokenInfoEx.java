@@ -69,6 +69,8 @@ public class TokenInfoEx extends Pkcs11Parcelable {
         mTokenInfoEx.ulTokenClass = parcel.readInt();     /* see below */
         /* Battery Voltage */
         mTokenInfoEx.ulBatteryVoltage = parcel.readInt(); /* microvolts */
+
+        mTokenInfoEx.ulBodyColor = parcel.readInt();
     }
 
 
@@ -124,5 +126,7 @@ public class TokenInfoEx extends Pkcs11Parcelable {
         parcel.writeInt(mTokenInfoEx.ulTokenClass);     /* see below */
         /* Battery Voltage */
         parcel.writeInt(mTokenInfoEx.ulBatteryVoltage); /* microvolts */
+
+        parcel.writeInt(mTokenInfoEx.ulBodyColor);
     }
 }

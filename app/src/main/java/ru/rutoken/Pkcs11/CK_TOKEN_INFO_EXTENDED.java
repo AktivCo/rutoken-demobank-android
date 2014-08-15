@@ -62,6 +62,8 @@ public class CK_TOKEN_INFO_EXTENDED  extends Structure {
   /* Battery Voltage */
   public int ulBatteryVoltage; /* microvolts */
 
+  public int ulBodyColor;
+
   public CK_TOKEN_INFO_EXTENDED(){super();}
 
   public CK_TOKEN_INFO_EXTENDED(int ulSizeofThisStructure, int ulTokenType, int ulProtocolNumber,
@@ -69,7 +71,7 @@ public class CK_TOKEN_INFO_EXTENDED  extends Structure {
                                 int ulMinAdminPinLen, int ulMaxUserPinLen, int ulMinUserPinLen,
                                 int ulMaxAdminRetryCount, int ulAdminRetryCountLeft, int ulMaxUserRetryCount,
                                 int ulUserRetryCountLeft, byte[] serialNumber, int ulTotalMemory, int ulFreeMemory,
-                                byte[] ATR, int ulATRLen, int ulTokenClass, int ulBatteryVoltage) {
+                                byte[] ATR, int ulATRLen, int ulTokenClass, int ulBatteryVoltage, int ulBodyColor) {
         this.ulSizeofThisStructure = ulSizeofThisStructure;
         this.ulTokenType = ulTokenType;
         this.ulProtocolNumber = ulProtocolNumber;
@@ -91,6 +93,7 @@ public class CK_TOKEN_INFO_EXTENDED  extends Structure {
         this.ulATRLen = ulATRLen;
         this.ulTokenClass = ulTokenClass;
         this.ulBatteryVoltage = ulBatteryVoltage;
+        this.ulBodyColor = ulBodyColor;
     }
 
     protected List<String> getFieldOrder() {
@@ -115,7 +118,8 @@ public class CK_TOKEN_INFO_EXTENDED  extends Structure {
                 "ATR",
                 "ulATRLen",
                 "ulTokenClass",
-                "ulBatteryVoltage"
+                "ulBatteryVoltage",
+                "ulBodyColor"
         });
     }
 }
