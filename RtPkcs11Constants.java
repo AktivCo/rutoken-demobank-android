@@ -82,4 +82,14 @@ public interface RtPkcs11Constants {
  * means that token support CryptoPro FKN
  */
     public static final int TOKEN_FLAGS_SUPPORT_FKN           = 0x00000010;
+
+/* TOKEN_FLAGS_SUPPORT_SM - if it is set, that
+ * means that token supports Secure Messaging
+ */
+    public static final int TOKEN_FLAGS_SUPPORT_SM            = 0x00000040;
+
+    /* Body color of the token */
+    public static final int TOKEN_BODY_COLOR_UNKNOWN          = 0;
+    public static final int TOKEN_BODY_COLOR_WHITE            = 1;
+    public static final int TOKEN_BODY_COLOR_BLACK            = 2;
 }
