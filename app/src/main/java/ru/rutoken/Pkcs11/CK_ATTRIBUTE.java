@@ -73,7 +73,7 @@ public class CK_ATTRIBUTE extends Structure {
     public Pointer pValue;
 
     /* ulValueLen went from CK_USHORT to CK_ULONG for v2.0 */
-    int          ulValueLen;  /* in bytes */
+    public int          ulValueLen;  /* in bytes */
 
     protected List<String> getFieldOrder() {
         return Arrays.asList(new String[]{"type"

@@ -225,7 +225,7 @@ public interface Pkcs11 extends Library {
     (
             int hSession,   /* the session's handle */
             int  hObject,    /* the object's handle */
-            CK_ATTRIBUTE  pTemplate,  /* specifies attrs; gets vals */
+            CK_ATTRIBUTE[]  pTemplate,  /* specifies attrs; gets vals */
             int          ulCount     /* attributes in template */
     );
     /* C_SetAttributeValue modifies the value of one or more object
@@ -234,7 +234,7 @@ public interface Pkcs11 extends Library {
     (
             int hSession,   /* the session's handle */
             int  hObject,    /* the object's handle */
-            CK_ATTRIBUTE  pTemplate,  /* specifies attrs and values */
+            CK_ATTRIBUTE[]  pTemplate,  /* specifies attrs and values */
             int          ulCount     /* attributes in template */
     );
     /* C_FindObjectsInit initializes a search for token and session
@@ -242,7 +242,7 @@ public interface Pkcs11 extends Library {
     int C_FindObjectsInit
     (
             int hSession,   /* the session's handle */
-            CK_ATTRIBUTE  pTemplate,  /* attribute values to match */
+            CK_ATTRIBUTE[]  pTemplate,  /* attribute values to match */
             int          ulCount     /* attrs in search template */
     );
     /* C_FindObjects continues a search for token and session
