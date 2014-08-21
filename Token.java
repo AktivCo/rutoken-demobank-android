@@ -34,6 +34,7 @@ public class Token extends Pkcs11Parcelable {
         parcel.writeInt(mFreeMemory);
         parcel.writeInt(mCharge);
         parcel.writeInt(mUserPinRetriesLeft);
+        parcel.writeInt(mUserPinRetriesMax);
         parcel.writeInt(mAdminPinRetriesLeft);
         parcel.writeSerializable(mColor);
         parcel.writeSerializable(mUserPinChangePolicy);
@@ -55,6 +56,7 @@ public class Token extends Pkcs11Parcelable {
         mFreeMemory = parcel.readInt();
         mCharge = parcel.readInt();
         mUserPinRetriesLeft = parcel.readInt();
+        mUserPinRetriesMax = parcel.readInt();
         mAdminPinRetriesLeft = parcel.readInt();
         mColor = (BodyColor) parcel.readSerializable();
         mUserPinChangePolicy = (UserChangePolicy) parcel.readSerializable();
@@ -79,7 +81,6 @@ public class Token extends Pkcs11Parcelable {
         UNKNOWN, NEED_INITIALIZE, INITIALIZED
     }
     private int mId;
-    //private String mReaderName;
 
     private String mLabel;
     private String mModel;
@@ -89,12 +90,15 @@ public class Token extends Pkcs11Parcelable {
     private int mFreeMemory;
     private int mCharge;
     private int mUserPinRetriesLeft;
+    private int mUserPinRetriesMax;
     private int mAdminPinRetriesLeft;
     private BodyColor mColor;
     private UserChangePolicy mUserPinChangePolicy;
     private boolean mSupportsSM;
     private SmInitializedStatus mSmInitializedStatus = SmInitializedStatus.UNKNOWN;
     private Map<String, Certificate> mCertificateMap = new HashMap<String, Certificate>();
+
+    private String mCachedPIN = null;
 
     public String label() { return mLabel; }
     public String model() { return mModel; }
@@ -109,61 +113,13 @@ public class Token extends Pkcs11Parcelable {
     public UserChangePolicy userPinChangePolicy() { return mUserPinChangePolicy; }
     public boolean supportsSM() {return mSupportsSM;}
 
-    Token(int slotId, SlotInfo slotInfo, TokenInfo tokenInfo, TokenInfoEx tokenInfoEx) {
-        mId = slotId;
-        //mReaderName = Utils.removeTrailingSpaces(slotInfo.mSlotInfo.slotDescription);
-        mLabel = Utils.removeTrailingSpaces(tokenInfo.mTokenInfo.label);
-        mModel = Utils.removeTrailingSpaces(tokenInfo.mTokenInfo.model);
-        mSerialNumber = Utils.removeTrailingSpaces(tokenInfo.mTokenInfo.serialNumber);
-        mHardwareVersion = String.format("%d.%d.%d.%d",
-                tokenInfo.mTokenInfo.hardwareVersion.major, tokenInfo.mTokenInfo.hardwareVersion.minor,
-                tokenInfo.mTokenInfo.firmwareVersion.major, tokenInfo.mTokenInfo.firmwareVersion.minor);
-        mTotalMemory = tokenInfo.mTokenInfo.ulTotalPublicMemory;
-        mFreeMemory = tokenInfo.mTokenInfo.ulFreePublicMemory;
-        mCharge = tokenInfoEx.mTokenInfoEx.ulBatteryVoltage;
-        mUserPinRetriesLeft = tokenInfoEx.mTokenInfoEx.ulUserRetryCountLeft;
-        mAdminPinRetriesLeft = tokenInfoEx.mTokenInfoEx.ulAdminRetryCountLeft;
-        switch (tokenInfoEx.mTokenInfoEx.ulBodyColor) {
-            case RtPkcs11Constants.TOKEN_BODY_COLOR_WHITE:
-                mColor = BodyColor.WHITE;
-                break;
-            case RtPkcs11Constants.TOKEN_BODY_COLOR_BLACK:
-                mColor = BodyColor.BLACK;
-                break;
-            case RtPkcs11Constants.TOKEN_BODY_COLOR_UNKNOWN:
-                mColor = BodyColor.UNKNOWN;
-                break;
-        }
-        if(((tokenInfoEx.mTokenInfoEx.flags & RtPkcs11Constants.TOKEN_FLAGS_ADMIN_CHANGE_USER_PIN) != 0x00)
-                && ((tokenInfoEx.mTokenInfoEx.flags & RtPkcs11Constants.TOKEN_FLAGS_USER_CHANGE_USER_PIN) != 0x00)) {
-            mUserPinChangePolicy = UserChangePolicy.BOTH;
-        } else if (((tokenInfoEx.mTokenInfoEx.flags & RtPkcs11Constants.TOKEN_FLAGS_ADMIN_CHANGE_USER_PIN) != 0x00)) {
-            mUserPinChangePolicy = UserChangePolicy.SO;
-        } else {
-            mUserPinChangePolicy = UserChangePolicy.USER;
-        }
-        mSupportsSM = ((tokenInfoEx.mTokenInfoEx.flags & RtPkcs11Constants.TOKEN_FLAGS_SUPPORT_SM) != 0);
-    }
-
     Token (int slotId) throws Pkcs11Exception {
-        int rv;
-        CK_TOKEN_INFO tokenInfo = new CK_TOKEN_INFO();
-        CK_TOKEN_INFO_EXTENDED extendedInfo = new CK_TOKEN_INFO_EXTENDED();
-        extendedInfo.ulSizeofThisStructure = extendedInfo.size();
         mId = slotId;
-        rv = RtPkcs11Library.getInstance().C_GetTokenInfo(slotId, tokenInfo);
-        if (Pkcs11Constants.CKR_OK != rv) {
-            throw Pkcs11Exception.exceptionWithCode(rv);
-        }
-        rv = RtPkcs11Library.getInstance().C_EX_GetTokenInfoExtended(slotId, extendedInfo);
-        if (Pkcs11Constants.CKR_OK != rv) {
-            throw Pkcs11Exception.exceptionWithCode(rv);
-        }
-        initTokenInfo(tokenInfo, extendedInfo);
-        initCertificatesList();
+        doInitTokenInfo();
+        doInitCertificatesList();
     }
 
-    int[] findPkcs11Objects(int hSession, CK_ATTRIBUTE[] attributes) throws Pkcs11Exception  {
+    int[] doFindPkcs11Objects(int hSession, CK_ATTRIBUTE[] attributes) throws Pkcs11Exception  {
         int rv;
         final int ulMaxObjectsCount = 100;
         IntByReference ulObjectCount = new IntByReference(ulMaxObjectsCount);
@@ -187,7 +143,7 @@ public class Token extends Pkcs11Parcelable {
         return hObjects;
     }
 
-    void initCertificatesList() throws Pkcs11Exception {
+    void doInitCertificatesList() throws Pkcs11Exception {
         IntByReference phSession = new IntByReference(0);
         int[] hCertificates = null;
         int rv = RtPkcs11Library.getInstance().C_OpenSession(mId,
@@ -207,7 +163,7 @@ public class Token extends Pkcs11Parcelable {
             certAttributes[0].pValue = ocCertClass.getPointer();
             certAttributes[0].ulValueLen = NativeLong.SIZE;
 
-            hCertificates = findPkcs11Objects(hSession, certAttributes);
+            hCertificates = doFindPkcs11Objects(hSession, certAttributes);
             for (int hCertificate : hCertificates) {
                 Certificate certificate = new Certificate(hSession, hCertificate);
                 mCertificateMap.put(certificate.id(), certificate);
@@ -217,7 +173,21 @@ public class Token extends Pkcs11Parcelable {
         }
     }
 
-    void initTokenInfo(CK_TOKEN_INFO tokenInfo, CK_TOKEN_INFO_EXTENDED tokenInfoEx) {
+    void doInitTokenInfo() throws Pkcs11Exception {
+        int rv;
+        CK_TOKEN_INFO tokenInfo = new CK_TOKEN_INFO();
+        CK_TOKEN_INFO_EXTENDED tokenInfoEx = new CK_TOKEN_INFO_EXTENDED();
+        tokenInfoEx.ulSizeofThisStructure = tokenInfoEx.size();
+
+        rv = RtPkcs11Library.getInstance().C_GetTokenInfo(mId, tokenInfo);
+        if (Pkcs11Constants.CKR_OK != rv) {
+            throw Pkcs11Exception.exceptionWithCode(rv);
+        }
+        rv = RtPkcs11Library.getInstance().C_EX_GetTokenInfoExtended(mId, tokenInfoEx);
+        if (Pkcs11Constants.CKR_OK != rv) {
+            throw Pkcs11Exception.exceptionWithCode(rv);
+        }
+
         mLabel = Utils.removeTrailingSpaces(tokenInfo.label);
         mModel = Utils.removeTrailingSpaces(tokenInfo.model);
         mSerialNumber = Utils.removeTrailingSpaces(tokenInfo.serialNumber);
@@ -228,6 +198,7 @@ public class Token extends Pkcs11Parcelable {
         mFreeMemory = tokenInfo.ulFreePublicMemory;
         mCharge = tokenInfoEx.ulBatteryVoltage;
         mUserPinRetriesLeft = tokenInfoEx.ulUserRetryCountLeft;
+        mUserPinRetriesMax = tokenInfoEx.ulMaxUserRetryCount;
         mAdminPinRetriesLeft = tokenInfoEx.ulAdminRetryCountLeft;
         switch (tokenInfoEx.ulBodyColor) {
             case RtPkcs11Constants.TOKEN_BODY_COLOR_WHITE:
@@ -251,27 +222,19 @@ public class Token extends Pkcs11Parcelable {
         mSupportsSM = ((tokenInfoEx.flags & RtPkcs11Constants.TOKEN_FLAGS_SUPPORT_SM) != 0);
     }
 
-//    public boolean needInitSM() throws Pkcs11Exception {
-//        if(mSmInitializedStatus != SmInitializedStatus.UNKNOWN) {
-//            return mSmInitializedStatus == SmInitializedStatus.NEED_INITIALIZE;
-//        }
-//        boolean result;
-//        IntByReference phSession = new IntByReference();
-//        int rv = RtPkcs11Library.getInstance().C_OpenSession(mId, ru.rutoken.pkcs11wrapper.Pkcs11Constants.CKF_SERIAL_SESSION | ru.rutoken.pkcs11wrapper.Pkcs11Constants.CKF_RW_SESSION, null, null, phSession);
-//        if (rv == ru.rutoken.pkcs11wrapper.Pkcs11Constants.CKR_OK) {
-//            result = false;
-//        } else if (rv == ru.rutoken.pkcs11wrapper.Pkcs11Constants.CKR_FUNCTION_NOT_SUPPORTED) {
-//            result = true;
+    boolean doLoginUser(int hSession, String userPIN) throws Pkcs11Exception {
+//        if(null != mCachedPIN && mCachedPIN == userPIN) return true;
+//        int rv = RtPkcs11Library.getInstance().C_Login(hSession, Pkcs11Constants.CKU_USER, userPIN.getBytes(), userPIN.length());
+//        if (Pkcs11Constants.CKR_USER_ALREADY_LOGGED_IN == rv || Pkcs11Constants.CKR_OK == rv) {
+//            mCachedPIN = userPIN;
+//            mUserPinRetriesLeft = mUserPinRetriesMax;
 //        } else {
-//            throw Pkcs11Exception.exceptionWithCode(rv);
+//            mCachedPIN = null;
 //        }
-//        if (false == result)  {
-//            rv = RtPkcs11Library.getInstance().C_CloseSession(phSession.getValue());
-//            if (rv != ru.rutoken.pkcs11wrapper.Pkcs11Constants.CKR_OK) {
-//                throw Pkcs11Exception.exceptionWithCode(rv);
-//            }
-//        }
-//        return result;
-//    }
+        return true;
+
+
+
+    }
 
 }
