@@ -116,7 +116,7 @@ public class Token extends Pkcs11Parcelable {
     Token (int slotId) throws Pkcs11Exception {
         mId = slotId;
         doInitTokenInfo();
-        doInitCertificatesList();
+//        doInitCertificatesList();
     }
 
     int[] doFindPkcs11Objects(int hSession, CK_ATTRIBUTE[] attributes) throws Pkcs11Exception  {

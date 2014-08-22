@@ -6,10 +6,14 @@ package ru.rutoken.Pkcs11Caller;
 public class EventRunnable implements Runnable {
     EventType mEvent;
     int mSlotId;
-    int mToken = null;
+    Token mToken = null;
     EventRunnable(EventType event, int slotId) {
         mEvent = event;
         mSlotId = slotId;
+    }
+    EventRunnable(EventType event, int slotId, Token token) {
+        this(event, slotId);
+        mToken = token;
     }
     public void run() {
         TokenManager.getInstance().processEvent(mEvent, mSlotId, mToken);
