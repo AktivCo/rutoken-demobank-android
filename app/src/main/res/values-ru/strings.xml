@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <string name="app_name">Рутокен PKCS11: пример</string>
-    <string name="welcome">Это приложение демонстрирует взаимодействие с токеном через библиотеку rtPKCS11ECP с использованием JNA.</string>
-    <string name="refresh">Обновить список</string>
-    <string name="tokenInfo">Показать информацию о токене</string>
-    <string name="no_token">Не подключено ни одного токена</string>
+    <string name="app_name">Рутокен Демо</string>
+    <string name="turn_bt_on">Пожалуйста включите Bluetooth</string>
+    <string name="no_token">Пожалуйста подключите токен</string>
+    <string name="pin_hint">Введите PIN-код</string>
+    <string name="ok">OK</string>
 </resources>

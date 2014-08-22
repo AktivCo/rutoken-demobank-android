@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Rutoken PKCS11 Sample</string>
-    <string name="welcome">This is sample application to show interaction with token through rtPKCS11ECP library via JNA.</string>
-    <string name="refresh">Refresh list</string>
-    <string name="login">Login</string>
-    <string name="tokenInfo">Show token information</string>
-    <string name="logout">Logout</string>
-    <string name="no_token">No token availible</string>
+
+    <string name="app_name">Rutoken Demo</string>
+    <string name="turn_bt_on">Please turn on Bluetooth</string>
+    <string name="no_token">Connect the token please</string>
+    <string name="pin_hint">Input PIN</string>
+    <string name="ok">OK</string>
+    <string name="title_activity_login">LoginActivity</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+
 </resources>
