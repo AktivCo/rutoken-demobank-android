@@ -26,18 +26,25 @@ public class EventHandler extends Thread {
     @Override
     public void run() {
         try {
-            int rv = RtPkcs11Library.getInstance().C_Initialize(null);
+            int rv;
+            synchronized (RtPkcs11Library.getInstance()) {
+                 rv = RtPkcs11Library.getInstance().C_Initialize(null);
+            }
             if (Pkcs11Constants.CKR_OK != rv) {
                 throw Pkcs11Exception.exceptionWithCode(rv);
             }
 
             IntByReference slotCount = new IntByReference(0);
-            rv = RtPkcs11Library.getInstance().C_GetSlotList(false, null, slotCount);
+            synchronized (RtPkcs11Library.getInstance()) {
+                rv = RtPkcs11Library.getInstance().C_GetSlotList(false, null, slotCount);
+            }
             if (Pkcs11Constants.CKR_OK != rv) {
                 throw Pkcs11Exception.exceptionWithCode(rv);
             }
             int slotIds[] = new int[slotCount.getValue()];
-            rv = RtPkcs11Library.getInstance().C_GetSlotList(true, slotIds, slotCount);
+            synchronized (RtPkcs11Library.getInstance()) {
+                rv = RtPkcs11Library.getInstance().C_GetSlotList(true, slotIds, slotCount);
+            }
             if (Pkcs11Constants.CKR_OK != rv) {
                 throw Pkcs11Exception.exceptionWithCode(rv);
             }
@@ -51,7 +58,17 @@ public class EventHandler extends Thread {
 
         while(true) {
             IntByReference id = new IntByReference();
-            int rv = RtPkcs11Library.getInstance().C_WaitForSlotEvent(0, id, null);
+            int rv;
+            do {
+                synchronized (RtPkcs11Library.getInstance()) {
+                    rv = RtPkcs11Library.getInstance().C_WaitForSlotEvent(Pkcs11Constants.CKF_DONT_BLOCK, id, null);
+                }
+                try {
+                    sleep(1);
+                } catch (InterruptedException e) {
+                    return;
+                }
+            } while (Pkcs11Constants.CKR_NO_EVENT == rv);
             if (Pkcs11Constants.CKR_CRYPTOKI_NOT_INITIALIZED == rv) {
                 Log.d(getClass().getName(), "Exit EH");
                 return;
@@ -75,7 +92,10 @@ public class EventHandler extends Thread {
 
     protected void slotEventHappened(int id) throws Pkcs11Exception{
         CK_SLOT_INFO slotInfo = new CK_SLOT_INFO();
-        int rv = RtPkcs11Library.getInstance().C_GetSlotInfo(id, slotInfo);
+        int rv;
+        synchronized (RtPkcs11Library.getInstance()) {
+            rv = RtPkcs11Library.getInstance().C_GetSlotInfo(id, slotInfo);
+        }
         if (Pkcs11Constants.CKR_OK != rv) {
             throw Pkcs11Exception.exceptionWithCode(rv);
         }
