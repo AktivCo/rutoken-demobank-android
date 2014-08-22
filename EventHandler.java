@@ -3,6 +3,7 @@ package ru.rutoken.Pkcs11Caller;
 import android.content.Context;
 import android.os.Looper;
 import android.os.Handler;
+import android.util.Log;
 
 import com.sun.jna.ptr.IntByReference;
 import java.util.HashMap;
@@ -52,6 +53,7 @@ public class EventHandler extends Thread {
             IntByReference id = new IntByReference();
             int rv = RtPkcs11Library.getInstance().C_WaitForSlotEvent(0, id, null);
             if (Pkcs11Constants.CKR_CRYPTOKI_NOT_INITIALIZED == rv) {
+                Log.d(getClass().getName(), "Exit EH");
                 return;
             }
             try {
@@ -60,18 +62,11 @@ public class EventHandler extends Thread {
                 }
                 slotEventHappened(id.getValue());
             } catch (Exception e) {
-                mHandler.post(new EventRunnable(EventType.EVENT_HANDLER_FAILED,-1));
+                mHandler.post(new EventRunnable(EventType.EVENT_HANDLER_FAILED, -1));
                 // TODO ??? return ???
             }
         }
     }
-
-    public static final String CRYPTOKI_INITIALIZED = EventHandler.class.getName()+".CRYPTOKI_INITIALIZED";
-    public static final String EVENT_HANDLER_FAILED = EventHandler.class.getName()+".EVENT_HANDLER_FAILED";
-    public static final String SLOT_WILL_HAVE_TOKEN = EventHandler.class.getName()+".SLOT_WILL_HAVE_TOKEN";
-    public static final String SLOT_EVENT_FAILED = EventHandler.class.getName()+".SLOT_EVENT_FAILED";
-    public static final String SLOT_HAS_EVENT = EventHandler.class.getName()+".SLOT_HAS_EVENT";
-    public static final String ENUMERATION_FINISHED = EventHandler.class.getName()+".ENUMERATION_FINISHED";
 
     static EventType oppositeEvent(EventType event) {
         if(event == EventType.SD) return EventType.SR;

@@ -1,13 +1,11 @@
 package ru.rutoken.Pkcs11Caller;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-
-import com.sun.jna.ptr.IntByReference;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -16,42 +14,51 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import ru.rutoken.Pkcs11.CK_SLOT_INFO;
-import ru.rutoken.Pkcs11.CK_TOKEN_INFO;
-import ru.rutoken.Pkcs11.CK_TOKEN_INFO_EXTENDED;
-import ru.rutoken.Pkcs11.Pkcs11Constants;
-
 /**
  * Created by mironenko on 07.08.2014.
  */
 public class TokenManager {
+    private class TokenInfoLoader extends Thread {
+        int mSlotId;
+        Handler mHandler = new Handler(Looper.getMainLooper());
+        TokenInfoLoader(int slotId) {
+            mSlotId = slotId;
+        }
+        public void run() {
+            EventType event = EventType.TIL;
+            Token token = null;
+            try {
+                token = new Token(mSlotId);
+            } catch (Pkcs11Exception e) {
+                Log.e(getClass().getName(), e.getMessage());
+                event = EventType.TIF;
+            }
+            mHandler.post(new EventRunnable(event, mSlotId, token));
+        }
+    }
+
+    class TokenManagerException extends Exception {
+        TokenManagerException(String what) {
+            super(what);
+        }
+    }
+
+    enum AcceptableState
+    {
+        R0W0SD,
+        R0W1SD,
+        R0W0SR,
+        R1W0SR,
+        R1W0TIL,
+        R1W0TIF
+    }
+
     private static TokenManager instance = null;
     private EventHandler mEventHandler;
     private Context mContext;
-    private Map<String, Integer> mSerialSlotMap = Collections.synchronizedMap(new HashMap<String, Integer>());
     private Map<Integer, Token> mTokens = Collections.synchronizedMap(new HashMap<Integer, Token>());
-    private Map<String, Method> mEventReceivers;
-    private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            receive(intent);
-        }
-    };
-//    private boolean mFollowSlot = true;
-//    private boolean mWaitingForToken = false;
-//    private int mSlotId = -1;
-//
-//    private Thread mEasyHandler;
-
-    private void receive(Intent intent) {
-        try {
-            mEventReceivers.get(intent.getAction()).invoke(this, intent);
-        } catch (IllegalAccessException e) {
-            Log.e(getClass().getName(), "IllegalAccessException");
-        } catch (InvocationTargetException e) {
-            Log.e(getClass().getName(), "InvocationTargetException");
-        }
-    }
+    private Map<Integer, AcceptableState> stateMachines = Collections.synchronizedMap(new HashMap<Integer, AcceptableState>());
+    private Map<AcceptableState, Method> mCurrentStateProcessors;
 
     public static final String ENUMERATION_FINISHED = TokenManager.class.getName()+".ENUMERATION_FINISHED";
     public static final String TOKEN_WILL_BE_ADDED = EventHandler.class.getName()+".TOKEN_WILL_BE_ADDED";
@@ -62,27 +69,166 @@ public class TokenManager {
 
 
     private TokenManager() {
-        Map<String,Method> temp = new HashMap<String, Method>();
+        Map<AcceptableState, Method> tmp = new HashMap<AcceptableState, Method>();
         try {
-            temp.put(EventHandler.SLOT_HAS_EVENT, TokenManager.class.getDeclaredMethod("slotHasEvent", new Class[] {Intent.class}));
-            temp.put(EventHandler.ENUMERATION_FINISHED, TokenManager.class.getDeclaredMethod("enumerationFinished", new Class[] {Intent.class}));
-            temp.put(EventHandler.SLOT_WILL_HAVE_TOKEN, TokenManager.class.getDeclaredMethod("slotWillHaveToken", new Class[] {Intent.class}));
-            //temp.put(EventHandler.SLOT_EVENT_FAILED, TokenManager.class.getDeclaredMethod("slotEventFailed", new Class[] {Intent.class}));
-            //temp.put(EventHandler.EVENT_HANDLER_FAILED, TokenManager.class.getDeclaredMethod("eventHandlerFailed", new Class[] {Intent.class}));
+            tmp.put(AcceptableState.R0W0SD, TokenManager.class.getDeclaredMethod("processCurrentStateR0W0SD", new Class[] {EventType.class, Integer.class, Token.class}));
+            tmp.put(AcceptableState.R0W1SD, TokenManager.class.getDeclaredMethod("processCurrentStateR0W1SD", new Class[] {EventType.class, Integer.class, Token.class}));
+            tmp.put(AcceptableState.R0W0SR, TokenManager.class.getDeclaredMethod("processCurrentStateR0W0SR", new Class[] {EventType.class, Integer.class, Token.class}));
+            tmp.put(AcceptableState.R1W0SR, TokenManager.class.getDeclaredMethod("processCurrentStateR1W0SR", new Class[] {EventType.class, Integer.class, Token.class}));
+            tmp.put(AcceptableState.R1W0TIL, TokenManager.class.getDeclaredMethod("processCurrentStateR1W0TIL", new Class[] {EventType.class, Integer.class, Token.class}));
+            tmp.put(AcceptableState.R1W0TIF, TokenManager.class.getDeclaredMethod("processCurrentStateR1W0TIF", new Class[] {EventType.class, Integer.class, Token.class}));
         } catch (NoSuchMethodException e) {
             Log.e(getClass().getName(), e.getMessage());
         }
-        mEventReceivers = Collections.unmodifiableMap(temp);
+        mCurrentStateProcessors = tmp;
+    }
+
+    AcceptableState processCurrentStateR0W0SD(EventType event, Integer slotId, Token token) throws TokenManagerException {
+        AcceptableState newState;
+        switch (event) {
+            case SD:
+                throw new TokenManagerException("Input not accepted by state");
+            case SR:
+                newState = AcceptableState.R0W0SR;
+                sendTAF(slotId);
+                break;
+            case TIL:
+            case TIF:
+                newState = AcceptableState.R0W1SD;
+                (new TokenInfoLoader(slotId)).start();
+                break;
+            default:
+                throw new TokenManagerException("Unexpected unfiltered incoming event");
+        }
+        return newState;
+    }
+    AcceptableState processCurrentStateR0W1SD(EventType event, Integer slotId, Token token) throws TokenManagerException {
+        AcceptableState newState;
+        switch (event) {
+            case SD:
+                throw new TokenManagerException("Input not accepted by state");
+            case SR:
+                newState = AcceptableState.R0W0SR;
+                sendTAF(slotId);
+                break;
+            case TIL:
+                newState = AcceptableState.R1W0TIL;
+                mTokens.put(slotId, token);
+                sendTA(slotId);
+                break;
+            case TIF:
+                newState = AcceptableState.R1W0TIF;
+                sendTAF(slotId);
+                break;
+            default:
+                throw new TokenManagerException("Unexpected unfiltered incoming event");
+        }
+        return newState;
+    }
+    AcceptableState processCurrentStateR0W0SR(EventType event, Integer slotId, Token token) throws TokenManagerException {
+        AcceptableState newState;
+        switch (event) {
+            case SD:
+                newState = AcceptableState.R0W0SD;
+                sendTWBA(slotId);
+                break;
+            case SR:
+                throw new TokenManagerException("Input not accepted by state");
+            case TIL:
+                newState = AcceptableState.R1W0TIL;
+                break;
+            case TIF:
+                newState = AcceptableState.R1W0TIF;
+                break;
+            default:
+                throw new TokenManagerException("Unexpected unfiltered incoming event");
+        }
+        return newState;
+    }
+    AcceptableState processCurrentStateR1W0SR(EventType event, Integer slotId, Token token) throws TokenManagerException {
+        AcceptableState newState;
+        switch (event) {
+            case SD:
+                newState = AcceptableState.R0W1SD;
+                sendTWBA(slotId);
+                (new TokenInfoLoader(slotId)).start();
+                break;
+            case SR:
+            case TIL:
+            case TIF:
+                throw new TokenManagerException("Input not accepted by state");
+            default:
+                throw new TokenManagerException("Unexpected unfiltered incoming event");
+        }
+        return newState;
+    }
+    AcceptableState processCurrentStateR1W0TIL(EventType event, Integer slotId, Token token) throws TokenManagerException {
+        AcceptableState newState;
+        switch (event) {
+            case SD:
+                newState = AcceptableState.R0W1SD;
+                sendTWBA(slotId);
+                (new TokenInfoLoader(slotId)).start();
+                break;
+            case SR:
+                newState = AcceptableState.R1W0SR;
+                mTokens.remove(slotId);
+                sendTR(slotId);
+                break;
+            case TIL:
+            case TIF:
+                throw new TokenManagerException("Input not accepted by state");
+            default:
+                throw new TokenManagerException("Unexpected unfiltered incoming event");
+        }
+        return newState;
+    }
+    AcceptableState processCurrentStateR1W0TIF(EventType event, Integer slotId, Token token) throws TokenManagerException {
+        AcceptableState newState;
+        switch (event) {
+            case SD:
+                newState = AcceptableState.R0W1SD;
+                sendTWBA(slotId);
+                (new TokenInfoLoader(slotId)).start();
+                break;
+            case SR:
+                newState = AcceptableState.R1W0SR;
+                break;
+            case TIL:
+            case TIF:
+                throw new TokenManagerException("Input not accepted by state");
+            default:
+                throw new TokenManagerException("Unexpected unfiltered incoming event");
+        }
+        return newState;
     }
 
     public synchronized void processEvent(EventType event, int slotId, Token token) {
         if(event == EventType.EVENT_HANDLER_FAILED) {
-            eventHandlerFailed();
+            sendEventHandlerFailed();
             return;
         }
         if(event == EventType.ENUMERATION_FINISHED) {
-            enumerationFinished();
+            sendEnumerationFinished();
             return;
+        }
+
+        AcceptableState state = stateMachines.get(slotId);
+        if(state == null) {
+            state = AcceptableState.R1W0SR;
+            stateMachines.put(slotId, state);
+        }
+
+        try {
+            state = (AcceptableState) mCurrentStateProcessors.get(state).invoke(this, event, slotId, token);
+            stateMachines.put(slotId, state);
+        } catch (InvocationTargetException e) {
+            Log.e(getClass().getName(), "InvocationTargetException");
+            if (e.getCause() instanceof TokenManagerException) {
+                Log.e(getClass().getName(), e.getMessage());
+            }
+        } catch (IllegalAccessException e) {
+            Log.e(getClass().getName(), "IllegalAccessException");
         }
     }
 
@@ -104,111 +250,9 @@ public class TokenManager {
             return;
         mContext = context;
 
-        IntentFilter intentFilter = new IntentFilter();
-        for (String action: mEventReceivers.keySet()) {
-            intentFilter.addAction(action);
-        }
-
-        LocalBroadcastManager.getInstance(mContext).registerReceiver(mBroadcastReceiver, intentFilter);
-
         mEventHandler = new EventHandler(mContext);
         mEventHandler.start();
-//
-//        mEasyHandler = new Thread() {
-//            @Override
-//            public void run() {
-//                try {
-//                    int rv = RtPkcs11Library.getInstance().C_Initialize(null);
-//                    if (Pkcs11Constants.CKR_OK != rv) {
-//                        throw Pkcs11Exception.exceptionWithCode(rv);
-//                    }
-//                    LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(CRYPTOKI_INITIALIZED));
-//                } catch(Exception e){
-//                    LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(EVENT_HANDLER_FAILED));
-//                }
-//
-//                while (true) {
-//                    try {
-//                        IntByReference slotCount = new IntByReference(0);
-//                        int rv = RtPkcs11Library.getInstance().C_GetSlotList(false, null, slotCount);
-//                        if (Pkcs11Constants.CKR_OK != rv) {
-//                            throw Pkcs11Exception.exceptionWithCode(rv);
-//                        }
-//                        int slotIds[] = new int[slotCount.getValue()];
-//                        rv = RtPkcs11Library.getInstance().C_GetSlotList(true, slotIds, slotCount);
-//                        if (Pkcs11Constants.CKR_OK != rv) {
-//                            throw Pkcs11Exception.exceptionWithCode(rv);
-//                        }
-//                        for (int i = 0; i != slotCount.getValue(); ++i) {
-//                            if(mFollowSlot && (mSlotId == -1)) slotEventHappened(i);
-//                            else break;
-//                        }
-//                        LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(ENUMERATION_FINISHED));
-//                    } catch(Exception e) {
-//                        LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(EVENT_HANDLER_FAILED));
-//                    }
-//
-//                    while (true) {
-//                        IntByReference id = new IntByReference();
-//                        int rv = RtPkcs11Library.getInstance().C_WaitForSlotEvent(0, id, null);
-//                        if (Pkcs11Constants.CKR_CRYPTOKI_NOT_INITIALIZED == rv) {
-//                            return;
-//                        }
-//                        try {
-//                            if (Pkcs11Constants.CKR_OK != rv) {
-//                                throw Pkcs11Exception.exceptionWithCode(rv);
-//                            }
-//                            int slotId = id.getValue();
-//                            if (mFollowSlot && (mSlotId == -1)) slotEventHappened(id.getValue()); // token inserted -- no reenum
-//                            else if (mFollowSlot && (mSlotId == slotId)) {
-//                                slotEventHappened(id.getValue());
-//                                if (mSlotId == -1) break; // token removed -- need reenum
-//                            }
-//                            else if (!mFollowSlot && (mSlotId == -1)) slotEventHappened(id.getValue());
-//                            else if (!mFollowSlot) slotEventHappened(id.getValue());
-//                        } catch (Exception e) {
-//                            LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(EVENT_HANDLER_FAILED));
-//                            continue;
-//                        }
-//                    }
-//                }
-//            }
-//        };
     }
-
-//    protected void slotEventHappened(int id) throws Pkcs11Exception{
-//        CK_SLOT_INFO slotInfo = new CK_SLOT_INFO();
-//        int rv = RtPkcs11Library.getInstance().C_GetSlotInfo(id, slotInfo);
-//        if (Pkcs11Constants.CKR_OK != rv) {
-//            throw Pkcs11Exception.exceptionWithCode(rv);
-//        }
-//        CK_TOKEN_INFO tokenInfo = new CK_TOKEN_INFO();
-//        CK_TOKEN_INFO_EXTENDED extendedInfo = new CK_TOKEN_INFO_EXTENDED();
-//        extendedInfo.ulSizeofThisStructure = extendedInfo.size();
-//
-//        Intent dict = new Intent();
-//        dict.putExtra("slotId", id).putExtra("slotInfo", new SlotInfo(slotInfo));
-//
-//        if ((Pkcs11Constants.CKF_TOKEN_PRESENT & slotInfo.flags) != 0x00) {
-//            LocalBroadcastManager.getInstance(mContext).sendBroadcast(dict.setAction(SLOT_WILL_HAVE_TOKEN));
-//            try {
-//                rv = RtPkcs11Library.getInstance().C_GetTokenInfo(id, tokenInfo);
-//                if (Pkcs11Constants.CKR_OK != rv) {
-//                    throw Pkcs11Exception.exceptionWithCode(rv);
-//                }
-//                rv = RtPkcs11Library.getInstance().C_EX_GetTokenInfoExtended(id, extendedInfo);
-//                if (Pkcs11Constants.CKR_OK != rv) {
-//                    throw Pkcs11Exception.exceptionWithCode(rv);
-//                }
-//            } catch (Exception e) {
-//                LocalBroadcastManager.getInstance(mContext).sendBroadcast(dict.setAction(SLOT_EVENT_FAILED));
-//                return;
-//            }
-//        }
-//        dict.putExtra("tokenInfo", new TokenInfo(tokenInfo));
-//        dict.putExtra("extendedTokenInfo", new TokenInfoEx(extendedInfo));
-//        LocalBroadcastManager.getInstance(mContext).sendBroadcast(dict.setAction(SLOT_HAS_EVENT));
-//    }
 
     public synchronized void destroy() {
         if(null == mContext)
@@ -216,68 +260,46 @@ public class TokenManager {
         RtPkcs11Library.getInstance().C_Finalize(null);
         try {
             mEventHandler.join();
-        } catch (InterruptedException e) { }
-        for (String serial: mSerialSlotMap.keySet()) {
-            Intent dict = (new Intent(TOKEN_WAS_REMOVED)).putExtra("serialNumber", serial);
-            LocalBroadcastManager.getInstance(mContext).sendBroadcast(dict);
+        } catch (InterruptedException e) {
+            Log.e(getClass().getName(), "Interrupted exception");
         }
-        mSerialSlotMap.clear();
+
+        for (Integer slotId: mTokens.keySet()) {
+            sendTR(slotId);
+        }
         mTokens.clear();
-        LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mBroadcastReceiver);
+
         mContext = null;
     }
 
-    private void enumerationFinished() {
+    private void sendTWBA(int slotId) {
+        sendIntentWithSlotId(TOKEN_WILL_BE_ADDED, slotId);
+    };
+    private void sendTAF(int slotId) {
+        sendIntentWithSlotId(TOKEN_ADDING_FAILED, slotId);
+    };
+    private void sendTA(int slotId) {
+        sendIntentWithSlotId(TOKEN_WAS_ADDED, slotId);
+    };
+    private void sendTR(int slotId) {
+        sendIntentWithSlotId(TOKEN_WAS_REMOVED, slotId);
+    };
+    private void sendIntentWithSlotId(String intentType, int slotId) {
+        Intent intent = new Intent(intentType);
+        intent.putExtra("slotId", slotId);
+        LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
+    }
+    private void sendEnumerationFinished() {
         LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(ENUMERATION_FINISHED));
     };
-
-    private synchronized void slotHasEvent(Intent intent) {
-        int slotId = intent.getIntExtra("slotId", -1);
-        SlotInfo slotInfo = intent.getParcelableExtra("slotInfo");
-        TokenInfo tokenInfo = intent.getParcelableExtra("tokenInfo");
-        TokenInfoEx tokenInfoEx = intent.getParcelableExtra("extendedTokenInfo");
-
-        Token token = mTokens.get(slotId);
-
-        if (null == token && ((Pkcs11Constants.CKF_TOKEN_PRESENT & slotInfo.mSlotInfo.flags) != 0x00)) {
-            token = new Token(slotId, slotInfo, tokenInfo, tokenInfoEx);
-            mTokens.put(slotId,token);
-            mSerialSlotMap.put(token.serialNumber(), slotId);
-            Intent dict = (new Intent(TOKEN_WAS_ADDED)).putExtra("serialNumber", token.serialNumber());
-            LocalBroadcastManager.getInstance(mContext).sendBroadcast(dict);
-        } else if (null != token && ((Pkcs11Constants.CKF_TOKEN_PRESENT & ~(slotInfo.mSlotInfo.flags)) != 0x00)) {
-            mSerialSlotMap.remove(token.serialNumber());
-            mTokens.remove(slotId);
-            Intent dict = (new Intent(TOKEN_WAS_REMOVED)).putExtra("serialNumber", token.serialNumber());
-            LocalBroadcastManager.getInstance(mContext).sendBroadcast(dict);
-        }
-    };
-    private void slotWillHaveToken(Intent intent) {
-        LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(TOKEN_WILL_BE_ADDED));
-    };
-    private void slotEventFailed(Intent intent) {
-        LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(TOKEN_ADDING_FAILED));
-    };
-    private void eventHandlerFailed() {
+    private void sendEventHandlerFailed() {
         LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(INTERNAL_ERROR));
     };
-
-    public boolean hasToken() {
-        return 0 != mTokens.size();
+    public synchronized Integer[] slots() {
+        Integer[] slots = new Integer[mTokens.keySet().size()];
+        return mTokens.keySet().toArray(slots);
     };
-    public synchronized String[] serialNumbers() {
-        ArrayList<String> serials = new ArrayList<String>();
-        for (Token t: mTokens.values()) {
-            serials.add(t.serialNumber());
-        }
-        String[] serialsArray = new String[serials.size()];
-        return serials.toArray(serialsArray);
-    };
-    public Token tokenForSerialNumber(String serialNumber) {
-        Integer slotId = mSerialSlotMap.get(serialNumber);
-        if (null == slotId) {
-            return null;
-        }
+    public Token tokenForSlot(int slotId) {
         return mTokens.get(slotId);
     }
 }
