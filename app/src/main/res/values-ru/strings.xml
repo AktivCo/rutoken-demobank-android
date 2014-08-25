@@ -5,4 +5,5 @@
     <string name="no_token">Пожалуйста подключите токен</string>
     <string name="pin_hint">Введите PIN-код</string>
     <string name="ok">OK</string>
+    <string name="pin_alert">Неправильный PIN, попробуйте ещё раз</string>
 </resources>

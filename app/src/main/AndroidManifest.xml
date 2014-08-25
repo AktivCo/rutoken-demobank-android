@@ -24,11 +24,17 @@
         </activity>
         <activity
             android:name=".LoginActivity"
-            android:label="@string/title_activity_login"
             android:parentActivityName=".MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="ru.rutoken.demobank.MainActivity" />
+        </activity>
+        <activity
+            android:name=".PaymentsActivity"
+            android:parentActivityName=".LoginActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="ru.rutoken.demobank.LoginActivity" />
         </activity>
     </application>
 

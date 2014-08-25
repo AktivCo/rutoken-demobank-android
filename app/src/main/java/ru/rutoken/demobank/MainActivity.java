@@ -21,7 +21,7 @@ import android.widget.TextView;
 
 public class MainActivity extends Activity {
     //GUI
-     private TextView infoTV;
+     private TextView mInfoTextView;
 
     //Vars
     private final BroadcastReceiver mBluetoothStateReciever = new BroadcastReceiver() {
@@ -35,10 +35,10 @@ public class MainActivity extends Activity {
 
                 switch(state) {
                     case BluetoothAdapter.STATE_OFF:
-                        infoTV.setText(R.string.turn_bt_on);
+                        mInfoTextView.setText(R.string.turn_bt_on);
                         break;
                     case BluetoothAdapter.STATE_ON:
-                        infoTV.setText(R.string.no_token);
+                        mInfoTextView.setText(R.string.no_token);
                         break;
                 }
             }
@@ -61,15 +61,15 @@ public class MainActivity extends Activity {
     }
 
     private void setupUI() {
-        infoTV = (TextView) findViewById(R.id.infoTV);
+        mInfoTextView = (TextView)findViewById(R.id.infoTV);
 
         if (!BluetoothAdapter.getDefaultAdapter().isEnabled()) {
-            infoTV.setText(R.string.turn_bt_on);
+            mInfoTextView.setText(R.string.turn_bt_on);
         } else {
-            infoTV.setText(R.string.no_token);
+            mInfoTextView.setText(R.string.no_token);
         }
 
-        infoTV.setOnClickListener(new View.OnClickListener() {
+        mInfoTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this, LoginActivity.class);
@@ -81,7 +81,7 @@ public class MainActivity extends Activity {
     }
 
     private void setupActionBar() {
-        LayoutInflater inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        LayoutInflater inflater = (LayoutInflater)this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View v = inflater.inflate(R.layout.actionbar_layout, null);
 
         ActionBar.LayoutParams params = new ActionBar.LayoutParams(

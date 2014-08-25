@@ -116,6 +116,3 @@ dependencies {
     }
     compile "com.android.support:support-v4:20.+"
 }
-dependencies {
-    compile 'com.android.support:appcompat-v7:19.+'
-}

@@ -18,7 +18,7 @@
         android:src="@drawable/bt_black" />
 
     <EditText
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/pinET"
         android:layout_centerVertical="true"
@@ -32,7 +32,17 @@
         android:layout_height="wrap_content"
         android:text="@string/ok"
         android:id="@+id/loginB"
+        android:textColor="@android:color/black"
+        android:layout_below="@+id/alertTV"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/alertTV"
         android:layout_below="@+id/pinET"
         android:layout_centerHorizontal="true"
-        android:textColor="@android:color/black" />
+        android:textColor="#ffff0000"
+        android:gravity="center" />
+
 </RelativeLayout>
