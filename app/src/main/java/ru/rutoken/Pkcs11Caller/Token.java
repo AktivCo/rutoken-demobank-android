@@ -1,14 +1,10 @@
 package ru.rutoken.Pkcs11Caller;
 
 import android.os.Parcel;
-import android.os.Parcelable;
-import android.support.v4.content.LocalBroadcastManager;
 
-import com.sun.jna.IntegerType;
 import com.sun.jna.NativeLong;
-import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.NativeLongByReference;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -80,7 +76,7 @@ public class Token extends Pkcs11Parcelable {
     private enum SmInitializedStatus {
         UNKNOWN, NEED_INITIALIZE, INITIALIZED
     }
-    private int mId;
+    private NativeLong mId;
 
     private String mLabel;
     private String mModel;
@@ -113,30 +109,30 @@ public class Token extends Pkcs11Parcelable {
     public UserChangePolicy userPinChangePolicy() { return mUserPinChangePolicy; }
     public boolean supportsSM() {return mSupportsSM;}
 
-    Token (int slotId) throws Pkcs11Exception {
+    Token (NativeLong slotId) throws Pkcs11Exception {
         mId = slotId;
         doInitTokenInfo();
 //        doInitCertificatesList();
     }
 
-    int[] doFindPkcs11Objects(int hSession, CK_ATTRIBUTE[] attributes) throws Pkcs11Exception  {
-        int rv;
+    NativeLong[] doFindPkcs11Objects(NativeLong hSession, CK_ATTRIBUTE[] attributes) throws Pkcs11Exception  {
+        NativeLong rv;
         final int ulMaxObjectsCount = 100;
-        IntByReference ulObjectCount = new IntByReference(ulMaxObjectsCount);
-        int[] hObjects = null;
-        int[] hTmpObjects = new int[ulMaxObjectsCount];
+        NativeLongByReference ulObjectCount = new NativeLongByReference(new NativeLong(ulMaxObjectsCount));
+        NativeLong[] hObjects = null;
+        NativeLong[] hTmpObjects = new NativeLong[ulMaxObjectsCount];
 
 
-        rv = RtPkcs11Library.getInstance().C_FindObjectsInit(hSession, attributes, attributes.length);
-        if (Pkcs11Constants.CKR_OK != rv) {
+        rv = RtPkcs11Library.getInstance().C_FindObjectsInit(hSession, attributes, new NativeLong(attributes.length));
+        if (!rv.equals(Pkcs11Constants.CKR_OK)) {
             throw Pkcs11Exception.exceptionWithCode(rv);
         }
         try {
-            rv = RtPkcs11Library.getInstance().C_FindObjects(hSession, hTmpObjects, ulMaxObjectsCount, ulObjectCount);
-            if (Pkcs11Constants.CKR_OK != rv) {
+            rv = RtPkcs11Library.getInstance().C_FindObjects(hSession, hTmpObjects, new NativeLong(ulMaxObjectsCount), ulObjectCount);
+            if (!rv.equals(Pkcs11Constants.CKR_OK)) {
                 throw Pkcs11Exception.exceptionWithCode(rv);
             }
-            hObjects = Arrays.copyOfRange(hTmpObjects, 0, ulObjectCount.getValue()-1);
+            hObjects = Arrays.copyOfRange(hTmpObjects, 0, ulObjectCount.getValue().intValue()-1);
         } finally {
             rv = RtPkcs11Library.getInstance().C_FindObjectsFinal(hSession);
         }
@@ -144,27 +140,27 @@ public class Token extends Pkcs11Parcelable {
     }
 
     void doInitCertificatesList() throws Pkcs11Exception {
-        IntByReference phSession = new IntByReference(0);
-        int[] hCertificates = null;
-        int rv = RtPkcs11Library.getInstance().C_OpenSession(mId,
-                Pkcs11Constants.CKF_SERIAL_SESSION | Pkcs11Constants.CKF_SERIAL_SESSION,
+        NativeLongByReference phSession = new NativeLongByReference(new NativeLong(0));
+        NativeLong[] hCertificates = null;
+        NativeLong rv = RtPkcs11Library.getInstance().C_OpenSession(mId,
+                new NativeLong(Pkcs11Constants.CKF_SERIAL_SESSION.intValue() | Pkcs11Constants.CKF_SERIAL_SESSION.intValue()),
                 null,
                 null,
                 phSession);
-        if (Pkcs11Constants.CKR_OK != rv) {
+        if (!rv.equals(Pkcs11Constants.CKR_OK)) {
             throw Pkcs11Exception.exceptionWithCode(rv);
         }
-        int hSession = phSession.getValue();
+        NativeLong hSession = phSession.getValue();
         try {
-            IntByReference ocCertClass = new IntByReference(Pkcs11Constants.CKO_CERTIFICATE);
+            NativeLongByReference ocCertClass = new NativeLongByReference(Pkcs11Constants.CKO_CERTIFICATE);
             CK_ATTRIBUTE[] certAttributes = new CK_ATTRIBUTE[1];
 
             certAttributes[0].type = Pkcs11Constants.CKA_CLASS;
             certAttributes[0].pValue = ocCertClass.getPointer();
-            certAttributes[0].ulValueLen = NativeLong.SIZE;
+            certAttributes[0].ulValueLen = new NativeLong(NativeLong.SIZE);
 
             hCertificates = doFindPkcs11Objects(hSession, certAttributes);
-            for (int hCertificate : hCertificates) {
+            for (NativeLong hCertificate : hCertificates) {
                 Certificate certificate = new Certificate(hSession, hCertificate);
                 mCertificateMap.put(certificate.id(), certificate);
             }
@@ -174,17 +170,17 @@ public class Token extends Pkcs11Parcelable {
     }
 
     void doInitTokenInfo() throws Pkcs11Exception {
-        int rv;
+        NativeLong rv;
         CK_TOKEN_INFO tokenInfo = new CK_TOKEN_INFO();
         CK_TOKEN_INFO_EXTENDED tokenInfoEx = new CK_TOKEN_INFO_EXTENDED();
-        tokenInfoEx.ulSizeofThisStructure = tokenInfoEx.size();
+        tokenInfoEx.ulSizeofThisStructure = new NativeLong(tokenInfoEx.size());
 
         rv = RtPkcs11Library.getInstance().C_GetTokenInfo(mId, tokenInfo);
-        if (Pkcs11Constants.CKR_OK != rv) {
+        if (!rv.equals(Pkcs11Constants.CKR_OK)) {
             throw Pkcs11Exception.exceptionWithCode(rv);
         }
         rv = RtPkcs11Library.getInstance().C_EX_GetTokenInfoExtended(mId, tokenInfoEx);
-        if (Pkcs11Constants.CKR_OK != rv) {
+        if (!rv.equals(Pkcs11Constants.CKR_OK)) {
             throw Pkcs11Exception.exceptionWithCode(rv);
         }
 
@@ -194,32 +190,28 @@ public class Token extends Pkcs11Parcelable {
         mHardwareVersion = String.format("%d.%d.%d.%d",
                 tokenInfo.hardwareVersion.major, tokenInfo.hardwareVersion.minor,
                 tokenInfo.firmwareVersion.major, tokenInfo.firmwareVersion.minor);
-        mTotalMemory = tokenInfo.ulTotalPublicMemory;
-        mFreeMemory = tokenInfo.ulFreePublicMemory;
-        mCharge = tokenInfoEx.ulBatteryVoltage;
-        mUserPinRetriesLeft = tokenInfoEx.ulUserRetryCountLeft;
-        mUserPinRetriesMax = tokenInfoEx.ulMaxUserRetryCount;
-        mAdminPinRetriesLeft = tokenInfoEx.ulAdminRetryCountLeft;
-        switch (tokenInfoEx.ulBodyColor) {
-            case RtPkcs11Constants.TOKEN_BODY_COLOR_WHITE:
-                mColor = BodyColor.WHITE;
-                break;
-            case RtPkcs11Constants.TOKEN_BODY_COLOR_BLACK:
+        mTotalMemory = tokenInfo.ulTotalPublicMemory.intValue();
+        mFreeMemory = tokenInfo.ulFreePublicMemory.intValue();
+        mCharge = tokenInfoEx.ulBatteryVoltage.intValue();
+        mUserPinRetriesLeft = tokenInfoEx.ulUserRetryCountLeft.intValue();
+        mUserPinRetriesMax = tokenInfoEx.ulMaxUserRetryCount.intValue();
+        mAdminPinRetriesLeft = tokenInfoEx.ulAdminRetryCountLeft.intValue();
+        if (tokenInfoEx.ulBodyColor.equals(RtPkcs11Constants.TOKEN_BODY_COLOR_WHITE)) {
+            mColor = BodyColor.WHITE;
+        } else if (tokenInfoEx.ulBodyColor.equals(RtPkcs11Constants.TOKEN_BODY_COLOR_BLACK)) {
                 mColor = BodyColor.BLACK;
-                break;
-            case RtPkcs11Constants.TOKEN_BODY_COLOR_UNKNOWN:
+        } else if (tokenInfoEx.ulBodyColor.equals(RtPkcs11Constants.TOKEN_BODY_COLOR_UNKNOWN)) {
                 mColor = BodyColor.UNKNOWN;
-                break;
         }
-        if(((tokenInfoEx.flags & RtPkcs11Constants.TOKEN_FLAGS_ADMIN_CHANGE_USER_PIN) != 0x00)
-                && ((tokenInfoEx.flags & RtPkcs11Constants.TOKEN_FLAGS_USER_CHANGE_USER_PIN) != 0x00)) {
+        if(((tokenInfoEx.flags.intValue() & RtPkcs11Constants.TOKEN_FLAGS_ADMIN_CHANGE_USER_PIN.intValue()) != 0x00)
+                && ((tokenInfoEx.flags.intValue() & RtPkcs11Constants.TOKEN_FLAGS_USER_CHANGE_USER_PIN.intValue()) != 0x00)) {
             mUserPinChangePolicy = UserChangePolicy.BOTH;
-        } else if (((tokenInfoEx.flags & RtPkcs11Constants.TOKEN_FLAGS_ADMIN_CHANGE_USER_PIN) != 0x00)) {
+        } else if (((tokenInfoEx.flags.intValue() & RtPkcs11Constants.TOKEN_FLAGS_ADMIN_CHANGE_USER_PIN.intValue()) != 0x00)) {
             mUserPinChangePolicy = UserChangePolicy.SO;
         } else {
             mUserPinChangePolicy = UserChangePolicy.USER;
         }
-        mSupportsSM = ((tokenInfoEx.flags & RtPkcs11Constants.TOKEN_FLAGS_SUPPORT_SM) != 0);
+        mSupportsSM = ((tokenInfoEx.flags.intValue() & RtPkcs11Constants.TOKEN_FLAGS_SUPPORT_SM.intValue()) != 0);
     }
 
     boolean doLoginUser(int hSession, String userPIN) throws Pkcs11Exception {

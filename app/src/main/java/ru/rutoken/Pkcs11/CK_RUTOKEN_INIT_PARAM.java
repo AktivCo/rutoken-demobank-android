@@ -4,6 +4,7 @@ package ru.rutoken.Pkcs11;
  * @author Aktiv Co. <hotline@rutoken.ru>
  */
 
+import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import java.util.Arrays;
@@ -17,19 +18,19 @@ public class CK_RUTOKEN_INIT_PARAM  extends Structure {
      * [in] - size of input structure
      * [out] - return size of filled structure
      */
-    public int      ulSizeofThisStructure;
+    public NativeLong ulSizeofThisStructure;
     /* if field equal 0 - format procedure requires authentication as administrator
      * if field not equal 0 - format procedure executes without authentication as administrator
      */
-    public int      UseRepairMode;
+    public NativeLong      UseRepairMode;
     /* pointer to byte array with new administrator PIN */
     public Pointer  pNewAdminPin;
     /* length of new administrator PIN: minimum bMinAdminPinLength bytes, maximum 32 bytes*/
-    public int      ulNewAdminPinLen;
+    public NativeLong      ulNewAdminPinLen;
     /* pointer to byte array with new user PIN*/
     public Pointer  pNewUserPin;
     /* length of new user PIN: minimum bMinUserPinLength bytes, maximum 32 bytes */
-    public int      ulNewUserPinLen;
+    public NativeLong      ulNewUserPinLen;
     /* policy of change user PIN */
     /* TOKEN_FLAGS_ADMIN_CHANGE_USER_PIN (0x1) - administrator can change user PIN
      * TOKEN_FLAGS_USER_CHANGE_USER_PIN (0x2) - user can change user PIN
@@ -37,33 +38,33 @@ public class CK_RUTOKEN_INIT_PARAM  extends Structure {
      * administrator  and user can change user PIN
      * In another cases - error
      */
-    public int      ChangeUserPINPolicy;
+    public NativeLong      ChangeUserPINPolicy;
     /* minimal size of administrator PIN
      *  minimum 6 byte, maximum 32 bytes
      */
-    public int      ulMinAdminPinLen;
+    public NativeLong      ulMinAdminPinLen;
     /* minimal size of user PIN
      * minimum 6 byte, maximum 32 bytes
      */
-    public int      ulMinUserPinLen;
+    public NativeLong      ulMinUserPinLen;
     /* minimum 3, maximum 10 */
-    public int      ulMaxAdminRetryCount;
+    public NativeLong      ulMaxAdminRetryCount;
     /* minimum 1, maximum 10 */
-    public int      ulMaxUserRetryCount;
+    public NativeLong      ulMaxUserRetryCount;
     /* pointer to byte array with new token symbol name,
      * if pTokenLabel == NULL - token symbol name will not set
      */
     public Pointer  pTokenLabel;
     /* length of new token symbol name */
-    public int      ulLabelLen;
+    public NativeLong      ulLabelLen;
 
     public CK_RUTOKEN_INIT_PARAM (){super();}
 
-    public CK_RUTOKEN_INIT_PARAM ( int ulSizeofThisStructure, int UseRepairMode, Pointer  pNewAdminPin,
-                                   int ulNewAdminPinLen, Pointer pNewUserPin, int ulNewUserPinLen,
-                                   int ChangeUserPINPolicy, int ulMinAdminPinLen, int ulMinUserPinLen,
-                                   int ulMaxAdminRetryCount, int ulMaxUserRetryCount, Pointer pTokenLabel,
-                                   int ulLabelLen) {
+    public CK_RUTOKEN_INIT_PARAM ( NativeLong ulSizeofThisStructure, NativeLong UseRepairMode, Pointer  pNewAdminPin,
+                                   NativeLong ulNewAdminPinLen, Pointer pNewUserPin, NativeLong ulNewUserPinLen,
+                                   NativeLong ChangeUserPINPolicy, NativeLong ulMinAdminPinLen, NativeLong ulMinUserPinLen,
+                                   NativeLong ulMaxAdminRetryCount, NativeLong ulMaxUserRetryCount, Pointer pTokenLabel,
+                                   NativeLong ulLabelLen) {
         this.ulSizeofThisStructure = ulSizeofThisStructure;
         this.UseRepairMode = UseRepairMode;
         this.pNewAdminPin = pNewAdminPin;

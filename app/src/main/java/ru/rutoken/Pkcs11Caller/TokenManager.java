@@ -7,9 +7,10 @@ import android.os.Looper;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.sun.jna.NativeLong;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,9 +20,9 @@ import java.util.Map;
  */
 public class TokenManager {
     private class TokenInfoLoader extends Thread {
-        int mSlotId;
+        NativeLong mSlotId;
         Handler mHandler = new Handler(Looper.getMainLooper());
-        TokenInfoLoader(int slotId) {
+        TokenInfoLoader(NativeLong slotId) {
             mSlotId = slotId;
         }
         public void run() {
@@ -56,8 +57,8 @@ public class TokenManager {
     private static TokenManager instance = null;
     private EventHandler mEventHandler;
     private Context mContext;
-    private Map<Integer, Token> mTokens = Collections.synchronizedMap(new HashMap<Integer, Token>());
-    private Map<Integer, AcceptableState> stateMachines = Collections.synchronizedMap(new HashMap<Integer, AcceptableState>());
+    private Map<NativeLong, Token> mTokens = Collections.synchronizedMap(new HashMap<NativeLong, Token>());
+    private Map<NativeLong, AcceptableState> stateMachines = Collections.synchronizedMap(new HashMap<NativeLong, AcceptableState>());
     private Map<AcceptableState, Method> mCurrentStateProcessors;
 
     public static final String ENUMERATION_FINISHED = TokenManager.class.getName()+".ENUMERATION_FINISHED";
@@ -71,19 +72,19 @@ public class TokenManager {
     private TokenManager() {
         Map<AcceptableState, Method> tmp = new HashMap<AcceptableState, Method>();
         try {
-            tmp.put(AcceptableState.R0W0SD, TokenManager.class.getDeclaredMethod("processCurrentStateR0W0SD", new Class[] {EventType.class, Integer.class, Token.class}));
-            tmp.put(AcceptableState.R0W1SD, TokenManager.class.getDeclaredMethod("processCurrentStateR0W1SD", new Class[] {EventType.class, Integer.class, Token.class}));
-            tmp.put(AcceptableState.R0W0SR, TokenManager.class.getDeclaredMethod("processCurrentStateR0W0SR", new Class[] {EventType.class, Integer.class, Token.class}));
-            tmp.put(AcceptableState.R1W0SR, TokenManager.class.getDeclaredMethod("processCurrentStateR1W0SR", new Class[] {EventType.class, Integer.class, Token.class}));
-            tmp.put(AcceptableState.R1W0TIL, TokenManager.class.getDeclaredMethod("processCurrentStateR1W0TIL", new Class[] {EventType.class, Integer.class, Token.class}));
-            tmp.put(AcceptableState.R1W0TIF, TokenManager.class.getDeclaredMethod("processCurrentStateR1W0TIF", new Class[] {EventType.class, Integer.class, Token.class}));
+            tmp.put(AcceptableState.R0W0SD, TokenManager.class.getDeclaredMethod("processCurrentStateR0W0SD", new Class[] {EventType.class, NativeLong.class, Token.class}));
+            tmp.put(AcceptableState.R0W1SD, TokenManager.class.getDeclaredMethod("processCurrentStateR0W1SD", new Class[] {EventType.class, NativeLong.class, Token.class}));
+            tmp.put(AcceptableState.R0W0SR, TokenManager.class.getDeclaredMethod("processCurrentStateR0W0SR", new Class[] {EventType.class, NativeLong.class, Token.class}));
+            tmp.put(AcceptableState.R1W0SR, TokenManager.class.getDeclaredMethod("processCurrentStateR1W0SR", new Class[] {EventType.class, NativeLong.class, Token.class}));
+            tmp.put(AcceptableState.R1W0TIL, TokenManager.class.getDeclaredMethod("processCurrentStateR1W0TIL", new Class[] {EventType.class, NativeLong.class, Token.class}));
+            tmp.put(AcceptableState.R1W0TIF, TokenManager.class.getDeclaredMethod("processCurrentStateR1W0TIF", new Class[] {EventType.class, NativeLong.class, Token.class}));
         } catch (NoSuchMethodException e) {
             Log.e(getClass().getName(), e.getMessage());
         }
         mCurrentStateProcessors = tmp;
     }
 
-    AcceptableState processCurrentStateR0W0SD(EventType event, Integer slotId, Token token) throws TokenManagerException {
+    AcceptableState processCurrentStateR0W0SD(EventType event, NativeLong slotId, Token token) throws TokenManagerException {
         AcceptableState newState;
         switch (event) {
             case SD:
@@ -102,7 +103,7 @@ public class TokenManager {
         }
         return newState;
     }
-    AcceptableState processCurrentStateR0W1SD(EventType event, Integer slotId, Token token) throws TokenManagerException {
+    AcceptableState processCurrentStateR0W1SD(EventType event, NativeLong slotId, Token token) throws TokenManagerException {
         AcceptableState newState;
         switch (event) {
             case SD:
@@ -125,7 +126,7 @@ public class TokenManager {
         }
         return newState;
     }
-    AcceptableState processCurrentStateR0W0SR(EventType event, Integer slotId, Token token) throws TokenManagerException {
+    AcceptableState processCurrentStateR0W0SR(EventType event, NativeLong slotId, Token token) throws TokenManagerException {
         AcceptableState newState;
         switch (event) {
             case SD:
@@ -145,7 +146,7 @@ public class TokenManager {
         }
         return newState;
     }
-    AcceptableState processCurrentStateR1W0SR(EventType event, Integer slotId, Token token) throws TokenManagerException {
+    AcceptableState processCurrentStateR1W0SR(EventType event, NativeLong slotId, Token token) throws TokenManagerException {
         AcceptableState newState;
         switch (event) {
             case SD:
@@ -162,7 +163,7 @@ public class TokenManager {
         }
         return newState;
     }
-    AcceptableState processCurrentStateR1W0TIL(EventType event, Integer slotId, Token token) throws TokenManagerException {
+    AcceptableState processCurrentStateR1W0TIL(EventType event, NativeLong slotId, Token token) throws TokenManagerException {
         AcceptableState newState;
         switch (event) {
             case SD:
@@ -183,7 +184,7 @@ public class TokenManager {
         }
         return newState;
     }
-    AcceptableState processCurrentStateR1W0TIF(EventType event, Integer slotId, Token token) throws TokenManagerException {
+    AcceptableState processCurrentStateR1W0TIF(EventType event, NativeLong slotId, Token token) throws TokenManagerException {
         AcceptableState newState;
         switch (event) {
             case SD:
@@ -203,7 +204,7 @@ public class TokenManager {
         return newState;
     }
 
-    public synchronized void processEvent(EventType event, int slotId, Token token) {
+    public synchronized void processEvent(EventType event, NativeLong slotId, Token token) {
         if(event == EventType.EVENT_HANDLER_FAILED) {
             sendEventHandlerFailed();
             return;
@@ -266,7 +267,7 @@ public class TokenManager {
             Log.e(getClass().getName(), "Interrupted exception");
         }
 
-        for (Integer slotId: mTokens.keySet()) {
+        for (NativeLong slotId: mTokens.keySet()) {
             sendTR(slotId);
         }
         mTokens.clear();
@@ -274,19 +275,19 @@ public class TokenManager {
         mContext = null;
     }
 
-    private void sendTWBA(int slotId) {
+    private void sendTWBA(NativeLong slotId) {
         sendIntentWithSlotId(TOKEN_WILL_BE_ADDED, slotId);
     };
-    private void sendTAF(int slotId) {
+    private void sendTAF(NativeLong slotId) {
         sendIntentWithSlotId(TOKEN_ADDING_FAILED, slotId);
     };
-    private void sendTA(int slotId) {
+    private void sendTA(NativeLong slotId) {
         sendIntentWithSlotId(TOKEN_WAS_ADDED, slotId);
     };
-    private void sendTR(int slotId) {
+    private void sendTR(NativeLong slotId) {
         sendIntentWithSlotId(TOKEN_WAS_REMOVED, slotId);
     };
-    private void sendIntentWithSlotId(String intentType, int slotId) {
+    private void sendIntentWithSlotId(String intentType, NativeLong slotId) {
         Intent intent = new Intent(intentType);
         intent.putExtra("slotId", slotId);
         LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
@@ -297,11 +298,11 @@ public class TokenManager {
     private void sendEventHandlerFailed() {
         LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(INTERNAL_ERROR));
     };
-    public synchronized Integer[] slots() {
-        Integer[] slots = new Integer[mTokens.keySet().size()];
+    public synchronized NativeLong[] slots() {
+        NativeLong[] slots = new NativeLong[mTokens.keySet().size()];
         return mTokens.keySet().toArray(slots);
     };
-    public Token tokenForSlot(int slotId) {
+    public Token tokenForSlot(NativeLong slotId) {
         return mTokens.get(slotId);
     }
 }

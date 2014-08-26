@@ -52,6 +52,7 @@ package ru.rutoken.Pkcs11;
  * @author Aktiv Co. <hotline@rutoken.ru>
  */
 
+import com.sun.jna.NativeLong;
 import com.sun.jna.Structure;
 import com.sun.jna.Pointer;
 
@@ -61,19 +62,19 @@ import java.util.List;
 public class CK_ATTRIBUTE extends Structure {
     public CK_ATTRIBUTE() {super();}
 
-    public CK_ATTRIBUTE(int type, Pointer pVal, int ulValLen) {
+    public CK_ATTRIBUTE(NativeLong type, Pointer pVal, NativeLong ulValLen) {
         this.type = type;
         this.pValue = pVal;
         this.ulValueLen = ulValLen;
 
     }
 
-    public int type;
+    public NativeLong type;
 
     public Pointer pValue;
 
     /* ulValueLen went from CK_USHORT to CK_ULONG for v2.0 */
-    public int          ulValueLen;  /* in bytes */
+    public NativeLong          ulValueLen;  /* in bytes */
 
     protected List<String> getFieldOrder() {
         return Arrays.asList(new String[]{"type"

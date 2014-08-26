@@ -53,6 +53,7 @@ package ru.rutoken.Pkcs11;
  * @author Aktiv Co. <hotline@rutoken.ru>
  */
 
+import com.sun.jna.NativeLong;
 import com.sun.jna.Structure;
 
 import java.util.Arrays;
@@ -64,7 +65,7 @@ public class CK_INFO extends Structure {
 
     public byte[] manufacturerID = new byte[32];
 
-    public int flags;
+    public NativeLong flags;
 
 
 /* libraryDescription and libraryVersion are new for v2.0 */
@@ -75,7 +76,7 @@ public class CK_INFO extends Structure {
 
     public CK_INFO() {super();}
 
-    public CK_INFO(CK_VERSION cryptoVer, byte[] vendor, int flags,
+    public CK_INFO(CK_VERSION cryptoVer, byte[] vendor, NativeLong flags,
                    byte[] libDesc, CK_VERSION libVer) {
         this.cryptokiVersion = cryptoVer;
         this.manufacturerID = vendor;

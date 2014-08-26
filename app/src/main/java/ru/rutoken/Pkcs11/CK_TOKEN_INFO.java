@@ -53,6 +53,7 @@ package ru.rutoken.Pkcs11;
  * @author Aktiv Co. <hotline@rutoken.ru>
  */
 
+import com.sun.jna.NativeLong;
 import com.sun.jna.Structure;
 
 import java.util.Arrays;
@@ -70,30 +71,30 @@ public class CK_TOKEN_INFO extends Structure {
 
     public byte[] serialNumber = new byte[16];    /* blank padded */
 
-    public int flags;               /* see below */
+    public NativeLong flags;               /* see below */
 
     /* ulMaxSessionCount, ulSessionCount, ulMaxRwSessionCount,
      * ulRwSessionCount, ulMaxPinLen, and ulMinPinLen have all been
      * changed from CK_USHORT to CK_ULONG for v2.0 */
-    public int ulMaxSessionCount;     /* max open sessions */
+    public NativeLong ulMaxSessionCount;     /* max open sessions */
 
-    public int ulSessionCount;        /* sess. now open */
+    public NativeLong ulSessionCount;        /* sess. now open */
 
-    public int ulMaxRwSessionCount;   /* max R/W sessions */
+    public NativeLong ulMaxRwSessionCount;   /* max R/W sessions */
 
-    public int ulRwSessionCount;      /* R/W sess. now open */
+    public NativeLong ulRwSessionCount;      /* R/W sess. now open */
 
-    public int ulMaxPinLen;           /* in bytes */
+    public NativeLong ulMaxPinLen;           /* in bytes */
 
-    public int ulMinPinLen;           /* in bytes */
+    public NativeLong ulMinPinLen;           /* in bytes */
 
-    public int ulTotalPublicMemory;   /* in bytes */
+    public NativeLong ulTotalPublicMemory;   /* in bytes */
 
-    public int ulFreePublicMemory;    /* in bytes */
+    public NativeLong ulFreePublicMemory;    /* in bytes */
 
-    public int ulTotalPrivateMemory;  /* in bytes */
+    public NativeLong ulTotalPrivateMemory;  /* in bytes */
 
-    public int ulFreePrivateMemory;   /* in bytes */
+    public NativeLong ulFreePrivateMemory;   /* in bytes */
 
     /* hardwareVersion, firmwareVersion, and time are new for
      * v2.0 */
@@ -106,12 +107,12 @@ public class CK_TOKEN_INFO extends Structure {
     public CK_TOKEN_INFO(){super();}
 
     public CK_TOKEN_INFO(byte[] label, byte[] vendor, byte[] model,
-                         byte[] serialNo, int flags,
-                         int sessionMax, int session,
-                         int rwSessionMax, int rwSession,
-                         int pinLenMax, int pinLenMin,
-                         int totalPubMem, int freePubMem,
-                         int totalPrivMem, int freePrivMem,
+                         byte[] serialNo, NativeLong flags,
+                         NativeLong sessionMax, NativeLong session,
+                         NativeLong rwSessionMax, NativeLong rwSession,
+                         NativeLong pinLenMax, NativeLong pinLenMin,
+                         NativeLong totalPubMem, NativeLong freePubMem,
+                         NativeLong totalPrivMem, NativeLong freePrivMem,
                          CK_VERSION hwVer, CK_VERSION fwVer, byte[] utcTime) {
         this.label = label;
         this.manufacturerID = vendor;

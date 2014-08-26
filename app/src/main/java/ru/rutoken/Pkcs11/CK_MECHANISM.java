@@ -52,6 +52,7 @@ package ru.rutoken.Pkcs11;
  * @author Aktiv Co. <hotline@rutoken.ru>
  */
 
+import com.sun.jna.NativeLong;
 import com.sun.jna.Structure;
 import com.sun.jna.Pointer;
 
@@ -60,19 +61,19 @@ import java.util.List;
 
 public class CK_MECHANISM extends Structure {
 
-    public int mechanism;
+    public NativeLong mechanism;
 
     public Pointer pParameter;
 
     /* ulParameterLen was changed from CK_USHORT to CK_ULONG for
        * v2.0 */
-    public int ulParameterLen;
+    public NativeLong ulParameterLen;
 
     public CK_MECHANISM() {
         super();
     }
 
-    public CK_MECHANISM(int mech, Pointer pParam, int ulParamLen) {
+    public CK_MECHANISM(NativeLong mech, Pointer pParam, NativeLong ulParamLen) {
         mechanism = mech;
         pParameter = pParam;
         ulParameterLen = ulParamLen;

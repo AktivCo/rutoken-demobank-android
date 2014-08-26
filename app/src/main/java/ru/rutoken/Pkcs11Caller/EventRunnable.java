@@ -1,17 +1,19 @@
 package ru.rutoken.Pkcs11Caller;
 
+import com.sun.jna.NativeLong;
+
 /**
  * Created by mironenko on 21.08.2014.
  */
 public class EventRunnable implements Runnable {
     EventType mEvent;
-    int mSlotId;
+    NativeLong mSlotId;
     Token mToken = null;
-    EventRunnable(EventType event, int slotId) {
+    EventRunnable(EventType event, NativeLong slotId) {
         mEvent = event;
         mSlotId = slotId;
     }
-    EventRunnable(EventType event, int slotId, Token token) {
+    EventRunnable(EventType event, NativeLong slotId, Token token) {
         this(event, slotId);
         mToken = token;
     }
