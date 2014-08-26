@@ -1,41 +1,35 @@
 package ru.rutoken.Pkcs11Caller;
 
+import com.sun.jna.NativeLong;
+
 import ru.rutoken.Pkcs11.Pkcs11Constants;
 
 /**
  * Created by mironenko on 07.08.2014.
  */
 public class Pkcs11Exception extends Exception {
-    private int code;
+    private NativeLong code;
 
-    private Pkcs11Exception(int code) {
+    private Pkcs11Exception(NativeLong code) {
         super(getLocalizedDescription(code));
     }
 
-    private static String getLocalizedDescription(int code) {
-        switch (code) {
-            case Pkcs11Constants.CKR_PIN_INCORRECT:
-                return "PIN incorrect";
-            case Pkcs11Constants.CKR_PIN_INVALID:
-                return "PIN invalid";
-            case Pkcs11Constants.CKR_PIN_LEN_RANGE:
-                return "Wrong PIN length";
-            case Pkcs11Constants.CKR_PIN_LOCKED:
-                return "PIN locked";
-            case Pkcs11Constants.CKR_USER_PIN_NOT_INITIALIZED:
-                return "PIN not initialized";
-            default:
-                return String.format("Unknown PKCS11 error %08x", code);
-        }
+    private static String getLocalizedDescription(NativeLong code) {
+        if (code.equals(Pkcs11Constants.CKR_PIN_INCORRECT)) return "PIN incorrect";
+        else if (code.equals(Pkcs11Constants.CKR_PIN_INVALID)) return "PIN invalid";
+        else if (code.equals(Pkcs11Constants.CKR_PIN_LEN_RANGE)) return "Wrong PIN length";
+        else if (code.equals(Pkcs11Constants.CKR_PIN_LOCKED)) return "PIN locked";
+        else if (code.equals(Pkcs11Constants.CKR_USER_PIN_NOT_INITIALIZED)) return "PIN not initialized";
+        else return String.format("Unknown PKCS11 error %08x", code.intValue());
     }
 
-    public int getErrorCode() {return code;}
+    public NativeLong getErrorCode() {return code;}
 
     public String localizedDescription() {
         return getLocalizedDescription(code);
     }
 
-    public static Pkcs11Exception exceptionWithCode(int code) {
+    public static Pkcs11Exception exceptionWithCode(NativeLong code) {
         return new Pkcs11Exception(code);
     }
 }

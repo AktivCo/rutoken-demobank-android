@@ -1,13 +1,10 @@
 package ru.rutoken.Pkcs11Caller;
 
 import android.os.Parcel;
-import android.os.Parcelable;
 
 import com.sun.jna.Memory;
 import com.sun.jna.NativeLong;
-import com.sun.jna.ptr.IntByReference;
-
-import java.util.Arrays;
+import com.sun.jna.ptr.NativeLongByReference;
 
 import javax.security.auth.x500.X500Principal;
 
@@ -26,34 +23,34 @@ public class Certificate extends Pkcs11Parcelable {
         mSubject = parcel.readString();
     }
 
-    Certificate(int hSession, int hObject) throws Pkcs11Exception {
-        int rv;
+    Certificate(NativeLong hSession, NativeLong hObject) throws Pkcs11Exception {
+        NativeLong rv;
         final int ulMaxObjectsCount = 100;
-        IntByReference ulObjectCount = new IntByReference(ulMaxObjectsCount);
+        NativeLongByReference ulObjectCount = new NativeLongByReference(new NativeLong(ulMaxObjectsCount));
         int[] hObjects = null;
         int[] hTmpObjects = new int[ulMaxObjectsCount];
         CK_ATTRIBUTE[] certAttributes = new CK_ATTRIBUTE[2];
 
         certAttributes[0].type = Pkcs11Constants.CKA_ID;
         certAttributes[0].pValue = null;
-        certAttributes[0].ulValueLen = 0;
+        certAttributes[0].ulValueLen = new NativeLong(0);
 
         certAttributes[1].type = Pkcs11Constants.CKA_SUBJECT;
         certAttributes[1].pValue = null;
-        certAttributes[1].ulValueLen = 0;
+        certAttributes[1].ulValueLen = new NativeLong(0);
 
-        rv = RtPkcs11Library.getInstance().C_GetAttributeValue(hSession, hObject, certAttributes, certAttributes.length);
+        rv = RtPkcs11Library.getInstance().C_GetAttributeValue(hSession, hObject, certAttributes, new NativeLong(certAttributes.length));
         if (Pkcs11Constants.CKR_OK != rv) {
             throw Pkcs11Exception.exceptionWithCode(rv);
         }
         for (int i = 0; i < certAttributes.length; ++i)
-            certAttributes[i].pValue = new Memory(certAttributes[i].ulValueLen);
-        rv = RtPkcs11Library.getInstance().C_GetAttributeValue(hSession, hObject, certAttributes, certAttributes.length);
+            certAttributes[i].pValue = new Memory(certAttributes[i].ulValueLen.intValue());
+        rv = RtPkcs11Library.getInstance().C_GetAttributeValue(hSession, hObject, certAttributes, new NativeLong(certAttributes.length));
         if (Pkcs11Constants.CKR_OK != rv) {
             throw Pkcs11Exception.exceptionWithCode(rv);
         }
-        byte id[] = certAttributes[0].pValue.getByteArray(0, certAttributes[0].ulValueLen);
-        byte subjectDER[] = certAttributes[1].pValue.getByteArray(0, certAttributes[1].ulValueLen);
+        byte id[] = certAttributes[0].pValue.getByteArray(0, certAttributes[0].ulValueLen.intValue());
+        byte subjectDER[] = certAttributes[1].pValue.getByteArray(0, certAttributes[1].ulValueLen.intValue());
 
         mId = new String();
         for (int i = 0; i < id.length; ++i) {
