@@ -53,6 +53,7 @@ package ru.rutoken.Pkcs11;
  * @author Aktiv Co. <hotline@rutoken.ru>
  */
 
+import com.sun.jna.NativeLong;
 import com.sun.jna.Structure;
 
 import java.util.Arrays;
@@ -67,7 +68,7 @@ public class CK_SLOT_INFO extends Structure {
 
     public byte[] manufacturerID = new byte[32];
 
-    public long flags;
+    public NativeLong flags;
 
     public CK_VERSION hardwareVersion;
 
@@ -76,7 +77,7 @@ public class CK_SLOT_INFO extends Structure {
     public CK_SLOT_INFO() {super();}
 
     public CK_SLOT_INFO(byte[] slotDesc, byte[] vendor,
-                        long flags, CK_VERSION hwVer, CK_VERSION fwVer) {
+                        NativeLong flags, CK_VERSION hwVer, CK_VERSION fwVer) {
         this.slotDescription = slotDesc;
         this.manufacturerID = vendor;
         this.flags = flags;

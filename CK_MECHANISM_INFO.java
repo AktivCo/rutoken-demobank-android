@@ -52,6 +52,7 @@ package ru.rutoken.Pkcs11;
  * @author Aktiv Co. <hotline@rutoken.ru>
  */
 
+import com.sun.jna.NativeLong;
 import com.sun.jna.Structure;
 
 import java.util.Arrays;
@@ -59,16 +60,16 @@ import java.util.List;
 
 public class CK_MECHANISM_INFO extends Structure {
 
-    public int ulMinKeySize;
+    public NativeLong ulMinKeySize;
 
-    public int ulMaxKeySize;
+    public NativeLong ulMaxKeySize;
 
-    public int flags;
+    public NativeLong flags;
 
     public CK_MECHANISM_INFO() {super();}
 
-    public CK_MECHANISM_INFO(int minKeySize, int maxKeySize,
-                             int flags) {
+    public CK_MECHANISM_INFO(NativeLong minKeySize, NativeLong maxKeySize,
+                             NativeLong flags) {
         this.ulMinKeySize = minKeySize;
         this.ulMaxKeySize = maxKeySize;
         this.flags = flags;
