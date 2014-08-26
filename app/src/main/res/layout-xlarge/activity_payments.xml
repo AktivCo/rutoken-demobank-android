@@ -66,5 +66,8 @@
         android:layout_height="fill_parent"
         android:layout_below="@+id/imageView"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"></LinearLayout>
+        android:layout_alignParentStart="true"
+        android:divider="@drawable/info_header_divider"
+        android:showDividers="beginning|middle|end"
+        android:id="@+id/paymentsLayout"></LinearLayout>
 </RelativeLayout>

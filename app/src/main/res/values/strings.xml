@@ -7,4 +7,5 @@
     <string name="pin_hint">Input PIN</string>
     <string name="ok">OK</string>
     <string name="pin_alert">PIN incorrect, try again</string>
+    <string name="number">№ </string>
 </resources>
