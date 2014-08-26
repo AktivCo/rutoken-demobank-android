@@ -13,6 +13,7 @@ import java.util.Map;
 
 import ru.rutoken.Pkcs11.CK_SLOT_INFO;
 import ru.rutoken.Pkcs11.Pkcs11Constants;
+import ru.rutoken.Pkcs11Caller.exception.Pkcs11Exception;
 
 /**
  * Created by mironenko on 07.08.2014.

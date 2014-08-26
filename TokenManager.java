@@ -15,6 +15,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import ru.rutoken.Pkcs11Caller.exception.Pkcs11CallerException;
+
 /**
  * Created by mironenko on 07.08.2014.
  */
@@ -30,7 +32,7 @@ public class TokenManager {
             Token token = null;
             try {
                 token = new Token(mSlotId);
-            } catch (Pkcs11Exception e) {
+            } catch (Pkcs11CallerException e) {
                 Log.e(getClass().getName(), e.getMessage());
                 event = EventType.TIF;
             }

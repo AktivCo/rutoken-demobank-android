@@ -1,4 +1,4 @@
-package ru.rutoken.Pkcs11Caller;
+package ru.rutoken.Pkcs11Caller.exception;
 
 import com.sun.jna.NativeLong;
 
@@ -7,7 +7,7 @@ import ru.rutoken.Pkcs11.Pkcs11Constants;
 /**
  * Created by mironenko on 07.08.2014.
  */
-public class Pkcs11Exception extends Exception {
+public class Pkcs11Exception extends Pkcs11CallerException {
     private NativeLong code;
 
     private Pkcs11Exception(NativeLong code) {

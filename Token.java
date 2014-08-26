@@ -1,71 +1,22 @@
 package ru.rutoken.Pkcs11Caller;
 
-import android.os.Parcel;
-
+import com.sun.jna.Native;
 import com.sun.jna.NativeLong;
 import com.sun.jna.ptr.NativeLongByReference;
 
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Map;
+import java.util.Set;
 
 import ru.rutoken.Pkcs11.*;
+import ru.rutoken.Pkcs11Caller.exception.CertNotFoundException;
+import ru.rutoken.Pkcs11Caller.exception.KeyNotFoundException;
+import ru.rutoken.Pkcs11Caller.exception.Pkcs11CallerException;
+import ru.rutoken.Pkcs11Caller.exception.Pkcs11Exception;
 
-/**
- * Created by mironenko on 11.08.2014.
- */
-public class Token extends Pkcs11Parcelable {
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeString(mLabel);
-        parcel.writeString(mModel);
-        parcel.writeString(mSerialNumber);
-        parcel.writeString(mHardwareVersion);
-        parcel.writeInt(mTotalMemory);
-        parcel.writeInt(mFreeMemory);
-        parcel.writeInt(mCharge);
-        parcel.writeInt(mUserPinRetriesLeft);
-        parcel.writeInt(mUserPinRetriesMax);
-        parcel.writeInt(mAdminPinRetriesLeft);
-        parcel.writeSerializable(mColor);
-        parcel.writeSerializable(mUserPinChangePolicy);
-        parcel.writeValue(mSupportsSM);
-        parcel.writeSerializable(mSmInitializedStatus);
-        parcel.writeInt(mCertificateMap.size());
-        for (String id: mCertificateMap.keySet()) {
-            parcel.writeString(id);
-            parcel.writeParcelable(mCertificateMap.get(id), 0);
-        }
-    }
-
-    Token(Parcel parcel) {
-        mLabel = parcel.readString();
-        mModel = parcel.readString();
-        mSerialNumber = parcel.readString();
-        mHardwareVersion = parcel.readString();
-        mTotalMemory = parcel.readInt();
-        mFreeMemory = parcel.readInt();
-        mCharge = parcel.readInt();
-        mUserPinRetriesLeft = parcel.readInt();
-        mUserPinRetriesMax = parcel.readInt();
-        mAdminPinRetriesLeft = parcel.readInt();
-        mColor = (BodyColor) parcel.readSerializable();
-        mUserPinChangePolicy = (UserChangePolicy) parcel.readSerializable();
-        mSupportsSM = (Boolean) parcel.readValue(boolean.class.getClassLoader());
-        mSmInitializedStatus = (SmInitializedStatus) parcel.readSerializable();
-        int mapSize = parcel.readInt();
-        for (int i = 0; i < mapSize; ++i) {
-            String id = parcel.readString();
-            Certificate cert = (Certificate) parcel.readParcelable(Certificate.class.getClassLoader());
-            mCertificateMap.put(id,cert);
-        }
-    }
-
+public class Token {
     public enum UserChangePolicy {
         USER, SO, BOTH
     }
@@ -78,6 +29,8 @@ public class Token extends Pkcs11Parcelable {
     }
     private NativeLong mId;
 
+    private NativeLong mSession;
+
     private String mLabel;
     private String mModel;
     private String mSerialNumber;
@@ -86,96 +39,101 @@ public class Token extends Pkcs11Parcelable {
     private int mFreeMemory;
     private int mCharge;
     private int mUserPinRetriesLeft;
-    private int mUserPinRetriesMax;
     private int mAdminPinRetriesLeft;
     private BodyColor mColor;
     private UserChangePolicy mUserPinChangePolicy;
     private boolean mSupportsSM;
     private SmInitializedStatus mSmInitializedStatus = SmInitializedStatus.UNKNOWN;
-    private Map<String, Certificate> mCertificateMap = new HashMap<String, Certificate>();
+    private HashMap<NativeLong, Certificate> mCertificateMap = new HashMap<NativeLong, Certificate>();
 
-    private String mCachedPIN = null;
-
-    public String label() { return mLabel; }
-    public String model() { return mModel; }
-    public String serialNumber() { return mSerialNumber; }
-    public String hardwareVersion() { return mHardwareVersion; }
-    public int totalMemory() { return mTotalMemory; }
-    public int freeMemory() { return mFreeMemory; }
-    public int charge() { return mCharge; }
-    public int userPinRetriesLeft() { return mUserPinRetriesLeft; }
-    public int adminPinRetriesLeft() { return mAdminPinRetriesLeft; }
-    public BodyColor color() { return mColor; }
-    public UserChangePolicy userPinChangePolicy() { return mUserPinChangePolicy; }
+    public String getLabel() { return mLabel; }
+    public String getModel() { return mModel; }
+    public String getSerialNumber() { return mSerialNumber; }
+    public String getHardwareVersion() { return mHardwareVersion; }
+    public int getTotalMemory() { return mTotalMemory; }
+    public int getFreeMemory() { return mFreeMemory; }
+    public int getCharge() { return mCharge; }
+    public int getUserPinRetriesLeft() { return mUserPinRetriesLeft; }
+    public int getAdminPinRetriesLeft() { return mAdminPinRetriesLeft; }
+    public BodyColor getColor() { return mColor; }
+    public UserChangePolicy getUserPinChangePolicy() { return mUserPinChangePolicy; }
     public boolean supportsSM() {return mSupportsSM;}
 
-    Token (NativeLong slotId) throws Pkcs11Exception {
-        mId = slotId;
-        doInitTokenInfo();
-//        doInitCertificatesList();
-    }
+    //TODO: remove public
+    public Token(NativeLong slotId) throws Pkcs11CallerException {
+        RtPkcs11 pkcs11 = RtPkcs11Library.getInstance();
+        synchronized (pkcs11) {
+            mId = slotId;
+            initTokenInfo();
 
-    NativeLong[] doFindPkcs11Objects(NativeLong hSession, CK_ATTRIBUTE[] attributes) throws Pkcs11Exception  {
-        NativeLong rv;
-        final int ulMaxObjectsCount = 100;
-        NativeLongByReference ulObjectCount = new NativeLongByReference(new NativeLong(ulMaxObjectsCount));
-        NativeLong[] hObjects = null;
-        NativeLong[] hTmpObjects = new NativeLong[ulMaxObjectsCount];
+            NativeLongByReference session = new NativeLongByReference();
+            NativeLong rv = RtPkcs11Library.getInstance().C_OpenSession(mId,
+                    Pkcs11Constants.CKF_SERIAL_SESSION, null, null, session);
+            if (!rv.equals(Pkcs11Constants.CKR_OK)) throw Pkcs11Exception.exceptionWithCode(rv);
+            mSession = session.getValue();
 
-
-        rv = RtPkcs11Library.getInstance().C_FindObjectsInit(hSession, attributes, new NativeLong(attributes.length));
-        if (!rv.equals(Pkcs11Constants.CKR_OK)) {
-            throw Pkcs11Exception.exceptionWithCode(rv);
-        }
-        try {
-            rv = RtPkcs11Library.getInstance().C_FindObjects(hSession, hTmpObjects, new NativeLong(ulMaxObjectsCount), ulObjectCount);
-            if (!rv.equals(Pkcs11Constants.CKR_OK)) {
-                throw Pkcs11Exception.exceptionWithCode(rv);
+            try {
+                initCertificatesList(pkcs11);
+            } catch (Pkcs11CallerException exception) {
+                try {
+                    close();
+                } catch (Pkcs11CallerException exception2) {
+                }
+                throw exception;
             }
-            hObjects = Arrays.copyOfRange(hTmpObjects, 0, ulObjectCount.getValue().intValue()-1);
-        } finally {
-            rv = RtPkcs11Library.getInstance().C_FindObjectsFinal(hSession);
-        }
-        return hObjects;
-    }
-
-    void doInitCertificatesList() throws Pkcs11Exception {
-        NativeLongByReference phSession = new NativeLongByReference(new NativeLong(0));
-        NativeLong[] hCertificates = null;
-        NativeLong rv = RtPkcs11Library.getInstance().C_OpenSession(mId,
-                new NativeLong(Pkcs11Constants.CKF_SERIAL_SESSION.intValue() | Pkcs11Constants.CKF_SERIAL_SESSION.intValue()),
-                null,
-                null,
-                phSession);
-        if (!rv.equals(Pkcs11Constants.CKR_OK)) {
-            throw Pkcs11Exception.exceptionWithCode(rv);
-        }
-        NativeLong hSession = phSession.getValue();
-        try {
-            NativeLongByReference ocCertClass = new NativeLongByReference(Pkcs11Constants.CKO_CERTIFICATE);
-            CK_ATTRIBUTE[] certAttributes = new CK_ATTRIBUTE[1];
-
-            certAttributes[0].type = Pkcs11Constants.CKA_CLASS;
-            certAttributes[0].pValue = ocCertClass.getPointer();
-            certAttributes[0].ulValueLen = new NativeLong(NativeLong.SIZE);
-
-            hCertificates = doFindPkcs11Objects(hSession, certAttributes);
-            for (NativeLong hCertificate : hCertificates) {
-                Certificate certificate = new Certificate(hSession, hCertificate);
-                mCertificateMap.put(certificate.id(), certificate);
-            }
-        } finally {
-            RtPkcs11Library.getInstance().C_CloseSession(hSession);
         }
     }
 
-    void doInitTokenInfo() throws Pkcs11Exception {
-        NativeLong rv;
+    void close() throws Pkcs11Exception {
+        synchronized (RtPkcs11Library.getInstance()) {
+            NativeLong rv = RtPkcs11Library.getInstance().C_CloseSession(mSession);
+            if (!rv.equals(Pkcs11Constants.CKR_OK)) throw Pkcs11Exception.exceptionWithCode(rv);
+        }
+    }
+
+    private void initCertificatesList(RtPkcs11 pkcs11) throws Pkcs11CallerException {
+        CK_ATTRIBUTE[] template = (CK_ATTRIBUTE[])(new CK_ATTRIBUTE()).toArray(2);
+
+        NativeLongByReference certClass =
+                new NativeLongByReference(Pkcs11Constants.CKO_CERTIFICATE);
+        template[0].type = Pkcs11Constants.CKA_CLASS;
+        template[0].pValue = certClass.getPointer();
+        template[0].ulValueLen = new NativeLong(NativeLong.SIZE);
+
+        // token user category
+        NativeLongByReference certCategory = new NativeLongByReference(new NativeLong(1));
+        template[1].type = Pkcs11Constants.CKA_CERTIFICATE_CATEGORY;
+        template[1].pValue = certCategory.getPointer();
+        template[1].ulValueLen = new NativeLong(NativeLong.SIZE);
+
+        NativeLong rv =
+                pkcs11.C_FindObjectsInit(mSession, template, new NativeLong(template.length));
+        if (!rv.equals(Pkcs11Constants.CKR_OK)) throw Pkcs11Exception.exceptionWithCode(rv);
+
+        NativeLong[] objects = new NativeLong[30];
+        NativeLongByReference count = new NativeLongByReference(new NativeLong(objects.length));
+        ArrayList<NativeLong> certs = new ArrayList<NativeLong>();
+        do {
+            rv = pkcs11.C_FindObjects(mSession, objects, new NativeLong(objects.length), count);
+            if (!rv.equals(Pkcs11Constants.CKR_OK)) break;
+            certs.addAll(Arrays.asList(objects).subList(0, count.getValue().intValue()));
+        } while (count.getValue().intValue() == objects.length);
+
+        NativeLong rv2 = pkcs11.C_FindObjectsFinal(mSession);
+        if (!rv.equals(Pkcs11Constants.CKR_OK)) throw Pkcs11Exception.exceptionWithCode(rv);
+        else if (!rv2.equals(Pkcs11Constants.CKR_OK)) throw Pkcs11Exception.exceptionWithCode(rv2);
+
+        for (NativeLong c: certs) {
+            mCertificateMap.put(c, new Certificate(pkcs11, mSession, c));
+        }
+    }
+
+    private void initTokenInfo() throws Pkcs11CallerException {
         CK_TOKEN_INFO tokenInfo = new CK_TOKEN_INFO();
         CK_TOKEN_INFO_EXTENDED tokenInfoEx = new CK_TOKEN_INFO_EXTENDED();
         tokenInfoEx.ulSizeofThisStructure = new NativeLong(tokenInfoEx.size());
 
-        rv = RtPkcs11Library.getInstance().C_GetTokenInfo(mId, tokenInfo);
+        NativeLong rv = RtPkcs11Library.getInstance().C_GetTokenInfo(mId, tokenInfo);
         if (!rv.equals(Pkcs11Constants.CKR_OK)) {
             throw Pkcs11Exception.exceptionWithCode(rv);
         }
@@ -194,7 +152,6 @@ public class Token extends Pkcs11Parcelable {
         mFreeMemory = tokenInfo.ulFreePublicMemory.intValue();
         mCharge = tokenInfoEx.ulBatteryVoltage.intValue();
         mUserPinRetriesLeft = tokenInfoEx.ulUserRetryCountLeft.intValue();
-        mUserPinRetriesMax = tokenInfoEx.ulMaxUserRetryCount.intValue();
         mAdminPinRetriesLeft = tokenInfoEx.ulAdminRetryCountLeft.intValue();
         if (tokenInfoEx.ulBodyColor.equals(RtPkcs11Constants.TOKEN_BODY_COLOR_WHITE)) {
             mColor = BodyColor.WHITE;
@@ -203,7 +160,7 @@ public class Token extends Pkcs11Parcelable {
         } else if (tokenInfoEx.ulBodyColor.equals(RtPkcs11Constants.TOKEN_BODY_COLOR_UNKNOWN)) {
                 mColor = BodyColor.UNKNOWN;
         }
-        if(((tokenInfoEx.flags.intValue() & RtPkcs11Constants.TOKEN_FLAGS_ADMIN_CHANGE_USER_PIN.intValue()) != 0x00)
+        if (((tokenInfoEx.flags.intValue() & RtPkcs11Constants.TOKEN_FLAGS_ADMIN_CHANGE_USER_PIN.intValue()) != 0x00)
                 && ((tokenInfoEx.flags.intValue() & RtPkcs11Constants.TOKEN_FLAGS_USER_CHANGE_USER_PIN.intValue()) != 0x00)) {
             mUserPinChangePolicy = UserChangePolicy.BOTH;
         } else if (((tokenInfoEx.flags.intValue() & RtPkcs11Constants.TOKEN_FLAGS_ADMIN_CHANGE_USER_PIN.intValue()) != 0x00)) {
@@ -214,19 +171,94 @@ public class Token extends Pkcs11Parcelable {
         mSupportsSM = ((tokenInfoEx.flags.intValue() & RtPkcs11Constants.TOKEN_FLAGS_SUPPORT_SM.intValue()) != 0);
     }
 
-    boolean doLoginUser(int hSession, String userPIN) throws Pkcs11Exception {
-//        if(null != mCachedPIN && mCachedPIN == userPIN) return true;
-//        int rv = RtPkcs11Library.getInstance().C_Login(hSession, Pkcs11Constants.CKU_USER, userPIN.getBytes(), userPIN.length());
-//        if (Pkcs11Constants.CKR_USER_ALREADY_LOGGED_IN == rv || Pkcs11Constants.CKR_OK == rv) {
-//            mCachedPIN = userPIN;
-//            mUserPinRetriesLeft = mUserPinRetriesMax;
-//        } else {
-//            mCachedPIN = null;
-//        }
-        return true;
-
-
-
+    public Set<NativeLong> enumerateCertificates() {
+        return mCertificateMap.keySet();
     }
 
+    public Certificate getCertificate(NativeLong handle) {
+        return mCertificateMap.get(handle);
+    }
+
+    public void login(final String pin, Pkcs11Callback callback) {
+        new Pkcs11AsyncTask(callback) {
+            @Override
+            protected Pkcs11Result doWork() throws Pkcs11CallerException {
+                NativeLong rv = mPkcs11.C_Login(mSession, Pkcs11Constants.CKU_USER,
+                        pin.getBytes(), new NativeLong(pin.length()));
+                if (!rv.equals(Pkcs11Constants.CKR_OK)) throw Pkcs11Exception.exceptionWithCode(rv);
+                return null;
+            }
+        }.execute();
+    }
+
+    public void logout(Pkcs11Callback callback) {
+        new Pkcs11AsyncTask(callback) {
+            @Override
+            protected Pkcs11Result doWork() throws Pkcs11CallerException {
+                NativeLong rv = mPkcs11.C_Logout(mSession);
+                if (!rv.equals(Pkcs11Constants.CKR_OK)) throw Pkcs11Exception.exceptionWithCode(rv);
+                return null;
+            }
+        }.execute();
+    }
+
+    public void sign(final NativeLong certificate, final byte[] data,
+                     Pkcs11Callback callback) {
+        new Pkcs11AsyncTask(callback) {
+            @Override
+            protected Pkcs11Result doWork() throws Pkcs11CallerException {
+                Certificate cert = mCertificateMap.get(certificate);
+                if (cert == null) throw new CertNotFoundException();
+
+                CK_ATTRIBUTE[] template = (CK_ATTRIBUTE[])(new CK_ATTRIBUTE()).toArray(2);
+
+                final NativeLongByReference keyClass =
+                        new NativeLongByReference(Pkcs11Constants.CKO_PRIVATE_KEY);
+                template[0].type = Pkcs11Constants.CKA_CLASS;
+                template[0].pValue = keyClass.getPointer();
+                template[0].ulValueLen = new NativeLong(NativeLong.SIZE);
+
+                byte[] id = cert.getId();
+                ByteBuffer idBuffer = ByteBuffer.allocateDirect(id.length);
+                idBuffer.put(id);
+                template[1].type = Pkcs11Constants.CKA_ID;
+                template[1].pValue = Native.getDirectBufferPointer(idBuffer);
+                template[1].ulValueLen = new NativeLong(id.length);
+
+                NativeLong rv = mPkcs11.C_FindObjectsInit(mSession,
+                        template, new NativeLong(template.length));
+                if (!rv.equals(Pkcs11Constants.CKR_OK)) throw Pkcs11Exception.exceptionWithCode(rv);
+
+                NativeLong objects[] = new NativeLong[2];
+                NativeLongByReference count =
+                        new NativeLongByReference(new NativeLong(objects.length));
+                rv = mPkcs11.C_FindObjects(mSession, objects, new NativeLong(objects.length),
+                        count);
+
+                NativeLong rv2 = mPkcs11.C_FindObjectsFinal(mSession);
+                if (!rv.equals(Pkcs11Constants.CKR_OK)) throw Pkcs11Exception.exceptionWithCode(rv);
+                else if (!rv2.equals(Pkcs11Constants.CKR_OK)) throw Pkcs11Exception.exceptionWithCode(rv);
+                else if (count.getValue().intValue() <= 0) throw new KeyNotFoundException();
+
+                final byte[] oid = {0x06, 0x07, 0x2a, (byte)0x85, 0x03, 0x02, 0x02, 0x1e, 0x01};
+                ByteBuffer oidBuffer = ByteBuffer.allocateDirect(oid.length);
+                oidBuffer.put(oid);
+                CK_MECHANISM mechanism =
+                        new CK_MECHANISM(RtPkcs11Constants.CKM_GOSTR3410_WITH_GOSTR3411,
+                                Native.getDirectBufferPointer(oidBuffer),
+                                new NativeLong(oid.length));
+                rv = mPkcs11.C_SignInit(mSession, mechanism, objects[0]);
+                if (!rv.equals(Pkcs11Constants.CKR_OK)) throw Pkcs11Exception.exceptionWithCode(rv);
+
+                rv = mPkcs11.C_Sign(mSession, data, new NativeLong(data.length), null, count);
+                if (!rv.equals(Pkcs11Constants.CKR_OK)) throw Pkcs11Exception.exceptionWithCode(rv);
+
+                byte signature[] = new byte[count.getValue().intValue()];
+                rv = mPkcs11.C_Sign(mSession, data, new NativeLong(data.length), signature, count);
+                if (!rv.equals(Pkcs11Constants.CKR_OK)) throw Pkcs11Exception.exceptionWithCode(rv);
+
+                return new Pkcs11Result(signature);
+            }
+        }.execute();
+    }
 }
