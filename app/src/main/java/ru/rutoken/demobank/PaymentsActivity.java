@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 
 
 public class PaymentsActivity extends ExternallyDismissableActivity {
@@ -74,6 +75,10 @@ public class PaymentsActivity extends ExternallyDismissableActivity {
             view.setAmount(data[3]);
 
             mPaymentsLayout.addView(view);
+        final ProgressBar progressBar = (ProgressBar)infoView.findViewById(R.id.progressBar);
+        progressBar.setVisibility(View.GONE);
         }
+
+                progressBar.setVisibility(View.VISIBLE);
     }
 }
