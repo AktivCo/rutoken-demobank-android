@@ -49,6 +49,7 @@ public class MainActivity extends TokenManagerListenerActivity {
     protected String mWaitSerial = NO_SERIAL;
 
     protected int mTwbaCounter = 0;
+    protected boolean mPendingDismiss = false;
 
     private final BroadcastReceiver mBluetoothStateReciever = new BroadcastReceiver() {
         @Override
@@ -150,6 +151,8 @@ public class MainActivity extends TokenManagerListenerActivity {
     public void onBackPressed() {
         if(mDoWait) {
             mDoWait = false;
+        } else {
+            super.onBackPressed();
         }
         updateInfoLabel();
     }
@@ -176,6 +179,7 @@ public class MainActivity extends TokenManagerListenerActivity {
         intent.putExtra("slotId", mSlotId);
         intent.putExtra("serial", mSerial);
         intent.putExtra("certificate", mCertificate);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
         startActivity(intent);
     }
     private void setupActionBar() {
@@ -250,14 +254,29 @@ public class MainActivity extends TokenManagerListenerActivity {
                 processConnectedToken(slot, TokenManager.getInstance().tokenForSlot(slot));
             }
 
-            Intent i =  new Intent(DISMISS_ALL_ACTIVITIES);
-            LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(i);
+            synchronized (MainActivity.this) {
+                if(hasPendingChildStart()) {
+                    mPendingDismiss = true;
+                } else {
+                    Intent i =  new Intent(DISMISS_ALL_ACTIVITIES);
+                    LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(i);
+                }
+            }
+
         }
     };
     @Override
     protected void onInternalError() {
         // TODO show toast?
     };
+    @Override
+    protected void onChildCreated() {
+        if(mPendingDismiss) {
+            mPendingDismiss = false;
+            Intent i =  new Intent(DISMISS_ALL_ACTIVITIES);
+            LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(i);
+        }
+    }
 
     private void updateInfoLabel() {
         if (!mSerial.equals(NO_SERIAL) && !mCertificate.equals(NO_CERTIFICATE)) {

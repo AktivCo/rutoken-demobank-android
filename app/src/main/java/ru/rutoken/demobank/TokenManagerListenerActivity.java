@@ -14,7 +14,7 @@ import ru.rutoken.Pkcs11Caller.TokenManager;
 /**
  * Created by mironenko on 26.08.2014.
  */
-public class TokenManagerListenerActivity extends Activity {
+public class TokenManagerListenerActivity extends GuaranteedChildStartActivity {
     private static IntentFilter tmFilter;
     static {
         tmFilter = new IntentFilter();

@@ -17,14 +17,53 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.sun.jna.NativeLong;
 
-public class LoginActivity extends Activity {
+import ru.rutoken.Pkcs11Caller.Pkcs11Callback;
+import ru.rutoken.Pkcs11Caller.Token;
+import ru.rutoken.Pkcs11Caller.TokenManager;
+import ru.rutoken.Pkcs11Caller.exception.Pkcs11CallerException;
+
+
+public class LoginActivity extends DismissableActivity {
     //GUI
     private Button mLoginButton;
     private EditText mPinEditText;
     private TextView mAlertTextView;
 
+    protected NativeLong mSlotId = MainActivity.NO_SLOT;
+    protected NativeLong mCertificate = MainActivity.NO_CERTIFICATE;
+    protected Token mToken = null;
     private final static String hardcodedPIN = "12345678";
+    private static final byte mSignData[] = new byte[]{0,0,0};
+
+    class LoginCallback extends Pkcs11Callback {
+        public void execute(Pkcs11CallerException exception) {
+            // TODO: show toast ?
+        }
+        public void execute(Object... arguments) {
+            assert(null == arguments);
+
+            LoginActivity.this.mToken.sign(mCertificate, mSignData, mSignCallback);
+        };
+    }
+
+    class SignCallback extends Pkcs11Callback {
+        public void execute(Pkcs11CallerException exception) {
+            // TODO: show toast ?
+        }
+        public void execute(Object... arguments) {
+            assert(arguments != null);
+
+            Intent intent = new Intent(LoginActivity.this, PaymentsActivity.class);
+            intent.putExtra("slotId", mSlotId);
+            intent.putExtra("certificate", mCertificate);
+            startActivity(intent);
+        };
+    }
+
+    LoginCallback mLoginCallback = new LoginCallback();
+    SignCallback mSignCallback = new SignCallback();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +75,13 @@ public class LoginActivity extends Activity {
 
         setupActionBar();
         setupUI();
+        Intent intent = getIntent();
+        mSlotId = (NativeLong)intent.getSerializableExtra("slotId");
+        mCertificate = (NativeLong) intent.getSerializableExtra("certificate");
+        mToken = TokenManager.getInstance().tokenForSlot(mSlotId);
+        if(null == mToken) {
+            finish();
+        }
     }
 
     private void setupActionBar() {
@@ -91,10 +137,10 @@ public class LoginActivity extends Activity {
         mLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                mToken.login(mPinEditText.getText().toString(), mLoginCallback);
+                // TODO show runner
                 if (mPinEditText.getText().toString().equals(hardcodedPIN)) {
                     mAlertTextView.setText("");
-                    Intent intent = new Intent(LoginActivity.this, PaymentsActivity.class);
-                    startActivity(intent);
                 } else {
                     mAlertTextView.setText(R.string.pin_alert);
                 }

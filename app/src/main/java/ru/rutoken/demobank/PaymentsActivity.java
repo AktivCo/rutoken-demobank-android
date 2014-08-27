@@ -12,7 +12,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
 
-public class PaymentsActivity extends Activity {
+public class PaymentsActivity extends DismissableActivity {
     private LinearLayout mPaymentsLayout;
 
     public static String PAYMENTS_CREATED = PaymentsActivity.class.getName() + "PAYMENTS_CREATED";
