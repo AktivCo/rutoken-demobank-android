@@ -2,6 +2,7 @@ package ru.rutoken.demobank;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
@@ -9,7 +10,10 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 
 public class PaymentsActivity extends Activity {
@@ -55,7 +59,7 @@ public class PaymentsActivity extends Activity {
         createPayments(paymentsIds);
     }
 
-    private void createPayments(int[] IDs) {
+    private void createPayments(final int[] IDs) {
         for (int i = 0; i < IDs.length; ++i) {
             PaymentView view = new PaymentView(PaymentsActivity.this);
 
@@ -66,6 +70,50 @@ public class PaymentsActivity extends Activity {
             view.setAmount(data[3]);
 
             mPaymentsLayout.addView(view);
+            view.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    showPaymentInfo();
+                }
+            });
         }
+    }
+
+    private void showPaymentInfo() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(PaymentsActivity.this);
+        builder.setCancelable(true);
+
+        AlertDialog dialog = builder.create();
+        View infoView = (LinearLayout)getLayoutInflater().inflate(R.layout.payment_info_layout, null);
+        dialog.setView(infoView);
+
+        final TextView paymentInfoTextView = (TextView)infoView.findViewById(R.id.dataTV);
+        final Button sendButton = (Button)infoView.findViewById(R.id.sendB);
+        final EditText signEditText = (EditText)infoView.findViewById(R.id.signET);
+        final Button signButton = (Button)infoView.findViewById(R.id.signB);
+
+        signButton.setVisibility(View.GONE);
+        signEditText.setVisibility(View.GONE);
+
+        sendButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                paymentInfoTextView.setVisibility(View.GONE);
+                sendButton.setVisibility(View.GONE);
+
+                signButton.setVisibility(View.VISIBLE);
+                signEditText.setVisibility(View.VISIBLE);
+            }
+        });
+
+        signButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                signButton.setVisibility(View.GONE);
+                signEditText.setVisibility(View.GONE);
+            }
+        });
+
+        dialog.show();
     }
 }
