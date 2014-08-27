@@ -29,5 +29,13 @@
             android:layout_centerHorizontal="true"
             android:src="@drawable/bt_black" />
 
+        <ProgressBar
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/twbaPB"
+            android:layout_below="@+id/infoTV"
+            android:layout_centerHorizontal="true" />
+
     </RelativeLayout>
 </LinearLayout>

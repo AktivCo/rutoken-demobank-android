@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Рутокен Демо</string>
-    <string name="turn_bt_on">Пожалуйста включите Bluetooth</string>
-    <string name="no_token">Пожалуйста подключите токен</string>
+    <string name="turn_bt_on">Пожалуйста, включите Bluetooth</string>
+    <string name="no_token">Пожалуйста, подключите токен</string>
     <string name="pin_hint">Введите PIN-код</string>
     <string name="ok">OK</string>
     <string name="pin_alert">Неправильный PIN, попробуйте ещё раз</string>
@@ -12,4 +12,5 @@
         Корр. счет №30101810900000000409 в Отделении 3 Главного управления Центрального банка Российской Федерации
         по Центральному федеральному округу г. Москва (сокращенное наименование - Отделение 3 Москва)
         БИК 044599409, ИНН 7744000126, КПП 775001001</string>
+    <string name="error">Внутренняя ошибка</string>
 </resources>

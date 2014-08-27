@@ -5,7 +5,6 @@ package ru.rutoken.demobank;
  */
 
 import android.app.ActionBar;
-import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -18,7 +17,9 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.sun.jna.NativeLong;
 
@@ -31,6 +32,7 @@ import ru.rutoken.Pkcs11Caller.TokenManager;
 public class MainActivity extends TokenManagerListenerActivity {
     //GUI
     private TextView mInfoTextView;
+    private ProgressBar mTWBAProgressBar;
 
     //Vars
     private boolean mPaymentsCreated = false;
@@ -165,6 +167,9 @@ public class MainActivity extends TokenManagerListenerActivity {
 
     private void setupUI() {
         mInfoTextView = (TextView)findViewById(R.id.infoTV);
+        mTWBAProgressBar = (ProgressBar)findViewById(R.id.twbaPB);
+
+        mTWBAProgressBar.setVisibility(View.GONE);
 
         mInfoTextView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -211,14 +216,14 @@ public class MainActivity extends TokenManagerListenerActivity {
     protected void onTokenWillBeAdded(Intent intent) {
         ++mTwbaCounter;
         if(mTwbaCounter>0) {
-            // TODO show runner
+            mTWBAProgressBar.setVisibility(View.VISIBLE);
         }
     };
     @Override
     protected void onTokenAddingFailed(Intent intent) {
         --mTwbaCounter;
         if(mTwbaCounter==0) {
-            // TODO remove runner
+            mTWBAProgressBar.setVisibility(View.GONE);
         }
 
     };
@@ -226,7 +231,7 @@ public class MainActivity extends TokenManagerListenerActivity {
     protected void onTokenAdded(Intent intent) {
         --mTwbaCounter;
         if(mTwbaCounter==0) {
-            // TODO remove runner
+            mTWBAProgressBar.setVisibility(View.GONE);
         }
         NativeLong slotId = (NativeLong)intent.getSerializableExtra("slotId");
         if (slotId == null) return;
@@ -268,6 +273,7 @@ public class MainActivity extends TokenManagerListenerActivity {
     @Override
     protected void onInternalError() {
         // TODO show toast?
+        Toast.makeText(MainActivity.this, R.string.error, Toast.LENGTH_SHORT).show();
     };
     @Override
     protected void onChildCreated() {
