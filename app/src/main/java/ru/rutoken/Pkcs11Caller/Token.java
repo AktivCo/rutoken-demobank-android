@@ -59,8 +59,7 @@ public class Token {
     public UserChangePolicy getUserPinChangePolicy() { return mUserPinChangePolicy; }
     public boolean supportsSM() {return mSupportsSM;}
 
-    //TODO: remove public
-    public Token(NativeLong slotId) throws Pkcs11CallerException {
+    private Token(NativeLong slotId) throws Pkcs11CallerException {
         RtPkcs11 pkcs11 = RtPkcs11Library.getInstance();
         synchronized (pkcs11) {
             mId = slotId;
