@@ -15,7 +15,7 @@ repositories {
 
 android {
     compileSdkVersion 19
-    buildToolsVersion "19.1"
+    buildToolsVersion "20"
     lintOptions {
         abortOnError false
     }
