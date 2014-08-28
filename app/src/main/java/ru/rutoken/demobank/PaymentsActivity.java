@@ -12,8 +12,15 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
 
-public class PaymentsActivity extends DismissableActivity {
+public class PaymentsActivity extends ExternallyDismissableActivity {
     private LinearLayout mPaymentsLayout;
+
+    private static final String ACTIVITY_CLASS_IDENTIFIER = ExternallyDismissableActivity.class.getName();
+
+    public String getActivityClassIdentifier() {
+        return ACTIVITY_CLASS_IDENTIFIER;
+    }
+
 
     public static String PAYMENTS_CREATED = PaymentsActivity.class.getName() + "PAYMENTS_CREATED";
     @Override

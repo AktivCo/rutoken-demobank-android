@@ -22,6 +22,7 @@ public class GuaranteedChildStartActivity extends Activity {
     private static IntentFilter mFilter;
     private int mHashCode;
     private boolean mPendingActivityStart = false;
+    private Integer mParentHashCode = null;
     public static final String CHILD_ACTIVITY_CREATED = GuaranteedChildStartActivity.class.getName() + ".CHILD_ACTIVITY_CREATED";
     static {
         mFilter = new IntentFilter();
@@ -65,9 +66,21 @@ public class GuaranteedChildStartActivity extends Activity {
         mHashCode = System.identityHashCode(this);
         Intent i = getIntent();
         int parentHashCode = i.getIntExtra("hashCode", 0);
-        Intent intent = new Intent(CHILD_ACTIVITY_CREATED);
-        intent.putExtra("hashCode", parentHashCode);
-        LocalBroadcastManager.getInstance(this.getApplicationContext()).sendBroadcast(intent);
+        if(parentHashCode != 0) {
+            mParentHashCode = parentHashCode;
+        }
+
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(null != mParentHashCode) {
+            int parentHashCode = mParentHashCode;
+            mParentHashCode = null;
+            Intent intent = new Intent(CHILD_ACTIVITY_CREATED);
+            intent.putExtra("hashCode", parentHashCode);
+            LocalBroadcastManager.getInstance(this.getApplicationContext()).sendBroadcast(intent);
+        }
     }
     @Override
     protected void onDestroy() {

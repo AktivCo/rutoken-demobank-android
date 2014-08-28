@@ -21,8 +21,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.sun.jna.NativeLong;
-
 import org.spongycastle.asn1.x500.AttributeTypeAndValue;
 import org.spongycastle.asn1.x500.RDN;
 import org.spongycastle.asn1.x500.X500Name;
@@ -31,35 +29,23 @@ import org.spongycastle.asn1.x500.style.IETFUtils;
 
 import java.util.Set;
 
+import ru.rutoken.Pkcs11Caller.Certificate;
 import ru.rutoken.Pkcs11Caller.Token;
 import ru.rutoken.Pkcs11Caller.TokenManager;
 //import ru.rutoken.utils.TokenItem;
 
-public class MainActivity extends TokenManagerListenerActivity {
+public class MainActivity extends ExternallyDismissableActivity {
     //GUI
     private TextView mInfoTextView;
     private ProgressBar mTWBAProgressBar;
 
     //Vars
-    private boolean mPaymentsCreated = false;
+    private static final String ACTIVITY_CLASS_IDENTIFIER = TokenManagerListener.MAIN_ACTIVITY_IDENTIFIER;
 
-    public static final NativeLong NO_SLOT = new NativeLong(-1);
-    public static final NativeLong NO_CERTIFICATE = new NativeLong(0);
-    public static final String NO_SERIAL = "NO_SERIAL";
-    public static final String DISMISS_ALL_ACTIVITIES = MainActivity.class.getName() + "DISMISS_ALL_ACTIVITIES";
+    public String getActivityClassIdentifier() {
+        return ACTIVITY_CLASS_IDENTIFIER;
+    }
 
-    protected NativeLong mSlotId = NO_SLOT;
-    protected NativeLong mCertificate = NO_CERTIFICATE;
-    protected String mSerial = NO_SERIAL;
-    protected X500Name mCertificateSubject = null;
-
-    protected boolean mDoWait = false;
-    protected NativeLong mWaitCertificate = NO_CERTIFICATE;
-    protected String mWaitSerial = NO_SERIAL;
-    protected X500Name mWaitCertificateSubject = null;
-
-    protected int mTwbaCounter = 0;
-    protected boolean mPendingDismiss = false;
 
     private final BroadcastReceiver mBluetoothStateReciever = new BroadcastReceiver() {
         @Override
@@ -82,68 +68,6 @@ public class MainActivity extends TokenManagerListenerActivity {
         }
     };
 
-    private final BroadcastReceiver mPaymentsCreatedReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            final String action = intent.getAction();
-
-            if (action.equals(PaymentsActivity.PAYMENTS_CREATED)) {
-                mPaymentsCreated = true;
-            }
-        }
-    };
-
-    protected void resetSlotInfo() {
-        mSlotId = NO_SLOT;
-        mCertificate = NO_CERTIFICATE;
-        mSerial = NO_SERIAL;
-        mCertificateSubject = null;
-    }
-
-    protected void processConnectedToken(NativeLong slotId, Token token) {
-        Set<NativeLong> certificates = null;
-        String serial = null;
-        if(null != token) {
-            serial = token.getSerialNumber();
-            certificates = token.enumerateCertificates();
-            if(mDoWait) {
-                if (certificates == null) return;
-                if (!serial.equals(mWaitSerial)) return;
-                NativeLong foundCerificate = null;
-                for (NativeLong certificate: certificates) {
-                    if (token.getCertificate(certificate).getSubject().equals(mWaitCertificateSubject)) {
-                        foundCerificate = certificate;
-                        break;
-                    }
-
-                }
-                if (null != foundCerificate) {
-                    mDoWait = false;
-                    mSlotId = slotId;
-                    mSerial = mWaitSerial;
-                    mCertificate = foundCerificate;
-
-                    updateInfoLabel();
-                    startPINActivity(); 
-                }
-            } else {
-                if (mSlotId.equals(NO_SLOT)) {
-                    mSlotId = slotId;
-                    mSerial = serial;
-                    if (certificates != null && certificates.iterator().hasNext()) {
-                        mCertificate = certificates.iterator().next();
-                        mCertificateSubject = token.getCertificate(mCertificate).getSubject();
-                    } else {
-                        mCertificate = NO_CERTIFICATE;
-                        mCertificateSubject = null;
-                    }
-
-                    updateInfoLabel();
-                }
-            }
-        }
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -156,27 +80,25 @@ public class MainActivity extends TokenManagerListenerActivity {
         setupUI();
         IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
         this.registerReceiver(mBluetoothStateReciever, filter);
-        IntentFilter filter1 =  new IntentFilter();
-        filter1.addAction(PaymentsActivity.PAYMENTS_CREATED);
-        LocalBroadcastManager.getInstance(this.getApplicationContext()).registerReceiver(mPaymentsCreatedReceiver, filter1);
-
-        updateInfoLabel();
+        TokenManagerListener.getInstance().init(getApplicationContext());
     }
 
     @Override
     public void onBackPressed() {
-        if(mDoWait) {
-            mDoWait = false;
+        if(TokenManagerListener.getInstance().shallWaitForToken()) {
+            TokenManagerListener.getInstance().resetWaitForToken();
         } else {
             super.onBackPressed();
         }
-        updateInfoLabel();
+        updateScreen();
     }
     @Override
     protected void onDestroy() {
         super.onDestroy();
         LocalBroadcastManager.getInstance(this.getApplicationContext()).unregisterReceiver(mBluetoothStateReciever);
-        LocalBroadcastManager.getInstance(this.getApplicationContext()).unregisterReceiver(mPaymentsCreatedReceiver);
+        if(isFinishing()) {
+            TokenManagerListener.getInstance().destroy();
+        }
     }
 
     private void setupUI() {
@@ -193,11 +115,10 @@ public class MainActivity extends TokenManagerListenerActivity {
         });
     }
 
-    private void startPINActivity() {
+    public void startPINActivity() {
         Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-        intent.putExtra("slotId", mSlotId);
-        intent.putExtra("serial", mSerial);
-        intent.putExtra("certificate", mCertificate);
+        intent.putExtra("slotId", TokenManagerListener.getInstance().getSlotId());
+        intent.putExtra("certificate", TokenManagerListener.getInstance().getCertificate());
         intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
         startActivity(intent);
     }
@@ -220,85 +141,6 @@ public class MainActivity extends TokenManagerListenerActivity {
         }
     }
 
-
-
-    @Override
-    protected void onEnumerationFinished() {
-        // TODO
-    };
-    @Override
-    protected void onTokenWillBeAdded(Intent intent) {
-        ++mTwbaCounter;
-        if(mTwbaCounter>0) {
-            mTWBAProgressBar.setVisibility(View.VISIBLE);
-        }
-    };
-    @Override
-    protected void onTokenAddingFailed(Intent intent) {
-        --mTwbaCounter;
-        if(mTwbaCounter==0) {
-            mTWBAProgressBar.setVisibility(View.GONE);
-        }
-
-    };
-    @Override
-    protected void onTokenAdded(Intent intent) {
-        --mTwbaCounter;
-        if(mTwbaCounter==0) {
-            mTWBAProgressBar.setVisibility(View.GONE);
-        }
-        NativeLong slotId = (NativeLong)intent.getSerializableExtra("slotId");
-        if (slotId == null) return;
-
-        Token token = TokenManager.getInstance().tokenForSlot(slotId);
-        processConnectedToken(slotId, token);
-    };
-
-    @Override
-    protected void onTokenRemoved(Intent intent) {
-        NativeLong slotId = (NativeLong)intent.getSerializableExtra("slotId");
-        if (slotId == null) return;
-        if (slotId.equals(mSlotId)) {
-            if (mPaymentsCreated) {
-                mPaymentsCreated = false;
-                mDoWait = true;
-                mWaitCertificate = mCertificate;
-                mWaitCertificateSubject = mCertificateSubject;
-                mWaitSerial = mSerial;
-            }
-            resetSlotInfo();
-            updateInfoLabel();
-            for(NativeLong slot: TokenManager.getInstance().slots()) {
-                if(!mSlotId.equals(NO_SLOT))
-                    break;
-                processConnectedToken(slot, TokenManager.getInstance().tokenForSlot(slot));
-            }
-
-            synchronized (MainActivity.this) {
-                if(hasPendingChildStart()) {
-                    mPendingDismiss = true;
-                } else {
-                    Intent i =  new Intent(DISMISS_ALL_ACTIVITIES);
-                    LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(i);
-                }
-            }
-
-        }
-    };
-    @Override
-    protected void onInternalError() {
-        // TODO show toast?
-        Toast.makeText(MainActivity.this, R.string.error, Toast.LENGTH_SHORT).show();
-    };
-    @Override
-    protected void onChildCreated() {
-        if(mPendingDismiss) {
-            mPendingDismiss = false;
-            Intent i =  new Intent(DISMISS_ALL_ACTIVITIES);
-            LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(i);
-        }
-    }
-
     private static String commonNameFromX500Name(X500Name name) {
         String commonName = "";
         RDN[] rdns = null;
@@ -309,32 +151,42 @@ public class MainActivity extends TokenManagerListenerActivity {
         return commonName;
     }
 
+    public void updateScreen() {
+        updateInfoLabel();
+        updateProgressBar();
+    }
+
+    private void updateProgressBar() {
+        if(TokenManagerListener.getInstance().shallShowProgressBar()) {
+            mTWBAProgressBar.setVisibility(View.VISIBLE);
+        } else {
+            mTWBAProgressBar.setVisibility(View.GONE);
+        }
+    }
+
     private void updateInfoLabel() {
         String certificateData = null;
-        Token token = null;
+        Token token = TokenManagerListener.getInstance().getToken();
 
-        if(!mSerial.equals(NO_SERIAL)) {
-            token = TokenManager.getInstance().tokenForSlot(mSlotId);
-            if (null == token) return;
+        if(token != null) {
             certificateData = new String();
             certificateData += token.getSerialNumber();
             certificateData += "\n";
         }
-        if (!mSerial.equals(NO_SERIAL) && !mCertificate.equals(NO_CERTIFICATE)) {
-            // TODO -- show cert data
-
-            certificateData += commonNameFromX500Name(token.getCertificate(mCertificate).getSubject());
+        if (token != null && !TokenManagerListener.getInstance().getCertificate().equals(TokenManagerListener.NO_CERTIFICATE)) {
+            certificateData += commonNameFromX500Name(token.getCertificate(TokenManagerListener.getInstance().getCertificate()).getSubject());
             mInfoTextView.setText(certificateData);
             mInfoTextView.setEnabled(true);
-        } else if(!mSerial.equals(NO_SERIAL)) {
+        } else if(token != null) {
             certificateData += R.string.no_certificate;
-
             mInfoTextView.setText(certificateData);
             mInfoTextView.setEnabled(false);
-        } else if(mDoWait) {
+        } else if(TokenManagerListener.getInstance().shallWaitForToken()) {
+            Token waitToken = TokenManagerListener.getInstance().getWaitToken();
+            X500Name subject = waitToken.getCertificate(TokenManagerListener.getInstance().getWaitCertificate()).getSubject();
             certificateData = String.format(getResources().getString(R.string.wait_token),
-                    mWaitSerial,
-                    commonNameFromX500Name(mWaitCertificateSubject));
+                    TokenManagerListener.getInstance().getWaitToken().getSerialNumber(),
+                    commonNameFromX500Name(subject));
             mInfoTextView.setText(certificateData);
             mInfoTextView.setEnabled(false);
         } else if (!BluetoothAdapter.getDefaultAdapter().isEnabled()) {

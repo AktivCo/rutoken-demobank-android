@@ -25,17 +25,22 @@ import ru.rutoken.Pkcs11Caller.TokenManager;
 import ru.rutoken.Pkcs11Caller.exception.Pkcs11CallerException;
 
 
-public class LoginActivity extends DismissableActivity {
+public class LoginActivity extends ExternallyDismissableActivity {
     //GUI
     private Button mLoginButton;
     private EditText mPinEditText;
     private TextView mAlertTextView;
 
-    protected NativeLong mSlotId = MainActivity.NO_SLOT;
-    protected NativeLong mCertificate = MainActivity.NO_CERTIFICATE;
+    protected NativeLong mSlotId = TokenManagerListener.NO_SLOT;
+    protected NativeLong mCertificate = TokenManagerListener.NO_CERTIFICATE;
     protected Token mToken = null;
     private final static String hardcodedPIN = "12345678";
     private static final byte mSignData[] = new byte[]{0,0,0};
+    private static final String ACTIVITY_CLASS_IDENTIFIER = LoginActivity.class.getName();
+
+    public String getActivityClassIdentifier() {
+        return ACTIVITY_CLASS_IDENTIFIER;
+    }
 
     class LoginCallback extends Pkcs11Callback {
         public void execute(Pkcs11CallerException exception) {
