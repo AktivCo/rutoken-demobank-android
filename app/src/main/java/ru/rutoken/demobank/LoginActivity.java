@@ -25,7 +25,7 @@ import ru.rutoken.Pkcs11Caller.TokenManager;
 import ru.rutoken.Pkcs11Caller.exception.Pkcs11CallerException;
 
 
-public class LoginActivity extends ExternallyDismissableActivity {
+public class LoginActivity extends Pkcs11CallerActivity {
     //GUI
     private Button mLoginButton;
     private EditText mPinEditText;
@@ -42,33 +42,43 @@ public class LoginActivity extends ExternallyDismissableActivity {
         return ACTIVITY_CLASS_IDENTIFIER;
     }
 
-    class LoginCallback extends Pkcs11Callback {
-        public void execute(Pkcs11CallerException exception) {
-            // TODO: show toast ?
-        }
-        public void execute(Object... arguments) {
-            assert(null == arguments);
-
-            LoginActivity.this.mToken.sign(mCertificate, mSignData, mSignCallback);
-        };
+    @Override
+    protected void manageLoginError() {
+        //TODO
     }
 
-    class SignCallback extends Pkcs11Callback {
-        public void execute(Pkcs11CallerException exception) {
-            // TODO: show toast ?
-        }
-        public void execute(Object... arguments) {
-            assert(arguments != null);
-
-            Intent intent = new Intent(LoginActivity.this, PaymentsActivity.class);
-            intent.putExtra("slotId", mSlotId);
-            intent.putExtra("certificate", mCertificate);
-            startActivity(intent);
-        };
+    @Override
+    protected void manageLoginSucceed() {
+        sign(mToken, mCertificate, mSignData);
     }
 
-    LoginCallback mLoginCallback = new LoginCallback();
-    SignCallback mSignCallback = new SignCallback();
+    @Override
+    protected void manageSignError() {
+        logout(mToken);
+    }
+
+    @Override
+    protected void manageLogoutError() {
+        //TODO
+    }
+
+    @Override
+    protected void manageLogoutSucceed() {
+        //TODO
+    }
+
+    @Override
+    protected void manageSignSucceed(byte[] data) {
+        Intent intent = new Intent(LoginActivity.this, PaymentsActivity.class);
+        intent.putExtra("slotId", mSlotId);
+        intent.putExtra("certificate", mCertificate);
+        startActivity(intent);
+    }
+
+    @Override
+    protected void showError(String error) {
+        // TODO
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -142,7 +152,7 @@ public class LoginActivity extends ExternallyDismissableActivity {
         mLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mToken.login(mPinEditText.getText().toString(), mLoginCallback);
+                login(mToken, mPinEditText.getText().toString());
                 // TODO show runner
                 if (mPinEditText.getText().toString().equals(hardcodedPIN)) {
                     mAlertTextView.setText("");
