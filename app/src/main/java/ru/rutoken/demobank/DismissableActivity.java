@@ -15,11 +15,12 @@ import ru.rutoken.Pkcs11Caller.TokenManager;
  */
 public class DismissableActivity extends GuaranteedChildStartActivity {
     private static IntentFilter mFilter;
-    private boolean mPendingDismiss = false;
     static {
         mFilter = new IntentFilter();
         mFilter.addAction(MainActivity.DISMISS_ALL_ACTIVITIES);
     }
+    private boolean mPendingDismiss = false;
+
     private final BroadcastReceiver mDismissReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -36,6 +37,7 @@ public class DismissableActivity extends GuaranteedChildStartActivity {
     };
     @Override
     protected void onChildCreated() {
+        super.onChildCreated();
         if(mPendingDismiss) {
             Intent i =  new Intent(MainActivity.DISMISS_ALL_ACTIVITIES);
             LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(i);

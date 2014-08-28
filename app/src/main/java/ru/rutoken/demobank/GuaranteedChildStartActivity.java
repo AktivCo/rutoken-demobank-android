@@ -16,6 +16,7 @@ import java.nio.channels.GatheringByteChannel;
 
 /**
  * Created by mironenko on 27.08.2014.
+ * All methods are processed in the MainThread -- no synchronization needed.
  */
 public class GuaranteedChildStartActivity extends Activity {
     private static IntentFilter mFilter;
@@ -44,7 +45,7 @@ public class GuaranteedChildStartActivity extends Activity {
         }
     };
 
-    synchronized protected boolean hasPendingChildStart() {
+    protected boolean hasPendingChildStart() {
         return mPendingActivityStart;
     }
 
@@ -52,7 +53,7 @@ public class GuaranteedChildStartActivity extends Activity {
 
     }
     @Override
-    synchronized public void startActivity(android.content.Intent intent) {
+    public void startActivity(android.content.Intent intent) {
         intent.putExtra("hashCode", mHashCode);
         mPendingActivityStart = true;
         super.startActivity(intent);

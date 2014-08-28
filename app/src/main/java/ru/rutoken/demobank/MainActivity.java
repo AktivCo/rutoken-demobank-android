@@ -23,6 +23,12 @@ import android.widget.Toast;
 
 import com.sun.jna.NativeLong;
 
+import org.spongycastle.asn1.x500.AttributeTypeAndValue;
+import org.spongycastle.asn1.x500.RDN;
+import org.spongycastle.asn1.x500.X500Name;
+import org.spongycastle.asn1.x500.style.BCStyle;
+import org.spongycastle.asn1.x500.style.IETFUtils;
+
 import java.util.Set;
 
 import ru.rutoken.Pkcs11Caller.Token;
@@ -45,10 +51,12 @@ public class MainActivity extends TokenManagerListenerActivity {
     protected NativeLong mSlotId = NO_SLOT;
     protected NativeLong mCertificate = NO_CERTIFICATE;
     protected String mSerial = NO_SERIAL;
+    protected X500Name mCertificateSubject = null;
 
     protected boolean mDoWait = false;
     protected NativeLong mWaitCertificate = NO_CERTIFICATE;
     protected String mWaitSerial = NO_SERIAL;
+    protected X500Name mWaitCertificateSubject = null;
 
     protected int mTwbaCounter = 0;
     protected boolean mPendingDismiss = false;
@@ -89,6 +97,7 @@ public class MainActivity extends TokenManagerListenerActivity {
         mSlotId = NO_SLOT;
         mCertificate = NO_CERTIFICATE;
         mSerial = NO_SERIAL;
+        mCertificateSubject = null;
     }
 
     protected void processConnectedToken(NativeLong slotId, Token token) {
@@ -100,16 +109,19 @@ public class MainActivity extends TokenManagerListenerActivity {
             if(mDoWait) {
                 if (certificates == null) return;
                 if (!serial.equals(mWaitSerial)) return;
-                boolean bFoundCertificate = false;
+                NativeLong foundCerificate = null;
                 for (NativeLong certificate: certificates) {
-                    if (bFoundCertificate = (certificate.equals(mWaitCertificate)))
+                    if (token.getCertificate(certificate).getSubject().equals(mWaitCertificateSubject)) {
+                        foundCerificate = certificate;
                         break;
+                    }
+
                 }
-                if (bFoundCertificate) {
+                if (null != foundCerificate) {
                     mDoWait = false;
                     mSlotId = slotId;
                     mSerial = mWaitSerial;
-                    mCertificate = mWaitCertificate;
+                    mCertificate = foundCerificate;
 
                     updateInfoLabel();
                     startPINActivity(); 
@@ -120,8 +132,10 @@ public class MainActivity extends TokenManagerListenerActivity {
                     mSerial = serial;
                     if (certificates != null && certificates.iterator().hasNext()) {
                         mCertificate = certificates.iterator().next();
+                        mCertificateSubject = token.getCertificate(mCertificate).getSubject();
                     } else {
                         mCertificate = NO_CERTIFICATE;
+                        mCertificateSubject = null;
                     }
 
                     updateInfoLabel();
@@ -161,8 +175,8 @@ public class MainActivity extends TokenManagerListenerActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        this.unregisterReceiver(mBluetoothStateReciever);
-        this.unregisterReceiver(mPaymentsCreatedReceiver);
+        LocalBroadcastManager.getInstance(this.getApplicationContext()).unregisterReceiver(mBluetoothStateReciever);
+        LocalBroadcastManager.getInstance(this.getApplicationContext()).unregisterReceiver(mPaymentsCreatedReceiver);
     }
 
     private void setupUI() {
@@ -249,6 +263,7 @@ public class MainActivity extends TokenManagerListenerActivity {
                 mPaymentsCreated = false;
                 mDoWait = true;
                 mWaitCertificate = mCertificate;
+                mWaitCertificateSubject = mCertificateSubject;
                 mWaitSerial = mSerial;
             }
             resetSlotInfo();
@@ -284,16 +299,43 @@ public class MainActivity extends TokenManagerListenerActivity {
         }
     }
 
+    private static String commonNameFromX500Name(X500Name name) {
+        String commonName = "";
+        RDN[] rdns = null;
+        rdns = name.getRDNs(BCStyle.CN);
+        if(null == rdns || 0 == rdns.length)
+            return commonName;
+        commonName = IETFUtils.valueToString(rdns[0].getFirst().getValue());
+        return commonName;
+    }
+
     private void updateInfoLabel() {
+        String certificateData = null;
+        Token token = null;
+
+        if(!mSerial.equals(NO_SERIAL)) {
+            token = TokenManager.getInstance().tokenForSlot(mSlotId);
+            if (null == token) return;
+            certificateData = new String();
+            certificateData += token.getSerialNumber();
+            certificateData += "\n";
+        }
         if (!mSerial.equals(NO_SERIAL) && !mCertificate.equals(NO_CERTIFICATE)) {
             // TODO -- show cert data
-            mInfoTextView.setText("Токен сертифокен");
+
+            certificateData += commonNameFromX500Name(token.getCertificate(mCertificate).getSubject());
+            mInfoTextView.setText(certificateData);
             mInfoTextView.setEnabled(true);
         } else if(!mSerial.equals(NO_SERIAL)) {
-            mInfoTextView.setText("Токен шмокен");
+            certificateData += R.string.no_certificate;
+
+            mInfoTextView.setText(certificateData);
             mInfoTextView.setEnabled(false);
         } else if(mDoWait) {
-            mInfoTextView.setText("Токен ожидокен");
+            certificateData = String.format(getResources().getString(R.string.wait_token),
+                    mWaitSerial,
+                    commonNameFromX500Name(mWaitCertificateSubject));
+            mInfoTextView.setText(certificateData);
             mInfoTextView.setEnabled(false);
         } else if (!BluetoothAdapter.getDefaultAdapter().isEnabled()) {
             mInfoTextView.setText(R.string.turn_bt_on);

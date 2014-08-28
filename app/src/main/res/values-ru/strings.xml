@@ -3,6 +3,8 @@
     <string name="app_name">Рутокен Демо</string>
     <string name="turn_bt_on">Пожалуйста, включите Bluetooth</string>
     <string name="no_token">Пожалуйста, подключите токен</string>
+    <string name="wait_token" formatted="false">Пожалуйста, подключите токен %s с сертификатом %s</string>
+    <string name="no_certificate">Отсутствует сертификат на токене</string>
     <string name="pin_hint">Введите PIN-код</string>
     <string name="ok">OK</string>
     <string name="pin_alert">Неправильный PIN, попробуйте ещё раз</string>
