@@ -25,7 +25,8 @@
         </activity>
         <activity
             android:name=".LoginActivity"
-            android:parentActivityName=".MainActivity" >
+            android:parentActivityName=".MainActivity"
+            android:windowSoftInputMode="stateVisible" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="ru.rutoken.demobank.MainActivity" />

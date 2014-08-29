@@ -8,6 +8,7 @@ import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -18,6 +19,8 @@ import android.widget.TextView;
 import com.sun.jna.NativeLong;
 
 import ru.rutoken.Pkcs11Caller.Token;
+import ru.rutoken.Pkcs11Caller.TokenManager;
+
 public class PaymentsActivity extends Pkcs11CallerActivity {
     private Payment mBashneftView;
     private Payment mLukoilView;
@@ -25,6 +28,8 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
     protected NativeLong mSlotId = TokenManagerListener.NO_SLOT;
     protected NativeLong mCertificate = TokenManagerListener.NO_CERTIFICATE;
     protected Token mToken = null;
+    protected boolean mDoLoginAndSign = false;
+    String mPin = null;
 
     private byte mSignData[] = new byte[]{0,0,0};
 
@@ -46,7 +51,15 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
 
         setupActionBar();
         setupUI();
+        Intent intent = getIntent();
+        mSlotId = (NativeLong)intent.getSerializableExtra("slotId");
+        mCertificate = (NativeLong) intent.getSerializableExtra("certificate");
+        mToken = TokenManager.getInstance().tokenForSlot(mSlotId);
+        if(null == mToken) {
+            finish();
+        }
         TokenManagerListener.getInstance().setPaymentsCreated();
+
     }
 
     private void setupActionBar() {
@@ -76,8 +89,19 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
     }
 
     @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
     public void onBackPressed() {
         TokenManagerListener.getInstance().resetPaymentsCreated();
+        logout(mToken);
         super.onBackPressed();
     }
 
@@ -100,10 +124,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
 
     @Override
     protected void manageSignSucceed(byte[] data) {
-//        Intent intent = new Intent(LoginActivity.this, PaymentsActivity.class);
-//        intent.putExtra("slotId", mSlotId);
-//        intent.putExtra("certificate", mCertificate);
-//        startActivity(intent);
+        // TODO
     }
 
     @Override
@@ -114,8 +135,10 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
 
     @Override
     protected void manageLogoutSucceed() {
-        //showLogonFinished();
-        // TODO
+        if(mDoLoginAndSign) {
+            mDoLoginAndSign = false;
+            login(mToken, mPin);
+        }
     }
 
     @Override
@@ -134,12 +157,21 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
         mLukoilView.setDate(data[0]);
         mLukoilView.setReciever(data[1]);
         mLukoilView.setAmount(data[2]);
-//            view.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View view) {
-//                    showPaymentInfo();
-//                }
-//            });
+        mLukoilView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showPaymentInfo();
+            }
+        });
+    }
+
+    protected void startLoginAndSignAction() {
+        mDoLoginAndSign = true;
+        logout(mToken);
+    }
+
+    protected void signAction() {
+        sign(mToken, mCertificate, mSignData);
     }
 
     private void showPaymentInfo() {
@@ -163,9 +195,11 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
             public void onClick(View view) {
                 paymentInfoTextView.setVisibility(View.GONE);
                 sendButton.setVisibility(View.GONE);
-
-                signButton.setVisibility(View.VISIBLE);
-                signEditText.setVisibility(View.VISIBLE);
+                signAction();
+                if(false) { // TODO -- check price
+                    signButton.setVisibility(View.VISIBLE);
+                    signEditText.setVisibility(View.VISIBLE);
+                }
             }
         });
 
@@ -174,6 +208,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
             public void onClick(View view) {
                 signButton.setVisibility(View.GONE);
                 signEditText.setVisibility(View.GONE);
+                startLoginAndSignAction();
             }
         });
 
