@@ -3,6 +3,7 @@ package ru.rutoken.demobank;
 import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.view.Gravity;
@@ -14,10 +15,18 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.sun.jna.NativeLong;
 
-public class PaymentsActivity extends ExternallyDismissableActivity {
+import ru.rutoken.Pkcs11Caller.Token;
+public class PaymentsActivity extends Pkcs11CallerActivity {
     private Payment mBashneftView;
     private Payment mLukoilView;
+
+    protected NativeLong mSlotId = TokenManagerListener.NO_SLOT;
+    protected NativeLong mCertificate = TokenManagerListener.NO_CERTIFICATE;
+    protected Token mToken = null;
+
+    private byte mSignData[] = new byte[]{0,0,0};
 
     private static final String ACTIVITY_CLASS_IDENTIFIER = ExternallyDismissableActivity.class.getName();
 
@@ -37,6 +46,7 @@ public class PaymentsActivity extends ExternallyDismissableActivity {
 
         setupActionBar();
         setupUI();
+        TokenManagerListener.getInstance().setPaymentsCreated();
     }
 
     private void setupActionBar() {
@@ -63,6 +73,55 @@ public class PaymentsActivity extends ExternallyDismissableActivity {
         mLukoilView = (Payment)findViewById(R.id.lukoilPayment);
 
         createPayments();
+    }
+
+    @Override
+    public void onBackPressed() {
+        TokenManagerListener.getInstance().resetPaymentsCreated();
+        super.onBackPressed();
+    }
+
+    @Override
+    protected void manageLoginError() {
+        // showLogonFinished();
+        //TODO
+    }
+
+    @Override
+    protected void manageLoginSucceed() {
+        sign(mToken, mCertificate, mSignData);
+    }
+
+    @Override
+    protected void manageSignError() {
+        logout(mToken);
+        // TODO
+    }
+
+    @Override
+    protected void manageSignSucceed(byte[] data) {
+//        Intent intent = new Intent(LoginActivity.this, PaymentsActivity.class);
+//        intent.putExtra("slotId", mSlotId);
+//        intent.putExtra("certificate", mCertificate);
+//        startActivity(intent);
+    }
+
+    @Override
+    protected void manageLogoutError() {
+        // showLogonFinished();
+        // TODO
+    }
+
+    @Override
+    protected void manageLogoutSucceed() {
+        //showLogonFinished();
+        // TODO
+    }
+
+    @Override
+    protected void showError(String error) {
+        //mAlertTextView.setText(error);
+        // TODO
     }
 
     private void createPayments() {
