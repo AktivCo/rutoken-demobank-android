@@ -5,7 +5,10 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.content.res.Resources;
+import android.content.res.TypedArray;
 import android.os.Bundle;
+import android.text.Html;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -20,6 +23,9 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import com.sun.jna.NativeLong;
+
+import java.text.DateFormat;
+import java.util.Date;
 
 import ru.rutoken.Pkcs11Caller.Token;
 import ru.rutoken.Pkcs11Caller.TokenManager;
@@ -41,6 +47,8 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
     private byte mSignData[] = new byte[]{0,0,0};
 
     private static final String ACTIVITY_CLASS_IDENTIFIER = ExternallyDismissableActivity.class.getName();
+    private String[] mPaymentTitles;
+    private String[][] mPaymentArray = null;
 
     public String getActivityClassIdentifier() {
         return ACTIVITY_CLASS_IDENTIFIER;
@@ -65,7 +73,6 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
             finish();
         }
         TokenManagerListener.getInstance().setPaymentsCreated();
-
         setupUI();
     }
 
@@ -93,7 +100,6 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
         mTokenBatteryTextView = (TextView)findViewById(R.id.percentageTV);
         mTokenIDTextView = (TextView)findViewById(R.id.tokenIdTV);
         mTokenModelTextView = (TextView)findViewById(R.id.modelTV);
-
         LayoutInflater inflater = (LayoutInflater)getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
         View popupView = inflater.inflate(R.layout.popup_layout, null);
 
@@ -173,16 +179,42 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
     }
 
     private void createPayments(int[] IDs) {
-        for (int i = 0; i < IDs.length; ++i) {
-            Payment payment = new Payment(PaymentsActivity.this);
+        Resources res = getResources();
+        mPaymentTitles = res.getStringArray(R.array.payments_titles);
+        TypedArray ta = res.obtainTypedArray(R.array.payments);
+        int n = ta.length();
+        mPaymentArray = new String[n][];
+        for (int i = 0; i < n; ++i) {
+            int id = ta.getResourceId(i, 0);
+            if (id > 0) {
+                mPaymentArray[i] = res.getStringArray(id);
+            } else {
+                // something wrong with the XML
+            }
+        }
+        ta.recycle(); // Important!
 
-            String[] data = getResources().getStringArray(IDs[i]);
-            payment.setNum(data[0]);
-            payment.setDate(data[1]);
-            payment.setReciever(data[2]);
-            payment.setAmount(data[3]);
+        int nRecipient = 0;
+        int nPrice = 0;
+        for (int i = 0; i < mPaymentTitles.length; ++i) {
+            if(mPaymentTitles[i].equals(res.getString(R.string.recepient))) {
+                nRecipient = i;
+            }
+            if(mPaymentTitles[i].equals(res.getString(R.string.price))) {
+                nPrice = i;
+            }
+        }
 
-            mPaymentsLayout.addView(payment);
+        for(int i = 0; i < mPaymentArray.length; ++i) {
+            int price = Integer.valueOf(mPaymentArray[i][nPrice]);
+            Payment payment = new Payment(this, null, i, mPaymentArray[i][nRecipient], price);
+            payment.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(!Payment.class.isInstance(view)) return;
+                    showPaymentInfo(((Payment)view).getNum());
+                }
+            });
             CheckBox checkBox = (CheckBox)payment.findViewById(R.id.checkBox);
             checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
@@ -198,6 +230,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
                     }
                 }
             });
+            mPaymentsLayout.addView(payment);
         }
     }
 
@@ -210,12 +243,28 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
         sign(mToken, mCertificate, mSignData);
     }
 
-    private void showPaymentInfo() {
+    protected String createFullPaymentHtml(int num) {
+        String result = new String();
+        DateFormat df = DateFormat.getDateInstance();
+        String date = df.format(new Date());
+        result += "<h2>" + getResources().getString(R.string.payment) + String.format("%d", num+Payment.FIRST_NUMBER)+"</h2>";
+        result += "<font color=#CCCCCC>" + getResources().getString(R.string.fromDate) + " "+ date + "</font>";
+        result += "<br/><br/>";
+        for(int i = 0; i < mPaymentTitles.length; ++i) {
+            result += "<font color=#CCCCCC>" + mPaymentTitles[i] + "</font><br/>";
+            result += "<font color=#000000>" + mPaymentArray[num][i] + "</font><br/><br/>";
+        }
+        return result;
+    }
+
+    private void showPaymentInfo(int number) {
         AlertDialog.Builder builder = new AlertDialog.Builder(PaymentsActivity.this);
         builder.setCancelable(true);
 
         AlertDialog dialog = builder.create();
         View infoView = (LinearLayout) getLayoutInflater().inflate(R.layout.payment_info_layout, null);
+        TextView dataTV = (TextView)infoView.findViewById(R.id.dataTV);
+        dataTV.setText(Html.fromHtml(createFullPaymentHtml(number)));
         dialog.setView(infoView);
 
         final TextView paymentInfoTextView = (TextView) infoView.findViewById(R.id.dataTV);
@@ -223,6 +272,8 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
         final EditText signEditText = (EditText) infoView.findViewById(R.id.signET);
         final Button signButton = (Button) infoView.findViewById(R.id.signB);
 
+        sendButton.bringToFront();
+        signButton.bringToFront();
         signButton.setVisibility(View.GONE);
         signEditText.setVisibility(View.GONE);
 

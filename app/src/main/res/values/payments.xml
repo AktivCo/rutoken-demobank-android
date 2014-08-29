@@ -1,17 +1,236 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string-array name="bashneft_payment">
-        <item>1</item>
-        <item>12 мая 2014</item>
-        <item>ОАО \"Башнефть\"</item>
-        <item>18 000р</item>
+    <string name="payment">Платежное поручение №</string>
+    <string name="recepient">Получатель</string>
+    <string name="price">Сумма</string>
+    <string name="fromDate">от</string>
+    <string-array name="payments_titles">
+        <item>Плательщик</item>
+        <item>ИНН</item>
+        <item>КПП</item>
+        <item>Сч. №</item>
+        <item>Банк плательщика</item>
+        <item>БИК</item>
+        <item>Сч. №</item>
+        <item>Банк получателя</item>
+        <item>БИК</item>
+        <item>Сч. №</item>
+        <item>Получатель</item>
+        <item>ИНН</item>
+        <item>КПП</item>
+        <item>Сч. №</item>
+        <item>Сумма</item>
+        <item>Назначение платежа</item>
     </string-array>
-
-    <string-array name="lukoil_payment">
-        <item>2</item>
-        <item>13 мая 2014</item>
-        <item>ОАО \"Лукойл\"</item>
-        <item>100р</item>
-    </string-array>
-
+<array name="payments">
+    <item>@array/a0</item>
+    <item>@array/a1</item>
+    <item>@array/a2</item>
+    <item>@array/a3</item>
+    <item>@array/a4</item>
+    <item>@array/a5</item>
+    <item>@array/a6</item>
+    <item>@array/a7</item>
+    <item>@array/a8</item>
+    <item>@array/a9</item>
+    <item>@array/a10</item>
+</array>
+        <string-array name ="a0">
+            <item>ЗАО "Актив-софт"</item>
+            <item>7712545785</item>
+            <item>771254552</item>
+            <item>40702800000012354457</item>
+            <item>Банк ВТБ (открытое акционерное общество)</item>
+            <item>044525187</item>
+            <item>30101810700000000187</item>
+            <item>Сбербанк</item>
+            <item>044525225</item>
+            <item>30101810400000000225</item>
+            <item>ОАО "Нефтегаз"</item>
+            <item>7707083893</item>
+            <item>775003035 </item>
+            <item>40101810800000014958</item>
+            <item>13367 </item>
+            <item>За телепатические услуги</item>
+        </string-array>
+        <string-array name ="a1">
+            <item>ЗАО "Актив-софт"</item>
+            <item>7712545785</item>
+            <item>771254552</item>
+            <item>40702800000012354457</item>
+            <item>Банк ВТБ (открытое акционерное общество)</item>
+            <item>044525187</item>
+            <item>30101810700000000187</item>
+            <item>Сбербанк</item>
+            <item>044525225</item>
+            <item>30101810400000000225</item>
+            <item>ЗАО "Вавилон"</item>
+            <item>7707083893</item>
+            <item>775003035</item>
+            <item>40101810800000010244</item>
+            <item>73450</item>
+            <item>За телепатические услуги</item>
+        </string-array>
+        <string-array name ="a2">
+            <item>ЗАО "Актив-софт"</item>
+            <item>7712545785</item>
+            <item>771254552</item>
+            <item>40702800000012354457</item>
+            <item>Банк ВТБ (открытое акционерное общество)</item>
+            <item>044525187</item>
+            <item>30101810700000000187</item>
+            <item>Сбербанк</item>
+            <item>044525225</item>
+            <item>30101810400000000225</item>
+            <item>ОАО "Спецал - Инвест"</item>
+            <item>7707083893</item>
+            <item>775003035</item>
+            <item>40101810800000010283</item>
+            <item>38441</item>
+            <item>За телепатические услуги</item>
+        </string-array>
+        <string-array name ="a3">
+            <item>ЗАО "Актив-софт"</item>
+            <item>7712545785</item>
+            <item>771254552</item>
+            <item>40702800000012354457</item>
+            <item>Банк ВТБ (открытое акционерное общество)</item>
+            <item>044525187</item>
+            <item>30101810700000000187</item>
+            <item>Сбербанк</item>
+            <item>044525225</item>
+            <item>30101810400000000225</item>
+            <item>ФГУП СервисКонтакт</item>
+            <item>7707083893</item>
+            <item>775003035</item>
+            <item>40101810800000010283</item>
+            <item>11200</item>
+            <item>За телепатические услуги</item>
+        </string-array>
+        <string-array name ="a4">
+            <item>ЗАО "Актив-софт"</item>
+            <item>7712545785</item>
+            <item>771254552</item>
+            <item>40702800000012354457</item>
+            <item>Банк ВТБ (открытое акционерное общество)</item>
+            <item>044525187</item>
+            <item>30101810700000000187</item>
+            <item>Сбербанк</item>
+            <item>044525225</item>
+            <item>30101810400000000225</item>
+            <item>ФГУП СервисКонтакт</item>
+            <item>7707083893</item>
+            <item>775003035</item>
+            <item>40101810800000010283</item>
+            <item>11200</item>
+            <item>За телепатические услуги</item>
+        </string-array>
+        <string-array name ="a5">
+            <item>ЗАО "Актив-софт"</item>
+            <item>7712545785</item>
+            <item>771254552</item>
+            <item>40702800000012354457</item>
+            <item>Банк ВТБ (открытое акционерное общество)</item>
+            <item>044525187</item>
+            <item>30101810700000000187</item>
+            <item>Сбербанк</item>
+            <item>044525225</item>
+            <item>30101810400000000225</item>
+            <item>Госуслуги, ОАО</item>
+            <item>7707083893</item>
+            <item>775003035</item>
+            <item>40101810800000010283</item>
+            <item>58000</item>
+            <item>За телепатические услуги</item>
+        </string-array>
+        <string-array name ="a6">
+            <item>ЗАО "Актив-софт"</item>
+            <item>7712545785</item>
+            <item>771254552</item>
+            <item>40702800000012354457</item>
+            <item>Банк ВТБ (открытое акционерное общество)</item>
+            <item>044525187</item>
+            <item>30101810700000000187</item>
+            <item>Сбербанк</item>
+            <item>044525225</item>
+            <item>30101810400000000225</item>
+            <item>РАО ЕЭС</item>
+            <item>7707083893</item>
+            <item>775003035</item>
+            <item>40101810800000010283</item>
+            <item>38500</item>
+            <item>За телепатические услуги</item>
+        </string-array>
+        <string-array name ="a7">
+            <item>ЗАО "Актив-софт"</item>
+            <item>7712545785</item>
+            <item>771254552</item>
+            <item>40702800000012354457</item>
+            <item>Банк ВТБ (открытое акционерное общество)</item>
+            <item>044525187</item>
+            <item>30101810700000000187</item>
+            <item>Сбербанк</item>
+            <item>044525225</item>
+            <item>30101810400000000225</item>
+            <item>ООО "Фурлан"</item>
+            <item>7707083893</item>
+            <item>775003035</item>
+            <item>40101810800000010283</item>
+            <item>90347</item>
+            <item>За телепатические услуги</item>
+        </string-array>
+        <string-array name ="a8">
+            <item>ЗАО "Актив-софт"</item>
+            <item>7712545785</item>
+            <item>771254552</item>
+            <item>40702800000012354457</item>
+            <item>Банк ВТБ (открытое акционерное общество)</item>
+            <item>044525187</item>
+            <item>30101810700000000187</item>
+            <item>Сбербанк</item>
+            <item>044525225</item>
+            <item>30101810400000000225</item>
+            <item>ОАО "Пруфлинк"</item>
+            <item>7707083893</item>
+            <item>775003035</item>
+            <item>40101810800000010283</item>
+            <item>22100</item>
+            <item>За телепатические услуги</item>
+        </string-array>
+        <string-array name ="a9">
+            <item>ЗАО "Актив-софт"</item>
+            <item>7712545785</item>
+            <item>771254552</item>
+            <item>40702800000012354457</item>
+            <item>Банк ВТБ (открытое акционерное общество)</item>
+            <item>044525187</item>
+            <item>30101810700000000187</item>
+            <item>Сбербанк</item>
+            <item>044525225</item>
+            <item>30101810400000000225</item>
+            <item>ЗАО "Нефтебытхим"</item>
+            <item>7707083893</item>
+            <item>775003035</item>
+            <item>40101810800000010283</item>
+            <item>40320</item>
+            <item>За телепатические услуги</item>
+        </string-array>
+        <string-array name ="a10">
+            <item>ЗАО "Актив-софт"</item>
+            <item>7712545785</item>
+            <item>771254552</item>
+            <item>40702800000012354457</item>
+            <item>Банк ВТБ (открытое акционерное общество)</item>
+            <item>044525187</item>
+            <item>30101810700000000187</item>
+            <item>Сбербанк</item>
+            <item>044525225</item>
+            <item>30101810400000000225</item>
+            <item>ООО "Фурлан"</item>
+            <item>7707083893</item>
+            <item>775003035</item>
+            <item>40101810800000010283</item>
+            <item>33891</item>
+            <item>За телепатические услуги</item>
+        </string-array>
 </resources>

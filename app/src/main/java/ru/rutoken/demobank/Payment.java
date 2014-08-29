@@ -6,6 +6,9 @@ import android.view.LayoutInflater;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import java.text.DateFormat;
+import java.util.Date;
+
 /**
  * Created by Lashin on 29.08.2014.
  */
@@ -14,15 +17,24 @@ public class Payment extends RelativeLayout {
     private TextView mDateTextView;
     private TextView mRecieverTextView;
     private TextView mAmountTextView;
+    private int mAmount;
+    public static final int FIRST_NUMBER = 746;
 
     public Payment(Context context) {
         super(context);
         initPayment();
     }
 
-    public Payment(Context context, AttributeSet attrs) {
+    public Payment(Context context, AttributeSet attrs, int num, String recipient, int amount) {
         super(context, attrs);
         initPayment();
+        DateFormat df = DateFormat.getDateInstance();
+        mDateTextView.setText(df.format(new Date()));
+        mNumTextView.setText(String.format("%d", num+FIRST_NUMBER));
+        mRecieverTextView.setText(recipient);
+        mAmount = amount;
+        String amountString = String.format("%d", mAmount).replaceAll("\\d\\d\\d$", " $0 руб");
+        mAmountTextView.setText(amountString);
     }
 
     private void initPayment() {
@@ -35,12 +47,9 @@ public class Payment extends RelativeLayout {
         mAmountTextView = (TextView)findViewById(R.id.amountTV);
     }
 
-    public void setNum(String value) {mNumTextView.setText(value);}
-    public String getNum() {return mNumTextView.getText().toString();}
-    public void setDate(String value) {mDateTextView.setText(value);}
+
+    public int getNum() {return Integer.parseInt(mNumTextView.getText().toString())-FIRST_NUMBER;}
     public String getDate() {return mDateTextView.getText().toString();}
-    public void setReciever(String value) {mRecieverTextView.setText(value);}
     public String getReciever() {return mRecieverTextView.getText().toString();}
-    public void setAmount(String value) {mAmountTextView.setText(value);}
-    public String getAmount() {return mAmountTextView.getText().toString();}
+    public int getAmount() {return Integer.parseInt(mAmountTextView.getText().toString());}
 }
