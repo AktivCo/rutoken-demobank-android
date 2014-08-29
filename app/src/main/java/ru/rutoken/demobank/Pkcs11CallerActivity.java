@@ -53,7 +53,7 @@ abstract public class Pkcs11CallerActivity extends ExternallyDismissableActivity
             manageLogoutError();
         }
         public void execute(Object... arguments) {
-            if(arguments != null) {
+            if(arguments.length != 0) {
                 showError("Unspecified error");
                 return;
             }

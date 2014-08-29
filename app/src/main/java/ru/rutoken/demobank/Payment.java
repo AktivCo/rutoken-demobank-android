@@ -19,6 +19,7 @@ public class Payment extends RelativeLayout {
     private TextView mAmountTextView;
     private int mAmount;
     public static final int FIRST_NUMBER = 746;
+    public static final int THRESHOLD_PRICE = 50000;
 
     public Payment(Context context) {
         super(context);
@@ -51,5 +52,5 @@ public class Payment extends RelativeLayout {
     public int getNum() {return Integer.parseInt(mNumTextView.getText().toString())-FIRST_NUMBER;}
     public String getDate() {return mDateTextView.getText().toString();}
     public String getReciever() {return mRecieverTextView.getText().toString();}
-    public int getAmount() {return Integer.parseInt(mAmountTextView.getText().toString());}
+    public int getAmount() {return mAmount;}
 }

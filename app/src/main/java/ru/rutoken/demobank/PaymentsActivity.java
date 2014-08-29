@@ -9,6 +9,7 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.text.Html;
+import android.text.Spanned;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -21,6 +22,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.sun.jna.NativeLong;
 
@@ -36,6 +38,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
     private TextView mTokenIDTextView;
     private TextView mTokenBatteryTextView;
     private PopupWindow mPopupWindow;
+    private AlertDialog mDialog;
 
     protected NativeLong mSlotId = TokenManagerListener.NO_SLOT;
     protected NativeLong mCertificate = TokenManagerListener.NO_CERTIFICATE;
@@ -109,16 +112,28 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
         popupButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showPaymentInfo();
+                boolean bNeedAskPIN = false;
+                int paymentsCount = 0;
+                for(int i = 0; i<mPaymentsLayout.getChildCount(); ++i) {
+                    View childView = mPaymentsLayout.getChildAt(i);
+                    if(Payment.class.isInstance(childView)) {
+                        Payment payment = (Payment) childView;
+                        CheckBox checkBox = (CheckBox)payment.findViewById(R.id.checkBox);
+                        if(checkBox.isChecked()) {
+                            bNeedAskPIN = bNeedAskPIN || needAskPIN(payment);
+                            ++paymentsCount;
+                        }
+                    }
+                }
+                showBatchPaymentInfo(paymentsCount,bNeedAskPIN);
             }
         });
-
-        int[] IDs = new int[2];
-        IDs[0] = R.array.bashneft_payment;
-        IDs[1] = R.array.lukoil_payment;
-        createPayments(IDs);
+        createPayments();
     }
 
+    protected boolean needAskPIN(Payment payment) {
+        return payment.getAmount() >= Payment.THRESHOLD_PRICE;
+    }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -138,6 +153,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
 
     @Override
     protected void manageLoginError() {
+        Toast.makeText(this, R.string.error, Toast.LENGTH_SHORT).show();
         // showLogonFinished();
         //TODO
     }
@@ -149,7 +165,8 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
 
     @Override
     protected void manageSignError() {
-        logout(mToken);
+        Toast.makeText(this, R.string.error, Toast.LENGTH_SHORT).show();
+        //logout(mToken);
         // TODO
     }
 
@@ -160,7 +177,8 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
 
     @Override
     protected void manageLogoutError() {
-        // showLogonFinished();
+        Toast.makeText(this, R.string.error, Toast.LENGTH_SHORT).show();
+        onBackPressed();
         // TODO
     }
 
@@ -174,11 +192,11 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
 
     @Override
     protected void showError(String error) {
-        //mAlertTextView.setText(error);
+        Toast.makeText(this, error, Toast.LENGTH_SHORT).show();
         // TODO
     }
 
-    private void createPayments(int[] IDs) {
+    private void createPayments() {
         Resources res = getResources();
         mPaymentTitles = res.getStringArray(R.array.payments_titles);
         TypedArray ta = res.obtainTypedArray(R.array.payments);
@@ -212,7 +230,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
                 @Override
                 public void onClick(View view) {
                     if(!Payment.class.isInstance(view)) return;
-                    showPaymentInfo(((Payment)view).getNum());
+                    showPaymentInfo((Payment)view);
                 }
             });
             CheckBox checkBox = (CheckBox)payment.findViewById(R.id.checkBox);
@@ -257,15 +275,15 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
         return result;
     }
 
-    private void showPaymentInfo(int number) {
+    private void showPaymentInfoWithText(Spanned text, boolean bNeedAskPIN) {
         AlertDialog.Builder builder = new AlertDialog.Builder(PaymentsActivity.this);
         builder.setCancelable(true);
 
-        AlertDialog dialog = builder.create();
+        mDialog = builder.create();
         View infoView = (LinearLayout) getLayoutInflater().inflate(R.layout.payment_info_layout, null);
         TextView dataTV = (TextView)infoView.findViewById(R.id.dataTV);
-        dataTV.setText(Html.fromHtml(createFullPaymentHtml(number)));
-        dialog.setView(infoView);
+        dataTV.setText(text);
+        mDialog.setView(infoView);
 
         final TextView paymentInfoTextView = (TextView) infoView.findViewById(R.id.dataTV);
         final Button sendButton = (Button) infoView.findViewById(R.id.sendB);
@@ -277,28 +295,48 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
         signButton.setVisibility(View.GONE);
         signEditText.setVisibility(View.GONE);
 
-        sendButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                paymentInfoTextView.setVisibility(View.GONE);
-                sendButton.setVisibility(View.GONE);
-                signAction();
-                if(false) { // TODO -- check price
+        if(bNeedAskPIN) {
+            sendButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    paymentInfoTextView.setVisibility(View.GONE);
+                    sendButton.setVisibility(View.GONE);
                     signButton.setVisibility(View.VISIBLE);
                     signEditText.setVisibility(View.VISIBLE);
                 }
-            }
-        });
+            });
+        } else {
+            sendButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    paymentInfoTextView.setVisibility(View.GONE);
+                    sendButton.setVisibility(View.GONE);
+                    signAction();
+                }
+            });
+        }
 
         signButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 signButton.setVisibility(View.GONE);
                 signEditText.setVisibility(View.GONE);
+                mPin = signEditText.getText().toString();
                 startLoginAndSignAction();
             }
         });
 
-        dialog.show();
+        mDialog.show();
+    }
+
+    private void showBatchPaymentInfo(int count, boolean bNeedAskPIN) {
+        showPaymentInfoWithText(Html.fromHtml(String.format("Количество платежных поручений: %d.\nОтправить?", count)), bNeedAskPIN);
+    }
+
+    private void showPaymentInfo(Payment payment) {
+        if(null == payment)  return;
+        int number = payment.getNum();
+
+        showPaymentInfoWithText(Html.fromHtml(createFullPaymentHtml(number)), needAskPIN(payment));
     }
 }
