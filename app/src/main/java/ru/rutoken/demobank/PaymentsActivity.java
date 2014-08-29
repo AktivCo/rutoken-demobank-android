@@ -99,6 +99,14 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
 
         mPopupWindow = new PopupWindow(popupView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 
+        Button popupButton = (Button)popupView.findViewById(R.id.popupB);
+        popupButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showPaymentInfo();
+            }
+        });
+
         int[] IDs = new int[2];
         IDs[0] = R.array.bashneft_payment;
         IDs[1] = R.array.lukoil_payment;
