@@ -105,7 +105,7 @@ public class MainActivity extends ExternallyDismissableActivity {
         mInfoTextView = (TextView)findViewById(R.id.infoTV);
         mTWBAProgressBar = (ProgressBar)findViewById(R.id.twbaPB);
 
-        mTWBAProgressBar.setVisibility(View.GONE);
+        mTWBAProgressBar.setVisibility(View.INVISIBLE);
 
         mInfoTextView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -160,7 +160,7 @@ public class MainActivity extends ExternallyDismissableActivity {
         if(TokenManagerListener.getInstance().shallShowProgressBar()) {
             mTWBAProgressBar.setVisibility(View.VISIBLE);
         } else {
-            mTWBAProgressBar.setVisibility(View.GONE);
+            mTWBAProgressBar.setVisibility(View.INVISIBLE);
         }
     }
 

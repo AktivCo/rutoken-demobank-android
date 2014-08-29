@@ -4,8 +4,7 @@
     android:layout_height="match_parent"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:gravity="center"
-    android:baselineAligned="false"
-    android:background="@drawable/bg">
+    android:baselineAligned="false">
 
     <RelativeLayout
         android:layout_width="match_parent"
