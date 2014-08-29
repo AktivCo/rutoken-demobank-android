@@ -180,7 +180,8 @@ public class TokenManagerListener {
         mCertificate = NO_CERTIFICATE;
     }
 
-    protected void resetWaitSlotInfo() {
+    protected void resetWaitSlotState() {
+        mDoWait = false;
         mWaitToken = null;
         mWaitCertificate = NO_CERTIFICATE;
     }
@@ -191,38 +192,37 @@ public class TokenManagerListener {
         if(null == token) return;
         serial = token.getSerialNumber();
         certificates = token.enumerateCertificates();
-        if(mDoWait) {
-            if (certificates == null) return;
-            if (!serial.equals(mWaitToken.getSerialNumber())) return;
-            NativeLong foundCerificate = null;
-            for (NativeLong certificate: certificates) {
-                if (token.getCertificate(certificate).getSubject().equals(mWaitToken.getCertificate(mWaitCertificate))) {
-                    foundCerificate = certificate;
+        if(mDoWait) { // process wait token once
+            do {
+                if (certificates == null) break;
+                if (!serial.equals(mWaitToken.getSerialNumber())) break;
+                NativeLong foundCerificate = null;
+                for (NativeLong certificate : certificates) {
+                    if (token.getCertificate(certificate).getSubject().equals(mWaitToken.getCertificate(mWaitCertificate).getSubject())) {
+                        foundCerificate = certificate;
+                        break;
+                    }
+                }
+                if (null != foundCerificate) {
+                    mSlotId = slotId;
+                    mToken = token;
+                    mCertificate = foundCerificate;
+                    if (null != mMainActivity) mMainActivity.startPINActivity();
                     break;
                 }
+            } while(false);
+        }
+        // Process new token, if need
+        if (mSlotId.equals(NO_SLOT)) {
+            mSlotId = slotId;
+            mToken = token;
+            if (certificates != null && certificates.iterator().hasNext()) {
+                mCertificate = certificates.iterator().next();
+            } else {
+                mCertificate = NO_CERTIFICATE;
             }
-            if (null != foundCerificate) {
-                mDoWait = false;
-                mSlotId = slotId;
-                mToken = token;
-                mCertificate = foundCerificate;
-                resetWaitSlotInfo();
 
-                if(null != mMainActivity) mMainActivity.updateScreen();
-                if(null != mMainActivity) mMainActivity.startPINActivity();
-            }
-        } else {
-            if (mSlotId.equals(NO_SLOT)) {
-                mSlotId = slotId;
-                mToken = token;
-                if (certificates != null && certificates.iterator().hasNext()) {
-                    mCertificate = certificates.iterator().next();
-                } else {
-                    mCertificate = NO_CERTIFICATE;
-                }
-
-                if(null != mMainActivity) mMainActivity.updateScreen();
-            }
+            if(null != mMainActivity) mMainActivity.updateScreen();
         }
     }
 
@@ -251,9 +251,9 @@ public class TokenManagerListener {
     }
 
     public void resetWaitForToken() {
-        mDoWait = false;
+        resetWaitSlotState();
         if(null != mMainActivity) mMainActivity.updateScreen();
-        onTokenRemoved(mSlotId);
+        onTokenRemoved(NO_SLOT);
     }
 
     public NativeLong getSlotId() {

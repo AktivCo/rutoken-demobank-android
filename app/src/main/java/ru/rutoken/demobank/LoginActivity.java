@@ -42,8 +42,19 @@ public class LoginActivity extends Pkcs11CallerActivity {
         return ACTIVITY_CLASS_IDENTIFIER;
     }
 
+    protected void showLogonStarted() {
+        // TODO show runner
+    }
+
+    protected void showLogonFinished() {
+        // TODO hide runner
+        mLoginButton.setEnabled(true);
+    }
+
+
     @Override
     protected void manageLoginError() {
+        showLogonFinished();
         //TODO
     }
 
@@ -55,16 +66,7 @@ public class LoginActivity extends Pkcs11CallerActivity {
     @Override
     protected void manageSignError() {
         logout(mToken);
-    }
-
-    @Override
-    protected void manageLogoutError() {
-        //TODO
-    }
-
-    @Override
-    protected void manageLogoutSucceed() {
-        //TODO
+        // TODO
     }
 
     @Override
@@ -76,8 +78,20 @@ public class LoginActivity extends Pkcs11CallerActivity {
     }
 
     @Override
+    protected void manageLogoutError() {
+        showLogonFinished();
+        //TODO
+    }
+
+    @Override
+    protected void manageLogoutSucceed() {
+        showLogonFinished();
+        //TODO
+    }
+
+    @Override
     protected void showError(String error) {
-        // TODO
+        mAlertTextView.setText(error);
     }
 
     @Override
@@ -152,13 +166,10 @@ public class LoginActivity extends Pkcs11CallerActivity {
         mLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                TokenManagerListener.getInstance().resetWaitForToken();
+                mLoginButton.setEnabled(false);
                 login(mToken, mPinEditText.getText().toString());
-                // TODO show runner
-                if (mPinEditText.getText().toString().equals(hardcodedPIN)) {
-                    mAlertTextView.setText("");
-                } else {
-                    mAlertTextView.setText(R.string.pin_alert);
-                }
+
             }
         });
     }
