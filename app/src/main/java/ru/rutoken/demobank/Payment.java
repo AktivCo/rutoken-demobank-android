@@ -10,6 +10,7 @@ import android.widget.TextView;
  * Created by Lashin on 29.08.2014.
  */
 public class Payment extends RelativeLayout {
+    private TextView mNumTextView;
     private TextView mDateTextView;
     private TextView mRecieverTextView;
     private TextView mAmountTextView;
@@ -28,11 +29,14 @@ public class Payment extends RelativeLayout {
         LayoutInflater inflater = (LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(R.layout.payment_layout, this);
 
+        mNumTextView = (TextView)findViewById(R.id.numTV);
         mDateTextView = (TextView)findViewById(R.id.dateTV);
         mRecieverTextView = (TextView)findViewById(R.id.recieverTV);
         mAmountTextView = (TextView)findViewById(R.id.amountTV);
     }
 
+    public void setNum(String value) {mNumTextView.setText(value);}
+    public String getNum() {return mNumTextView.getText().toString();}
     public void setDate(String value) {mDateTextView.setText(value);}
     public String getDate() {return mDateTextView.getText().toString();}
     public void setReciever(String value) {mRecieverTextView.setText(value);}

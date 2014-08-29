@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="bashneft_payment">
+        <item>1</item>
         <item>12 мая 2014</item>
         <item>ОАО \"Башнефть\"</item>
         <item>18 000р</item>
     </string-array>
 
     <string-array name="lukoil_payment">
+        <item>2</item>
         <item>13 мая 2014</item>
         <item>ОАО \"Лукойл\"</item>
         <item>100р</item>

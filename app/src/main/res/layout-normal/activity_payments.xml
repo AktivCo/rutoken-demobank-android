@@ -13,41 +13,68 @@
         android:showDividers="end"
         android:divider="@drawable/info_header_divider">
 
-        <TextView
-            android:layout_width="match_parent"
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Петруха Петрович"
-            android:id="@+id/certTV"
-            android:textColor="@android:color/black"
-            android:textSize="25dp"
-            android:padding="10dp" />
+            android:divider="@drawable/info_header_divider">
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="Рутокен ЭЦП Bluetooth"
-            android:id="@+id/modelTV"
-            android:textColor="@android:color/black"
-            android:textSize="25dp"
-            android:padding="10dp" />
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="60dp">
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="12345-67890"
-            android:id="@+id/tokenIdTV"
-            android:textColor="@android:color/black"
-            android:textSize="25dp"
-            android:padding="10dp" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="12345"
+                    android:id="@+id/tokenIdTV"
+                    android:textColor="@android:color/black"
+                    android:textSize="30dp"
+                    android:paddingLeft="20dp"
+                    android:paddingRight="20dp"
+                    android:gravity="center"
+                    android:layout_alignParentTop="true"
+                    android:layout_centerHorizontal="true" />
 
-        <ImageView
-            android:layout_width="60dp"
-            android:layout_height="40dp"
-            android:id="@+id/imageView2"
-            android:src="@drawable/battery_4_sec"
-            android:paddingLeft="10dp" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="100%"
+                    android:id="@+id/percentageTV"
+                    android:paddingRight="20dp"
+                    android:paddingLeft="20dp"
+                    android:textColor="@android:color/black"
+                    android:gravity="center"
+                    android:textSize="30dp"
+                    android:layout_centerVertical="true"
+                    android:layout_toLeftOf="@+id/imageView2"
+                    android:layout_toStartOf="@+id/imageView2" />
+
+                <ImageView
+                    android:layout_width="60dp"
+                    android:layout_height="40dp"
+                    android:id="@+id/imageView2"
+                    android:src="@drawable/battery_4_sec"
+                    android:layout_centerVertical="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentEnd="true" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="Рутокен ЭЦП Bluetooth"
+                    android:id="@+id/modelTV"
+                    android:layout_centerVertical="true"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true"
+                    android:textSize="30dp"
+                    android:textColor="@android:color/black"
+                    android:gravity="center" />
+            </RelativeLayout>
+        </LinearLayout>
 
         <ScrollView
             android:layout_width="match_parent"
@@ -55,66 +82,11 @@
             android:id="@+id/scrollView"
             android:background="#fffafafa" >
 
-            <TableLayout
+            <LinearLayout
+                android:orientation="vertical"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
-                android:id="@+id/payments"
-                android:divider="@drawable/info_header_divider"
-                android:showDividers="beginning|middle|end">
-
-                <TableRow
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textAppearance="?android:attr/textAppearanceLarge"
-                        android:text="1"
-                        android:id="@+id/textView"
-                        android:textColor="#979797"
-                        android:paddingLeft="10dp"
-                        android:paddingRight="10dp" />
-
-                    <view
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        class="ru.rutoken.demobank.Payment"
-                        android:id="@+id/basneftPayment"
-                        android:layout_column="1"
-                        android:paddingLeft="20dp"
-                        android:paddingRight="20dp"
-                        android:paddingBottom="20dp" />
-
-                </TableRow>
-
-                <TableRow
-                    android:layout_width="fill_parent"
-                    android:layout_height="fill_parent">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textAppearance="?android:attr/textAppearanceLarge"
-                        android:text="2"
-                        android:id="@+id/textView2"
-                        android:textColor="#979797"
-                        android:paddingLeft="10dp"
-                        android:paddingRight="10dp"
-                        android:paddingBottom="10dp" />
-
-                    <view
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        class="ru.rutoken.demobank.Payment"
-                        android:id="@+id/lukoilPayment"
-                        android:layout_column="1"
-                        android:paddingLeft="20dp"
-                        android:paddingRight="20dp"
-                        android:paddingBottom="20dp" />
-                </TableRow>
-            </TableLayout>
+                android:id="@+id/paymentsLayout"></LinearLayout>
         </ScrollView>
     </LinearLayout>
 
