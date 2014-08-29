@@ -12,8 +12,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import com.sun.jna.NativeLong;
@@ -22,14 +25,18 @@ import ru.rutoken.Pkcs11Caller.Token;
 import ru.rutoken.Pkcs11Caller.TokenManager;
 
 public class PaymentsActivity extends Pkcs11CallerActivity {
-    private Payment mBashneftView;
-    private Payment mLukoilView;
+    private LinearLayout mPaymentsLayout;
+    private TextView mTokenModelTextView;
+    private TextView mTokenIDTextView;
+    private TextView mTokenBatteryTextView;
+    private PopupWindow mPopupWindow;
 
     protected NativeLong mSlotId = TokenManagerListener.NO_SLOT;
     protected NativeLong mCertificate = TokenManagerListener.NO_CERTIFICATE;
     protected Token mToken = null;
     protected boolean mDoLoginAndSign = false;
     String mPin = null;
+    private int mChecks;
 
     private byte mSignData[] = new byte[]{0,0,0};
 
@@ -50,7 +57,6 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
                 ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
 
         setupActionBar();
-        setupUI();
         Intent intent = getIntent();
         mSlotId = (NativeLong)intent.getSerializableExtra("slotId");
         mCertificate = (NativeLong) intent.getSerializableExtra("certificate");
@@ -60,6 +66,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
         }
         TokenManagerListener.getInstance().setPaymentsCreated();
 
+        setupUI();
     }
 
     private void setupActionBar() {
@@ -82,10 +89,20 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
     }
 
     private void setupUI() {
-        mBashneftView = (Payment)findViewById(R.id.basneftPayment);
-        mLukoilView = (Payment)findViewById(R.id.lukoilPayment);
+        mPaymentsLayout = (LinearLayout)findViewById(R.id.paymentsLayout);
+        mTokenBatteryTextView = (TextView)findViewById(R.id.percentageTV);
+        mTokenIDTextView = (TextView)findViewById(R.id.tokenIdTV);
+        mTokenModelTextView = (TextView)findViewById(R.id.modelTV);
 
-        createPayments();
+        LayoutInflater inflater = (LayoutInflater)getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
+        View popupView = inflater.inflate(R.layout.popup_layout, null);
+
+        mPopupWindow = new PopupWindow(popupView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+
+        int[] IDs = new int[2];
+        IDs[0] = R.array.bashneft_payment;
+        IDs[1] = R.array.lukoil_payment;
+        createPayments(IDs);
     }
 
     @Override
@@ -147,22 +164,33 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
         // TODO
     }
 
-    private void createPayments() {
-        String[] data = getResources().getStringArray(R.array.bashneft_payment);
-        mBashneftView.setDate(data[0]);
-        mBashneftView.setReciever(data[1]);
-        mBashneftView.setAmount(data[2]);
+    private void createPayments(int[] IDs) {
+        for (int i = 0; i < IDs.length; ++i) {
+            Payment payment = new Payment(PaymentsActivity.this);
 
-        data = getResources().getStringArray(R.array.lukoil_payment);
-        mLukoilView.setDate(data[0]);
-        mLukoilView.setReciever(data[1]);
-        mLukoilView.setAmount(data[2]);
-        mLukoilView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showPaymentInfo();
-            }
-        });
+            String[] data = getResources().getStringArray(IDs[i]);
+            payment.setNum(data[0]);
+            payment.setDate(data[1]);
+            payment.setReciever(data[2]);
+            payment.setAmount(data[3]);
+
+            mPaymentsLayout.addView(payment);
+            CheckBox checkBox = (CheckBox)payment.findViewById(R.id.checkBox);
+            checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                    if (b) {
+                        ++mChecks;
+                        mPopupWindow.showAtLocation(mPaymentsLayout, Gravity.BOTTOM, 0, 0);
+                    } else {
+                        --mChecks;
+                        if (mChecks == 0) {
+                            mPopupWindow.dismiss();
+                        }
+                    }
+                }
+            });
+        }
     }
 
     protected void startLoginAndSignAction() {
