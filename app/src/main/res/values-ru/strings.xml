@@ -8,7 +8,6 @@
     <string name="pin_hint">Введите PIN-код</string>
     <string name="ok">OK</string>
     <string name="pin_alert">Неправильный PIN, попробуйте ещё раз</string>
-    <string name="number">№ </string>
     <string name="sign">Подписать и отправить</string>
     <string name="payment_data">КБ «Ренессанс Кредит» (ООО) г. Москва
         Корр. счет №30101810900000000409 в Отделении 3 Главного управления Центрального банка Российской Федерации

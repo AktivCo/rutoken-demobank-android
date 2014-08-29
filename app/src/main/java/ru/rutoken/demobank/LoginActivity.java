@@ -1,7 +1,6 @@
 package ru.rutoken.demobank;
 
 import android.app.ActionBar;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -19,10 +18,8 @@ import android.widget.TextView;
 
 import com.sun.jna.NativeLong;
 
-import ru.rutoken.Pkcs11Caller.Pkcs11Callback;
 import ru.rutoken.Pkcs11Caller.Token;
 import ru.rutoken.Pkcs11Caller.TokenManager;
-import ru.rutoken.Pkcs11Caller.exception.Pkcs11CallerException;
 
 
 public class LoginActivity extends Pkcs11CallerActivity {

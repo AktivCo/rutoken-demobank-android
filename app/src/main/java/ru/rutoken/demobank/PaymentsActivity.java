@@ -16,7 +16,8 @@ import android.widget.TextView;
 
 
 public class PaymentsActivity extends ExternallyDismissableActivity {
-    private LinearLayout mPaymentsLayout;
+    private Payment mBashneftView;
+    private Payment mLukoilView;
 
     private static final String ACTIVITY_CLASS_IDENTIFIER = ExternallyDismissableActivity.class.getName();
 
@@ -58,32 +59,28 @@ public class PaymentsActivity extends ExternallyDismissableActivity {
     }
 
     private void setupUI() {
-        mPaymentsLayout = (LinearLayout)findViewById(R.id.paymentsLayout);
+        mBashneftView = (Payment)findViewById(R.id.basneftPayment);
+        mLukoilView = (Payment)findViewById(R.id.lukoilPayment);
 
-        int[] paymentsIds = new int[2];
-        paymentsIds[0] = R.array.bashneft_payment;
-        paymentsIds[1] = R.array.lukoil_payment;
-        createPayments(paymentsIds);
+        createPayments();
     }
 
-    private void createPayments(int[] IDs) {
-        for (int i = 0; i < IDs.length; ++i) {
-            PaymentView view = new PaymentView(PaymentsActivity.this);
+    private void createPayments() {
+        String[] data = getResources().getStringArray(R.array.bashneft_payment);
+        mBashneftView.setDate(data[0]);
+        mBashneftView.setReciever(data[1]);
+        mBashneftView.setAmount(data[2]);
 
-            String[] data = getResources().getStringArray(IDs[i]);
-            view.setNum(getString(R.string.number) + data[0]);
-            view.setDate(data[1]);
-            view.setReciever(data[2]);
-            view.setAmount(data[3]);
-
-            mPaymentsLayout.addView(view);
-            view.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    showPaymentInfo();
-                }
-            });
-        }
+        data = getResources().getStringArray(R.array.lukoil_payment);
+        mLukoilView.setDate(data[0]);
+        mLukoilView.setReciever(data[1]);
+        mLukoilView.setAmount(data[2]);
+//            view.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View view) {
+//                    showPaymentInfo();
+//                }
+//            });
     }
 
     private void showPaymentInfo() {
