@@ -19,6 +19,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.ProgressBar;
@@ -38,6 +39,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
     private TextView mTokenModelTextView;
     private TextView mTokenIDTextView;
     private TextView mTokenBatteryTextView;
+    private ImageView mTokenBatteryImageView;
     private PopupWindow mPopupWindow;
     private AlertDialog mDialog;
 
@@ -47,6 +49,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
     protected boolean mDoLoginAndSign = false;
     String mPin = null;
     private int mChecks;
+    private int[] mBatteryPercentage = new int[100];
 
     private byte mSignData[] = new byte[]{0,0,0};
 
@@ -58,6 +61,37 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
         return ACTIVITY_CLASS_IDENTIFIER;
     }
 
+    private void fillBatteryPercentageArray() {
+        for (int i = 0; i < 100; i++) {
+            mBatteryPercentage[i] = 3500 + 7 * i;
+        }
+    }
+
+    private int checkBatteryPercentage(int percent) {
+        if (percent <= 15) {
+            return R.drawable.battery_empty;
+        } else if (percent >= 100) {
+            return R.drawable.battery_charge;
+        } else if (percent < 25) {
+            return R.drawable.battery_1_sec;
+        } else if (percent <= 50) {
+            return R.drawable.battery_2_sec;
+        } else if (percent <= 75) {
+            return R.drawable.battery_3_sec;
+        } else {
+            return R.drawable.battery_4_sec;
+        }
+    }
+
+    private int getBatteryPercentage(int batteryVoltage) {
+        int i = 0;
+        for (i = 0; i < 99; i++) {
+            if ((batteryVoltage >= mBatteryPercentage[i]) && (batteryVoltage <= mBatteryPercentage[i + 1])) {
+                break;
+            }
+        }
+        return i;
+    }
 
     public static String PAYMENTS_CREATED = PaymentsActivity.class.getName() + "PAYMENTS_CREATED";
     @Override
@@ -78,6 +112,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
         }
         TokenManagerListener.getInstance().setPaymentsCreated();
         setupUI();
+        fillBatteryPercentageArray();
     }
 
     private void setupActionBar() {
@@ -104,6 +139,16 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
         mTokenBatteryTextView = (TextView)findViewById(R.id.percentageTV);
         mTokenIDTextView = (TextView)findViewById(R.id.tokenIdTV);
         mTokenModelTextView = (TextView)findViewById(R.id.modelTV);
+        mTokenBatteryImageView = (ImageView)findViewById(R.id.batteryIV);
+
+        mTokenModelTextView.setText(mToken.getModel());
+        String serial = mToken.getSerialNumber();
+        int dec = Integer.parseInt(serial, 16);
+        mTokenIDTextView.setText(String.valueOf(dec).substring(4));
+
+        int charge = getBatteryPercentage(mToken.getCharge());
+        mTokenBatteryTextView.setText(charge + "%");
+        mTokenBatteryImageView.setImageResource(checkBatteryPercentage(charge));
 
         LayoutInflater inflater = (LayoutInflater)getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
         View popupView = inflater.inflate(R.layout.popup_layout, null);
@@ -291,7 +336,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
         final Button sendButton = (Button) infoView.findViewById(R.id.sendB);
         final EditText signEditText = (EditText) infoView.findViewById(R.id.signET);
         final Button signButton = (Button) infoView.findViewById(R.id.signB);
-        final ProgressBar progressBar = (ProgressBar)infoView.findViewById(R.id.progressBar);
+        final ProgressBar progressBar = (ProgressBar) infoView.findViewById(R.id.progressBar);
 
         signButton.setVisibility(View.GONE);
         signEditText.setVisibility(View.GONE);
@@ -305,6 +350,8 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
                     sendButton.setVisibility(View.GONE);
                     signButton.setVisibility(View.VISIBLE);
                     signEditText.setVisibility(View.VISIBLE);
+                } else {
+                    progressBar.setVisibility(View.VISIBLE);
                 }
             });
         } else {

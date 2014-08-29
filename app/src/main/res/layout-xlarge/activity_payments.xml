@@ -49,13 +49,13 @@
                     android:gravity="center"
                     android:textSize="30dp"
                     android:layout_centerVertical="true"
-                    android:layout_toLeftOf="@+id/imageView2"
-                    android:layout_toStartOf="@+id/imageView2" />
+                    android:layout_toLeftOf="@+id/batteryIV"
+                    android:layout_toStartOf="@+id/batteryIV" />
 
                 <ImageView
                     android:layout_width="60dp"
                     android:layout_height="40dp"
-                    android:id="@+id/imageView2"
+                    android:id="@+id/batteryIV"
                     android:src="@drawable/battery_4_sec"
                     android:layout_centerVertical="true"
                     android:layout_alignParentRight="true"
