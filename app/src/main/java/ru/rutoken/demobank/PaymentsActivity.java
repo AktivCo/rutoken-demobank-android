@@ -3,6 +3,7 @@ package ru.rutoken.demobank;
 import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Resources;
@@ -45,8 +46,10 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
     private TextView mTokenBatteryTextView;
     private ImageView mTokenBatteryImageView;
     private PopupWindow mPopupWindow;
-    private AlertDialog mDialog;
+    private AlertDialog mInfoDialog;
     private AlertDialog mSucceedDialog;
+    private ProgressDialog mProgressDialog;
+    private AlertDialog mLogin;
 
     private String[] mPaymentTitles;
     private String[][] mPaymentArray = null;
@@ -63,6 +66,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
 
     // Logic
     protected boolean mDoLoginAndSign = false;
+    protected boolean mGotLogoutError = false;
     String mPin = null;
     private int mChecks;
     //
@@ -202,19 +206,27 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
     @Override
     public void onBackPressed() {
         TokenManagerListener.getInstance().resetPaymentsCreated();
-        logout(mToken);
+        if(!mGotLogoutError) {
+            logout(mToken);
+        } else {
+            mGotLogoutError = false;
+        }
         super.onBackPressed();
     }
 
     @Override
     protected void manageLoginError() {
         Toast.makeText(this, R.string.error, Toast.LENGTH_SHORT).show();
+
         // showLogonFinished();
         //TODO
     }
 
     @Override
     protected void manageLoginSucceed() {
+        if(mDoLoginAndSign){
+            mDoLoginAndSign = false;
+        }
         sign(mToken, mCertificate, mSignData);
     }
 
@@ -227,8 +239,8 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
 
     @Override
     protected void manageSignSucceed(byte[] data) {
-        if (mDialog != null) {
-            mDialog.dismiss();
+        if (mInfoDialog != null) {
+            mInfoDialog.dismiss();
         }
         mSucceedDialog.show();
     }
@@ -236,6 +248,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
     @Override
     protected void manageLogoutError() {
         Toast.makeText(this, R.string.error, Toast.LENGTH_SHORT).show();
+        mGotLogoutError = true;
         onBackPressed();
         // TODO
     }
@@ -243,7 +256,6 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
     @Override
     protected void manageLogoutSucceed() {
         if(mDoLoginAndSign) {
-            mDoLoginAndSign = false;
             login(mToken, mPin);
         }
     }
@@ -288,7 +300,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
                 @Override
                 public void onClick(View view) {
                     if(!Payment.class.isInstance(view)) return;
-                    showPaymentInfo((Payment)view);
+                    showOnePaymentInfo((Payment) view);
                 }
             });
             CheckBox checkBox = (CheckBox)payment.findViewById(R.id.checkBox);
@@ -337,11 +349,11 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(PaymentsActivity.this);
         builder.setCancelable(true);
 
-        mDialog = builder.create();
+        mInfoDialog = builder.create();
         View infoView = (LinearLayout) getLayoutInflater().inflate(R.layout.payment_info_layout, null);
         TextView dataTV = (TextView)infoView.findViewById(R.id.dataTV);
         dataTV.setText(text);
-        mDialog.setView(infoView);
+        mInfoDialog.setView(infoView);
 
         final TextView paymentInfoTextView = (TextView) infoView.findViewById(R.id.dataTV);
         final Button sendButton = (Button) infoView.findViewById(R.id.sendB);
@@ -373,6 +385,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
                     paymentInfoTextView.setVisibility(View.GONE);
                     sendButton.setVisibility(View.GONE);
                     progressBar.setVisibility(View.VISIBLE);
+                    mInfoDialog.setCancelable(false);
                     signAction();
                 }
             });
@@ -386,11 +399,12 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
                 errorTV.setVisibility(View.GONE);
                 progressBar.setVisibility(View.VISIBLE);
                 mPin = signEditText.getText().toString();
+                mInfoDialog.setCancelable(false);
                 startLoginAndSignAction();
             }
         });
 
-        mDialog.show();
+        mInfoDialog.show();
     }
 
     private void showBatchPaymentInfo(int count, boolean bNeedAskPIN) {
@@ -403,7 +417,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
         showPaymentInfoWithText(Html.fromHtml(message), bNeedAskPIN);
     }
 
-    private void showPaymentInfo(Payment payment) {
+    private void showOnePaymentInfo(Payment payment) {
         if(null == payment)  return;
         int number = payment.getNum();
 
