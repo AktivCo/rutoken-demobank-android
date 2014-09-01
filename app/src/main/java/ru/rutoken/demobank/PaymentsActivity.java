@@ -348,9 +348,11 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
         final EditText signEditText = (EditText) infoView.findViewById(R.id.signET);
         final Button signButton = (Button) infoView.findViewById(R.id.signB);
         final ProgressBar progressBar = (ProgressBar) infoView.findViewById(R.id.progressBar);
+        final TextView errorTV = (TextView)infoView.findViewById(R.id.errorTV);
 
         signButton.setVisibility(View.GONE);
         signEditText.setVisibility(View.GONE);
+        errorTV.setVisibility(View.GONE);
         progressBar.setVisibility(View.GONE);
 
         if(bNeedAskPIN) {
@@ -361,6 +363,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
                     sendButton.setVisibility(View.GONE);
                     signButton.setVisibility(View.VISIBLE);
                     signEditText.setVisibility(View.VISIBLE);
+                    errorTV.setVisibility(View.VISIBLE);
                 }
             });
         } else {
@@ -380,6 +383,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
             public void onClick(View view) {
                 signButton.setVisibility(View.GONE);
                 signEditText.setVisibility(View.GONE);
+                errorTV.setVisibility(View.GONE);
                 progressBar.setVisibility(View.VISIBLE);
                 mPin = signEditText.getText().toString();
                 startLoginAndSignAction();
