@@ -18,16 +18,19 @@ abstract public class Pkcs11CallerActivity extends ExternallyDismissableActivity
             return ((Pkcs11Exception)exception).getMessage();
         } else return "Unspecified error";
     }
+    private static Pkcs11Exception pkcs11exceptionFromCallerException(Pkcs11CallerException exception) {
+        Pkcs11Exception exception1 = null;
+        if(Pkcs11Exception.class.isInstance(exception)) {
+            exception1 = ((Pkcs11Exception)exception);
+        }
+        return exception1;
+    }
     class LoginCallback extends Pkcs11Callback {
         public void execute(Pkcs11CallerException exception) {
-            showError(Pkcs11CallerActivity.translatePkcs11Exception(exception));
-            manageLoginError();
+            manageLoginError(pkcs11exceptionFromCallerException(exception));
         }
         public void execute(Object... arguments) {
-            if(arguments.length != 0) {
-                showError("Unspecified error");
-                return;
-            }
+            assert(arguments.length == 0);
 
             Pkcs11CallerActivity.this.manageLoginSucceed();
         };
@@ -35,28 +38,20 @@ abstract public class Pkcs11CallerActivity extends ExternallyDismissableActivity
 
     class SignCallback extends Pkcs11Callback {
         public void execute(Pkcs11CallerException exception) {
-            showError(Pkcs11CallerActivity.translatePkcs11Exception(exception));
-            manageSignError();
+            manageSignError(pkcs11exceptionFromCallerException(exception));
         }
         public void execute(Object... arguments) {
-            if(arguments.length == 0) {
-                showError("Unspecified error");
-                return;
-            }
+            assert(arguments.length != 0);
             manageSignSucceed((byte[])arguments[0]);
         };
     }
 
     class LogoutCallback extends Pkcs11Callback {
         public void execute(Pkcs11CallerException exception) {
-            showError(Pkcs11CallerActivity.translatePkcs11Exception(exception));
-            manageLogoutError();
+            manageLogoutError(pkcs11exceptionFromCallerException(exception));
         }
         public void execute(Object... arguments) {
-            if(arguments.length != 0) {
-                showError("Unspecified error");
-                return;
-            }
+            assert(arguments.length == 0);
             manageLogoutSucceed();
         };
     }
@@ -77,17 +72,15 @@ abstract public class Pkcs11CallerActivity extends ExternallyDismissableActivity
         token.logout(mLogoutCallback);
     }
 
-    abstract protected void manageLoginError();
+    abstract protected void manageLoginError(Pkcs11Exception exception);
 
     abstract protected void manageLoginSucceed();
 
-    abstract protected void manageLogoutError();
+    abstract protected void manageLogoutError(Pkcs11Exception exception);
 
     abstract protected void manageLogoutSucceed();
 
-    abstract protected void manageSignError();
+    abstract protected void manageSignError(Pkcs11Exception exception);
 
     abstract protected void manageSignSucceed(byte[] data);
-
-    abstract protected void showError(String error);
 }

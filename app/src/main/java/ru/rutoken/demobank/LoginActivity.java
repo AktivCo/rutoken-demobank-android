@@ -1,6 +1,7 @@
 package ru.rutoken.demobank;
 
 import android.app.ActionBar;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -21,6 +22,7 @@ import com.sun.jna.NativeLong;
 
 import ru.rutoken.Pkcs11Caller.Token;
 import ru.rutoken.Pkcs11Caller.TokenManager;
+import ru.rutoken.Pkcs11Caller.exception.Pkcs11Exception;
 
 
 public class LoginActivity extends Pkcs11CallerActivity {
@@ -53,7 +55,10 @@ public class LoginActivity extends Pkcs11CallerActivity {
 
 
     @Override
-    protected void manageLoginError() {
+    protected void manageLoginError(Pkcs11Exception exception) {
+        if(exception != null) {
+            mAlertTextView.setText(exception.getMessage());
+        }
         showLogonFinished();
         //TODO
     }
@@ -64,7 +69,7 @@ public class LoginActivity extends Pkcs11CallerActivity {
     }
 
     @Override
-    protected void manageSignError() {
+    protected void manageSignError(Pkcs11Exception exception) {
         logout(mToken);
         // TODO
     }
@@ -78,7 +83,7 @@ public class LoginActivity extends Pkcs11CallerActivity {
     }
 
     @Override
-    protected void manageLogoutError() {
+    protected void manageLogoutError(Pkcs11Exception exception) {
         showLogonFinished();
         //TODO
     }
@@ -87,11 +92,6 @@ public class LoginActivity extends Pkcs11CallerActivity {
     protected void manageLogoutSucceed() {
         showLogonFinished();
         //TODO
-    }
-
-    @Override
-    protected void showError(String error) {
-        mAlertTextView.setText(error);
     }
 
     @Override
