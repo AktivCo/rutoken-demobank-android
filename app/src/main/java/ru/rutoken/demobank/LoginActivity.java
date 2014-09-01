@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.sun.jna.NativeLong;
@@ -27,6 +28,7 @@ public class LoginActivity extends Pkcs11CallerActivity {
     private Button mLoginButton;
     private EditText mPinEditText;
     private TextView mAlertTextView;
+    private ProgressBar mLoginProgressBar;
 
     protected NativeLong mSlotId = TokenManagerListener.NO_SLOT;
     protected NativeLong mCertificate = TokenManagerListener.NO_CERTIFICATE;
@@ -40,11 +42,12 @@ public class LoginActivity extends Pkcs11CallerActivity {
     }
 
     protected void showLogonStarted() {
-        // TODO show runner
+        mLoginProgressBar.setVisibility(View.VISIBLE);
+        mLoginButton.setEnabled(false);
     }
 
     protected void showLogonFinished() {
-        // TODO hide runner
+        mLoginProgressBar.setVisibility(View.GONE);
         mLoginButton.setEnabled(true);
     }
 
@@ -133,6 +136,9 @@ public class LoginActivity extends Pkcs11CallerActivity {
         mLoginButton = (Button)findViewById(R.id.loginB);
         mPinEditText = (EditText)findViewById(R.id.pinET);
         mAlertTextView = (TextView)findViewById(R.id.alertTV);
+        mLoginProgressBar = (ProgressBar)findViewById(R.id.loginPB);
+
+        mLoginProgressBar.setVisibility(View.GONE);
 
         mLoginButton.setBackgroundColor(Color.TRANSPARENT);
         mLoginButton.setEnabled(false);
@@ -164,7 +170,7 @@ public class LoginActivity extends Pkcs11CallerActivity {
             @Override
             public void onClick(View view) {
                 TokenManagerListener.getInstance().resetWaitForToken();
-                mLoginButton.setEnabled(false);
+                showLogonStarted();
                 login(mToken, mPinEditText.getText().toString());
 
             }

@@ -49,4 +49,12 @@
         android:gravity="center"
         android:textColor="@android:color/black" />
 
+    <ProgressBar
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/loginPB"
+        android:layout_below="@+id/loginB"
+        android:layout_centerHorizontal="true" />
+
 </RelativeLayout>
