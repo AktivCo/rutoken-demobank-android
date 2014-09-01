@@ -214,7 +214,18 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
 
     @Override
     protected void manageSignSucceed(byte[] data) {
-        // TODO
+        if (mDialog != null) {
+            mDialog.dismiss();
+        }
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(PaymentsActivity.this);
+        builder.setCancelable(true);
+
+        AlertDialog dialog = builder.create();
+        View successView = (LinearLayout)getLayoutInflater().inflate(R.layout.result_dialog_layout, null);
+        dialog.setView(successView);
+
+        dialog.show();
     }
 
     @Override

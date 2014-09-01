@@ -18,8 +18,7 @@
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:id="@+id/dataTV"
-            android:textColor="@android:color/black"
-            android:text="@string/payment_data" />
+            android:textColor="@android:color/black" />
     </ScrollView>
 
     <Button
@@ -36,7 +35,9 @@
         android:layout_height="wrap_content"
         android:id="@+id/signET"
         android:hint="@string/pin_hint"
-        android:gravity="center" />
+        android:gravity="center"
+        android:textColor="@android:color/black"
+        android:background="@android:color/white" />
 
     <Button
         android:layout_width="match_parent"
