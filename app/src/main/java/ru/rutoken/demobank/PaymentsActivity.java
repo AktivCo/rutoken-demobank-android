@@ -46,6 +46,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
     private ImageView mTokenBatteryImageView;
     private PopupWindow mPopupWindow;
     private AlertDialog mDialog;
+    private AlertDialog mSucceedDialog;
 
     private String[] mPaymentTitles;
     private String[][] mPaymentArray = null;
@@ -134,7 +135,6 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
 
         LayoutInflater inflater = (LayoutInflater)getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
         View popupView = inflater.inflate(R.layout.popup_layout, null);
-
         mPopupWindow = new PopupWindow(popupView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 
         Button popupButton = (Button)popupView.findViewById(R.id.popupB);
@@ -157,6 +157,19 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
                 showBatchPaymentInfo(paymentsCount,bNeedAskPIN);
             }
         });
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(PaymentsActivity.this);
+        builder.setCancelable(true);
+        mSucceedDialog = builder.create();
+        View successView = (LinearLayout)getLayoutInflater().inflate(R.layout.result_dialog_layout, null);
+        successView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mSucceedDialog.dismiss();
+            }
+        });
+        mSucceedDialog.setView(successView);
+
         createPayments();
     }
 
@@ -217,15 +230,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
         if (mDialog != null) {
             mDialog.dismiss();
         }
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(PaymentsActivity.this);
-        builder.setCancelable(true);
-
-        AlertDialog dialog = builder.create();
-        View successView = (LinearLayout)getLayoutInflater().inflate(R.layout.result_dialog_layout, null);
-        dialog.setView(successView);
-
-        dialog.show();
+        mSucceedDialog.show();
     }
 
     @Override
@@ -318,12 +323,12 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
         String result = new String();
         DateFormat df = DateFormat.getDateInstance();
         String date = df.format(new Date());
-        result += "<h2>" + getResources().getString(R.string.payment) + String.format("%d", num+Payment.FIRST_NUMBER)+"</h2>";
+        result += "<h3>" + getResources().getString(R.string.payment) + String.format("%d", num+Payment.FIRST_NUMBER)+"</h3>";
         result += "<font color=#CCCCCC>" + getResources().getString(R.string.fromDate) + " "+ date + "</font>";
         result += "<br/><br/>";
         for(int i = 0; i < mPaymentTitles.length; ++i) {
-            result += "<font color=#CCCCCC>" + mPaymentTitles[i] + "</font><br/>";
-            result += "<font color=#000000>" + mPaymentArray[num][i] + "</font><br/><br/>";
+            result += "<font color=#CCCCCC size=-1>" + mPaymentTitles[i] + "</font><br/>";
+            result += "<font color=#000000 size=-1>" + mPaymentArray[num][i] + "</font><br/>";
         }
         return result;
     }
@@ -385,7 +390,13 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
     }
 
     private void showBatchPaymentInfo(int count, boolean bNeedAskPIN) {
-        showPaymentInfoWithText(Html.fromHtml(String.format("Количество платежных поручений: %d.\nОтправить?", count)), bNeedAskPIN);
+        String message = String.format(getResources().getString(R.string.batch_sign_message), count);
+        if(bNeedAskPIN) {
+            message += "<br />"+getResources().getString(R.string.need_pin_message);
+        } else {
+            message += "<br />"+getResources().getString(R.string.batch_require_proceed);
+        }
+        showPaymentInfoWithText(Html.fromHtml(message), bNeedAskPIN);
     }
 
     private void showPaymentInfo(Payment payment) {

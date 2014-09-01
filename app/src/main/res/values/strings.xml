@@ -12,4 +12,8 @@
     <string name="sign">Sign and Send</string>
     <string name="error">Internal error</string>
     <string name="done">Operation finished</string>
+    <string name="need_pin_message">You need to input PIN to proceed.</string>
+    <string name="batch_sign_message" formatted="false">%d payments will be sent.</string>
+    <string name="batch_require_proceed">Please, confirm operation.</string>
+
 </resources>

@@ -11,4 +11,7 @@
     <string name="sign">Подписать и отправить</string>
     <string name="error">Внутренняя ошибка</string>
     <string name="done">Операция завершена</string>
+    <string name="need_pin_message">Для отправки потребуется ввод PIN.</string>
+    <string name="batch_sign_message" formatted="false">Количество платежных поручений: %d.</string>
+    <string name="batch_require_proceed">Пожалуйста, подтвердите отправку.</string>
 </resources>
