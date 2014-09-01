@@ -30,36 +30,4 @@
         android:background="@drawable/ab_bg"
         android:visibility="visible" />
 
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/signET"
-        android:hint="@string/pin_hint"
-        android:gravity="center"
-        android:textColor="@android:color/black"
-        android:background="@android:color/white" />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:id="@+id/errorTV"
-        android:textColor="#ff0000"
-        android:gravity="center" />
-
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/signB"
-        android:background="@drawable/ab_bg"
-        android:text="@string/ok" />
-
-    <ProgressBar
-        style="?android:attr/progressBarStyleLarge"
-        android:layout_width="262dp"
-        android:layout_height="wrap_content"
-        android:id="@+id/progressBar"
-        android:layout_weight="0.23"
-        android:layout_gravity="center" />
-
 </LinearLayout>
