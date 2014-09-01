@@ -30,12 +30,15 @@ import com.sun.jna.NativeLong;
 
 import java.text.DateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import ru.rutoken.Pkcs11Caller.Token;
 import ru.rutoken.Pkcs11Caller.TokenManager;
 import ru.rutoken.utils.TokenBatteryCharge;
 
 public class PaymentsActivity extends Pkcs11CallerActivity {
+    // GUI
     private LinearLayout mPaymentsLayout;
     private TextView mTokenModelTextView;
     private TextView mTokenIDTextView;
@@ -44,28 +47,32 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
     private PopupWindow mPopupWindow;
     private AlertDialog mDialog;
 
+    private String[] mPaymentTitles;
+    private String[][] mPaymentArray = null;
+    private Map<String,String> mModelNames = new HashMap<String,String>();
+    //
+
+    private static byte mSignData[] = new byte[]{0,0,0};
+
+    // Activity input
     protected NativeLong mSlotId = TokenManagerListener.NO_SLOT;
     protected NativeLong mCertificate = TokenManagerListener.NO_CERTIFICATE;
     protected Token mToken = null;
+    //
+
+    // Logic
     protected boolean mDoLoginAndSign = false;
     String mPin = null;
     private int mChecks;
+    //
 
-    private byte mSignData[] = new byte[]{0,0,0};
-
+    // Support ExternallyDismissableActivity's abstract String getActivityClassIdentifier() method
     private static final String ACTIVITY_CLASS_IDENTIFIER = ExternallyDismissableActivity.class.getName();
-    private String[] mPaymentTitles;
-    private String[][] mPaymentArray = null;
 
     public String getActivityClassIdentifier() {
         return ACTIVITY_CLASS_IDENTIFIER;
     }
-
-
-
-
-
-
+    //
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,6 +92,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
         }
         TokenManagerListener.getInstance().setPaymentsCreated();
         setupUI();
+        fillInModelNames();
     }
 
     private void setupActionBar() {
@@ -113,10 +121,12 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
         mTokenModelTextView = (TextView)findViewById(R.id.modelTV);
         mTokenBatteryImageView = (ImageView)findViewById(R.id.batteryIV);
 
-        mTokenModelTextView.setText(mToken.getModel());
-        String serial = mToken.getSerialNumber();
-        int dec = Integer.parseInt(serial, 16);
-        mTokenIDTextView.setText(String.valueOf(dec).substring(4));
+        String marketingModelName = mModelNames.get(mToken.getModel());
+        if(null == marketingModelName) {
+            marketingModelName = "Unsupported Model";
+        }
+        mTokenModelTextView.setText(marketingModelName);
+        mTokenIDTextView.setText(mToken.getShortDecSerialNumber());
 
         int charge = TokenBatteryCharge.getBatteryPercentage(mToken.getCharge());
         mTokenBatteryTextView.setText(charge + "%");
@@ -148,6 +158,19 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
             }
         });
         createPayments();
+    }
+
+    protected void fillInModelNames() {
+        Resources res = getResources();
+        if(null == res) {
+            return;
+        }
+        String pkcs11Models[] = res.getStringArray(R.array.pkcs11_names);
+        String marketingModels[] = res.getStringArray(R.array.marketing_names);
+        assert(pkcs11Models.length == marketingModels.length);
+        for (int i=0; i<pkcs11Models.length ; ++i) {
+            mModelNames.put(pkcs11Models[i], marketingModels[i]);
+        }
     }
 
     protected boolean needAskPIN(Payment payment) {

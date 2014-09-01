@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="pkcs11_names">
+        <item name="rutoken_ecp">Rutoken ECP</item>
+        <item name="rutoken_ecp_bt">Rutoken ECP BT</item>
+        <item name="rutoken_lite">Rutoken lite</item>
+        <item name="rutoken_lite_sd">Rutoken lite SD</item>
+        <item name="rutoken_web">Rutoken Web</item>
+    </string-array>
+    <string-array name="marketing_names">
+        <item name="rutoken_ecp">Rutoken ECP</item>
+        <item name="rutoken_ecp_bt">Rutoken ECP Bluetooth</item>
+        <item name="rutoken_lite">Rutoken Lite</item>
+        <item name="rutoken_lite_sd">Rutoken Lite SD</item>
+        <item name="rutoken_web">Rutoken Web</item>
+    </string-array>
+</resources>

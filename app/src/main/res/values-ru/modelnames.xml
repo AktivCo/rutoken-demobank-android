@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="marketing_names">
+        <item name="rutoken_ecp">Рутокен ЭЦП</item>
+        <item name="rutoken_ecp_bt">Рутокен ЭЦП Bluetooth</item>
+        <item name="rutoken_lite">Рутокен Lite</item>
+        <item name="rutoken_lite_sd">Рутокен Lite SD</item>
+        <item name="rutoken_web">Рутокен Web</item>
+    </string-array>
+</resources>
