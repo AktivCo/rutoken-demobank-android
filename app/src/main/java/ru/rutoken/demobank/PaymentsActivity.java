@@ -91,8 +91,8 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
             finish();
         }
         TokenManagerListener.getInstance().setPaymentsCreated();
-        setupUI();
         fillInModelNames();
+        setupUI();
     }
 
     private void setupActionBar() {
