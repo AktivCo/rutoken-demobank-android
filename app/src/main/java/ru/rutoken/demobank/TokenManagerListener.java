@@ -26,7 +26,6 @@ import ru.rutoken.Pkcs11Caller.TokenManager;
 public class TokenManagerListener {
     private static TokenManagerListener mInstance = null;
     private static IntentFilter tmFilter;
-    private static IntentFilter mPaymentsCreatedFilter;
 
     private Context mContext;
     public static String MAIN_ACTIVITY_IDENTIFIER = TokenManagerListener.class.getName() + "MAIN_ACTIVITY";
@@ -42,8 +41,6 @@ public class TokenManagerListener {
         tmFilter.addAction(TokenManager.TOKEN_WAS_ADDED);
         tmFilter.addAction(TokenManager.TOKEN_WAS_REMOVED);
         tmFilter.addAction(TokenManager.INTERNAL_ERROR);
-        mPaymentsCreatedFilter = new IntentFilter();
-        mPaymentsCreatedFilter.addAction(PaymentsActivity.PAYMENTS_CREATED);
     }
     private final BroadcastReceiver mTokenReceiver = new BroadcastReceiver() {
         @Override

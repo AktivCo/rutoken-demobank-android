@@ -33,6 +33,7 @@ import java.util.Date;
 
 import ru.rutoken.Pkcs11Caller.Token;
 import ru.rutoken.Pkcs11Caller.TokenManager;
+import ru.rutoken.utils.TokenBatteryCharge;
 
 public class PaymentsActivity extends Pkcs11CallerActivity {
     private LinearLayout mPaymentsLayout;
@@ -49,7 +50,6 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
     protected boolean mDoLoginAndSign = false;
     String mPin = null;
     private int mChecks;
-    private int[] mBatteryPercentage = new int[100];
 
     private byte mSignData[] = new byte[]{0,0,0};
 
@@ -61,39 +61,12 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
         return ACTIVITY_CLASS_IDENTIFIER;
     }
 
-    private void fillBatteryPercentageArray() {
-        for (int i = 0; i < 100; i++) {
-            mBatteryPercentage[i] = 3500 + 7 * i;
-        }
-    }
 
-    private int checkBatteryPercentage(int percent) {
-        if (percent <= 15) {
-            return R.drawable.battery_empty;
-        } else if (percent >= 100) {
-            return R.drawable.battery_charge;
-        } else if (percent < 25) {
-            return R.drawable.battery_1_sec;
-        } else if (percent <= 50) {
-            return R.drawable.battery_2_sec;
-        } else if (percent <= 75) {
-            return R.drawable.battery_3_sec;
-        } else {
-            return R.drawable.battery_4_sec;
-        }
-    }
 
-    private int getBatteryPercentage(int batteryVoltage) {
-        int i = 0;
-        for (i = 0; i < 99; i++) {
-            if ((batteryVoltage >= mBatteryPercentage[i]) && (batteryVoltage <= mBatteryPercentage[i + 1])) {
-                break;
-            }
-        }
-        return i;
-    }
 
-    public static String PAYMENTS_CREATED = PaymentsActivity.class.getName() + "PAYMENTS_CREATED";
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -112,7 +85,6 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
         }
         TokenManagerListener.getInstance().setPaymentsCreated();
         setupUI();
-        fillBatteryPercentageArray();
     }
 
     private void setupActionBar() {
@@ -146,9 +118,9 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
         int dec = Integer.parseInt(serial, 16);
         mTokenIDTextView.setText(String.valueOf(dec).substring(4));
 
-        int charge = getBatteryPercentage(mToken.getCharge());
+        int charge = TokenBatteryCharge.getBatteryPercentage(mToken.getCharge());
         mTokenBatteryTextView.setText(charge + "%");
-        mTokenBatteryImageView.setImageResource(checkBatteryPercentage(charge));
+        mTokenBatteryImageView.setImageResource(TokenBatteryCharge.getBatteryImageForVoltage(mToken.getCharge()));
 
         LayoutInflater inflater = (LayoutInflater)getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
         View popupView = inflater.inflate(R.layout.popup_layout, null);
