@@ -34,6 +34,7 @@ public class Token {
     private String mLabel;
     private String mModel;
     private String mSerialNumber;
+    private String mShortDecSerialNumber;
     private String mHardwareVersion;
     private int mTotalMemory;
     private int mFreeMemory;
@@ -49,6 +50,7 @@ public class Token {
     public String getLabel() { return mLabel; }
     public String getModel() { return mModel; }
     public String getSerialNumber() { return mSerialNumber; }
+    public String getShortDecSerialNumber() { return mShortDecSerialNumber; }
     public String getHardwareVersion() { return mHardwareVersion; }
     public int getTotalMemory() { return mTotalMemory; }
     public int getFreeMemory() { return mFreeMemory; }
@@ -144,6 +146,9 @@ public class Token {
         mLabel = Utils.removeTrailingSpaces(tokenInfo.label);
         mModel = Utils.removeTrailingSpaces(tokenInfo.model);
         mSerialNumber = Utils.removeTrailingSpaces(tokenInfo.serialNumber);
+        int decSerial = Integer.parseInt(mSerialNumber, 16);
+        String decSerialString = String.valueOf(decSerial);
+        mShortDecSerialNumber = decSerialString.substring(decSerialString.length() - 5);
         mHardwareVersion = String.format("%d.%d.%d.%d",
                 tokenInfo.hardwareVersion.major, tokenInfo.hardwareVersion.minor,
                 tokenInfo.firmwareVersion.major, tokenInfo.firmwareVersion.minor);
