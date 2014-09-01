@@ -350,8 +350,6 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
                     sendButton.setVisibility(View.GONE);
                     signButton.setVisibility(View.VISIBLE);
                     signEditText.setVisibility(View.VISIBLE);
-                } else {
-                    progressBar.setVisibility(View.VISIBLE);
                 }
             });
         } else {
