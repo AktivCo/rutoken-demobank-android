@@ -21,6 +21,7 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -103,6 +104,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
         mTokenBatteryTextView = (TextView)findViewById(R.id.percentageTV);
         mTokenIDTextView = (TextView)findViewById(R.id.tokenIdTV);
         mTokenModelTextView = (TextView)findViewById(R.id.modelTV);
+
         LayoutInflater inflater = (LayoutInflater)getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
         View popupView = inflater.inflate(R.layout.popup_layout, null);
 
@@ -289,11 +291,11 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
         final Button sendButton = (Button) infoView.findViewById(R.id.sendB);
         final EditText signEditText = (EditText) infoView.findViewById(R.id.signET);
         final Button signButton = (Button) infoView.findViewById(R.id.signB);
+        final ProgressBar progressBar = (ProgressBar)infoView.findViewById(R.id.progressBar);
 
-        sendButton.bringToFront();
-        signButton.bringToFront();
         signButton.setVisibility(View.GONE);
         signEditText.setVisibility(View.GONE);
+        progressBar.setVisibility(View.GONE);
 
         if(bNeedAskPIN) {
             sendButton.setOnClickListener(new View.OnClickListener() {
@@ -311,6 +313,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
                 public void onClick(View view) {
                     paymentInfoTextView.setVisibility(View.GONE);
                     sendButton.setVisibility(View.GONE);
+                    progressBar.setVisibility(View.VISIBLE);
                     signAction();
                 }
             });
@@ -321,6 +324,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
             public void onClick(View view) {
                 signButton.setVisibility(View.GONE);
                 signEditText.setVisibility(View.GONE);
+                progressBar.setVisibility(View.VISIBLE);
                 mPin = signEditText.getText().toString();
                 startLoginAndSignAction();
             }
