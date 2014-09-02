@@ -234,8 +234,9 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
         mTokenModelTextView = (TextView)findViewById(R.id.modelTV);
         mTokenBatteryImageView = (ImageView)findViewById(R.id.batteryIV);
 
-        mTokenModelTextView.setText(TokenModelRecognizer.getInstance().marketingNameForPkcs11Name(mToken.getModel()));
-        mTokenIDTextView.setText(mToken.getShortDecSerialNumber());
+        mTokenModelTextView.setText(TokenModelRecognizer.getInstance().marketingNameForPkcs11Name(mToken.getModel())
+                + " " + mToken.getShortDecSerialNumber());
+        mTokenIDTextView.setText("");
 
         int charge = TokenBatteryCharge.getBatteryPercentage(mToken.getCharge());
         mTokenBatteryTextView.setText(charge + "%");

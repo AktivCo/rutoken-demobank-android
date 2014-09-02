@@ -2,6 +2,7 @@ package ru.rutoken.demobank;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -13,6 +14,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
@@ -39,6 +41,7 @@ public class LoginActivity extends Pkcs11CallerActivity {
     private final static String hardcodedPIN = "12345678";
     private static final byte mSignData[] = new byte[]{0,0,0};
     private static final String ACTIVITY_CLASS_IDENTIFIER = LoginActivity.class.getName();
+    private Dialog mOverlayDialog;
 
     public String getActivityClassIdentifier() {
         return ACTIVITY_CLASS_IDENTIFIER;
@@ -47,11 +50,13 @@ public class LoginActivity extends Pkcs11CallerActivity {
     protected void showLogonStarted() {
         mLoginProgressBar.setVisibility(View.VISIBLE);
         mLoginButton.setEnabled(false);
+        mOverlayDialog.show();
     }
 
     protected void showLogonFinished() {
         mLoginProgressBar.setVisibility(View.GONE);
         mLoginButton.setEnabled(true);
+        mOverlayDialog.dismiss();
     }
 
 
@@ -67,6 +72,7 @@ public class LoginActivity extends Pkcs11CallerActivity {
     @Override
     protected void manageLoginSucceed() {
         sign(mToken, mCertificate, mSignData);
+
     }
 
     @Override
@@ -112,6 +118,8 @@ public class LoginActivity extends Pkcs11CallerActivity {
         if(null == mToken) {
             finish();
         }
+        mOverlayDialog = new Dialog(this, android.R.style.Theme_Panel);
+        mOverlayDialog.setCancelable(false);
     }
 
     private void setupActionBar() {
