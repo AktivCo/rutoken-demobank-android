@@ -185,7 +185,7 @@ public class MainActivity extends ExternallyDismissableActivity {
             mInfoTextView.setText(certificateData);
             mInfoTextView.setEnabled(true);
         } else if(token != null) {
-            certificateData += R.string.no_certificate;
+            certificateData += getResources().getString(R.string.no_certificate);
             mInfoTextView.setText(certificateData);
             mInfoTextView.setEnabled(false);
         } else if(TokenManagerListener.getInstance().shallWaitForToken()) {
