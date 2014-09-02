@@ -124,7 +124,7 @@ public class LoginActivity extends Pkcs11CallerActivity {
         ActionBar actionBar = getActionBar();
         if (actionBar != null) {
             actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
-            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setDisplayHomeAsUpEnabled(false);
             actionBar.setDisplayShowTitleEnabled(false);
             actionBar.setBackgroundDrawable(
                     this.getResources().getDrawable(R.drawable.ab_bg));

@@ -32,8 +32,6 @@ import com.sun.jna.NativeLong;
 
 import java.text.DateFormat;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 import ru.rutoken.Pkcs11Caller.Token;
 import ru.rutoken.Pkcs11Caller.TokenManager;
@@ -220,7 +218,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
         ActionBar actionBar = getActionBar();
         if (actionBar != null) {
             actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
-            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setDisplayHomeAsUpEnabled(false);
             actionBar.setDisplayShowTitleEnabled(false);
             actionBar.setBackgroundDrawable(
                     this.getResources().getDrawable(R.drawable.ab_bg));
