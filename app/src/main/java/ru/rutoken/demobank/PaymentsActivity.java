@@ -39,6 +39,7 @@ import ru.rutoken.Pkcs11Caller.Token;
 import ru.rutoken.Pkcs11Caller.TokenManager;
 import ru.rutoken.Pkcs11Caller.exception.Pkcs11Exception;
 import ru.rutoken.utils.TokenBatteryCharge;
+import ru.rutoken.utils.TokenModelRecognizer;
 
 public class PaymentsActivity extends Pkcs11CallerActivity {
     private class InfoDialog {
@@ -166,7 +167,6 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
 
     private String[] mPaymentTitles;
     private String[][] mPaymentArray = null;
-    private Map<String,String> mModelNames = new HashMap<String,String>();
     //
 
     private static byte mSignData[] = new byte[]{0,0,0};
@@ -206,7 +206,6 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
             finish();
         }
         TokenManagerListener.getInstance().setPaymentsCreated();
-        fillInModelNames();
         setupUI();
     }
 
@@ -236,11 +235,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
         mTokenModelTextView = (TextView)findViewById(R.id.modelTV);
         mTokenBatteryImageView = (ImageView)findViewById(R.id.batteryIV);
 
-        String marketingModelName = mModelNames.get(mToken.getModel());
-        if(null == marketingModelName) {
-            marketingModelName = "Unsupported Model";
-        }
-        mTokenModelTextView.setText(marketingModelName);
+        mTokenModelTextView.setText(TokenModelRecognizer.getInstance().marketingNameForPkcs11Name(mToken.getModel()));
         mTokenIDTextView.setText(mToken.getShortDecSerialNumber());
 
         int charge = TokenBatteryCharge.getBatteryPercentage(mToken.getCharge());
@@ -278,19 +273,6 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
         createProgressDialog();
 
         createPayments();
-    }
-
-    protected void fillInModelNames() {
-        Resources res = getResources();
-        if(null == res) {
-            return;
-        }
-        String pkcs11Models[] = res.getStringArray(R.array.pkcs11_names);
-        String marketingModels[] = res.getStringArray(R.array.marketing_names);
-        assert(pkcs11Models.length == marketingModels.length);
-        for (int i=0; i<pkcs11Models.length ; ++i) {
-            mModelNames.put(pkcs11Models[i], marketingModels[i]);
-        }
     }
 
     @Override

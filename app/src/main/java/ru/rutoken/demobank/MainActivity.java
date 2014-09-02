@@ -32,6 +32,7 @@ import java.util.Set;
 import ru.rutoken.Pkcs11Caller.Certificate;
 import ru.rutoken.Pkcs11Caller.Token;
 import ru.rutoken.Pkcs11Caller.TokenManager;
+import ru.rutoken.utils.TokenModelRecognizer;
 //import ru.rutoken.utils.TokenItem;
 
 public class MainActivity extends ExternallyDismissableActivity {
@@ -81,6 +82,7 @@ public class MainActivity extends ExternallyDismissableActivity {
         IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
         this.registerReceiver(mBluetoothStateReciever, filter);
         TokenManagerListener.getInstance().init(getApplicationContext());
+        TokenModelRecognizer.getInstance().init(getApplicationContext());
     }
 
     @Override
@@ -170,7 +172,9 @@ public class MainActivity extends ExternallyDismissableActivity {
 
         if(token != null) {
             certificateData = new String();
-            certificateData += token.getSerialNumber();
+            certificateData += TokenModelRecognizer.getInstance().marketingNameForPkcs11Name(token.getModel());
+            certificateData += " ";
+            certificateData += token.getShortDecSerialNumber();
             certificateData += "\n";
         }
         if (token != null && !TokenManagerListener.getInstance().getCertificate().equals(TokenManagerListener.NO_CERTIFICATE)) {
@@ -185,7 +189,7 @@ public class MainActivity extends ExternallyDismissableActivity {
             Token waitToken = TokenManagerListener.getInstance().getWaitToken();
             X500Name subject = waitToken.getCertificate(TokenManagerListener.getInstance().getWaitCertificate()).getSubject();
             certificateData = String.format(getResources().getString(R.string.wait_token),
-                    TokenManagerListener.getInstance().getWaitToken().getSerialNumber(),
+                    TokenManagerListener.getInstance().getWaitToken().getShortDecSerialNumber(),
                     commonNameFromX500Name(subject));
             mInfoTextView.setText(certificateData);
             mInfoTextView.setEnabled(false);
