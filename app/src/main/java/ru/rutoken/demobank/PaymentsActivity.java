@@ -274,6 +274,17 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
         createPayments();
     }
 
+    protected void uncheckAllPayments() {
+        for(int i = 0; i<mPaymentsLayout.getChildCount(); ++i) {
+            View childView = mPaymentsLayout.getChildAt(i);
+            if(Payment.class.isInstance(childView)) {
+                Payment payment = (Payment) childView;
+                CheckBox checkBox = (CheckBox)payment.findViewById(R.id.checkBox);
+                checkBox.setChecked(false);
+            }
+        }
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -312,6 +323,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
     protected void manageSignError(Pkcs11Exception exception) {
         //Not sure this gonna happen
         // TODO -- process properly
+        uncheckAllPayments();
         mProgressDialog.dismiss();
         String message = getResources().getString(R.string.error);
         if(exception != null) {
@@ -323,6 +335,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
 
     @Override
     protected void manageSignSucceed(byte[] data) {
+        uncheckAllPayments();
         mProgressDialog.dismiss();
         mSucceedDialog.show();
         // Go on, you're the boss

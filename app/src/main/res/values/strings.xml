@@ -4,7 +4,7 @@
     <string name="app_name">Rutoken Demo</string>
     <string name="turn_bt_on">Please turn on Bluetooth</string>
     <string name="no_token">Connect the token please</string>
-    <string name="wait_token" formatted="false">Connect the token %s with certificate %s please</string>
+    <string name="wait_token" formatted="false">Connect %s please</string>
     <string name="no_certificate">Certificate is missing</string>
     <string name="pin_hint">Input PIN</string>
     <string name="ok">OK</string>

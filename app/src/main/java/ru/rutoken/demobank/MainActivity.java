@@ -192,8 +192,8 @@ public class MainActivity extends ExternallyDismissableActivity {
             Token waitToken = TokenManagerListener.getInstance().getWaitToken();
             X500Name subject = waitToken.getCertificate(TokenManagerListener.getInstance().getWaitCertificate()).getSubject();
             certificateData = String.format(getResources().getString(R.string.wait_token),
-                    TokenManagerListener.getInstance().getWaitToken().getShortDecSerialNumber(),
-                    commonNameFromX500Name(subject));
+                    TokenModelRecognizer.getInstance().marketingNameForPkcs11Name(TokenManagerListener.getInstance().getWaitToken().getModel())
+                            + " " + TokenManagerListener.getInstance().getWaitToken().getShortDecSerialNumber());
             mInfoTextView.setText(certificateData);
             mInfoTextView.setEnabled(false);
         } else if (!BluetoothAdapter.getDefaultAdapter().isEnabled()) {
