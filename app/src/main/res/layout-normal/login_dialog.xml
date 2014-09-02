@@ -12,7 +12,9 @@
         android:hint="@string/pin_hint"
         android:gravity="center"
         android:textColor="@android:color/black"
-        android:background="@android:color/white" />
+        android:background="@android:color/white"
+        android:textSize="17dp"
+        android:inputType="textPassword" />
 
     <TextView
         android:layout_width="match_parent"
@@ -20,7 +22,8 @@
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:id="@+id/errorTV"
         android:textColor="#ff0000"
-        android:gravity="center" />
+        android:gravity="center"
+        android:textSize="10dp" />
 
     <Button
         android:layout_width="match_parent"

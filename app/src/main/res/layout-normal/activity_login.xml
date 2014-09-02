@@ -21,12 +21,17 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/pinET"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="170dp"
+        android:layout_marginTop="131dp"
         android:background="@android:color/transparent"
         android:gravity="center"
         android:hint="@string/pin_hint"
-        android:textColor="@android:color/black" />
+        android:textColor="@android:color/black"
+        android:textIsSelectable="false"
+        android:textSize="20dp"
+        android:layout_alignTop="@+id/imageView"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:inputType="textPassword" />
 
     <TextView
         android:layout_width="match_parent"
@@ -36,7 +41,8 @@
         android:layout_below="@+id/pinET"
         android:layout_centerHorizontal="true"
         android:textColor="#ffff0000"
-        android:gravity="center" />
+        android:gravity="center"
+        android:textSize="10dp" />
 
     <Button
         android:layout_width="wrap_content"
@@ -54,7 +60,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/loginPB"
-        android:layout_below="@+id/loginB"
-        android:layout_centerHorizontal="true" />
+        android:layout_alignTop="@+id/pinET"
+        android:layout_alignLeft="@+id/loginB"
+        android:layout_alignStart="@+id/loginB" />
 
 </RelativeLayout>
