@@ -229,6 +229,12 @@ public class TokenManagerListener {
             mMainActivity = (MainActivity)activity;
             mMainActivity.updateScreen();
             mWaitingForMainActivity = false;
+        } else {
+            if(mWaitingForMainActivity) {
+                for (ExternallyDismissableActivity activity1 : mActivities) {
+                    activity1.finishExternally();
+                }
+            }
         }
     }
 
