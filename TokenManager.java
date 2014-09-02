@@ -61,6 +61,7 @@ public class TokenManager {
     private Context mContext;
     private Map<NativeLong, Token> mTokens = Collections.synchronizedMap(new HashMap<NativeLong, Token>());
     private Map<NativeLong, AcceptableState> stateMachines = Collections.synchronizedMap(new HashMap<NativeLong, AcceptableState>());
+    private Map<NativeLong, TokenInfoLoader> tilThreads = Collections.synchronizedMap(new HashMap<NativeLong, TokenInfoLoader>());
     private Map<AcceptableState, Method> mCurrentStateProcessors;
 
     public static final String ENUMERATION_FINISHED = TokenManager.class.getName()+".ENUMERATION_FINISHED";
@@ -86,6 +87,12 @@ public class TokenManager {
         mCurrentStateProcessors = tmp;
     }
 
+    synchronized void startTilThread(NativeLong slotId) {
+        TokenInfoLoader til = new TokenInfoLoader(slotId);
+        til.start();
+        tilThreads.put(slotId, til);
+    }
+
     AcceptableState processCurrentStateR0W0SD(EventType event, NativeLong slotId, Token token) throws TokenManagerException {
         AcceptableState newState;
         switch (event) {
@@ -98,7 +105,7 @@ public class TokenManager {
             case TIL:
             case TIF:
                 newState = AcceptableState.R0W1SD;
-                (new TokenInfoLoader(slotId)).start();
+                startTilThread(slotId);
                 break;
             default:
                 throw new TokenManagerException("Unexpected unfiltered incoming event");
@@ -154,7 +161,7 @@ public class TokenManager {
             case SD:
                 newState = AcceptableState.R0W1SD;
                 sendTWBA(slotId);
-                (new TokenInfoLoader(slotId)).start();
+                startTilThread(slotId);
                 break;
             case SR:
             case TIL:
@@ -171,7 +178,7 @@ public class TokenManager {
             case SD:
                 newState = AcceptableState.R0W1SD;
                 sendTWBA(slotId);
-                (new TokenInfoLoader(slotId)).start();
+                startTilThread(slotId);
                 break;
             case SR:
                 newState = AcceptableState.R1W0SR;
@@ -192,7 +199,7 @@ public class TokenManager {
             case SD:
                 newState = AcceptableState.R0W1SD;
                 sendTWBA(slotId);
-                (new TokenInfoLoader(slotId)).start();
+                startTilThread(slotId);
                 break;
             case SR:
                 newState = AcceptableState.R1W0SR;
@@ -228,7 +235,7 @@ public class TokenManager {
         } catch (InvocationTargetException e) {
             Log.e(getClass().getName(), "InvocationTargetException");
             if (e.getCause() instanceof TokenManagerException) {
-                Log.e(getClass().getName(), e.getMessage());
+                Log.e(getClass().getName(), e.getCause().getMessage());
             }
         } catch (IllegalAccessException e) {
             Log.e(getClass().getName(), "IllegalAccessException");
@@ -269,12 +276,21 @@ public class TokenManager {
             Log.e(getClass().getName(), "Interrupted exception");
         }
 
+        for(TokenInfoLoader loader: tilThreads.values()) {
+            try {
+                loader.join();
+            } catch (InterruptedException e) {
+                Log.e(getClass().getName(), "Interrupted exception");
+            }
+        }
+
         for (NativeLong slotId: mTokens.keySet()) {
             sendTR(slotId);
         }
         mTokens.clear();
 
         mContext = null;
+        instance = null;
     }
 
     private void sendTWBA(NativeLong slotId) {
