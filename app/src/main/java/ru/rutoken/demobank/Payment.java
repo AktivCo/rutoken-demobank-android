@@ -48,6 +48,10 @@ public class Payment extends RelativeLayout {
         mAmountTextView = (TextView)findViewById(R.id.amountTV);
     }
 
+    public boolean needAskPIN() {
+        return mAmount >= Payment.THRESHOLD_PRICE;
+    }
+
 
     public int getNum() {return Integer.parseInt(mNumTextView.getText().toString())-FIRST_NUMBER;}
     public String getDate() {return mDateTextView.getText().toString();}

@@ -120,6 +120,13 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
                         //TODO -- go back to LoginActivity
                     }
                 });
+            } else {
+                mDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialogInterface) {
+                        mDialog.cancel();
+                    }
+                });
             }
             if(null != errorText) {
                 mErrorTextView.setText(errorText);
@@ -144,7 +151,6 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
     private LoginDialog mLoginDialog;
     private AlertDialog mSucceedDialog;
     private AlertDialog mProgressDialog;
-
 
     private String[] mPaymentTitles;
     private String[][] mPaymentArray = null;
@@ -191,9 +197,6 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
         TokenManagerListener.getInstance().setPaymentsCreated();
         fillInModelNames();
         setupUI();
-        mInfoDialog = new InfoDialog();
-        mLoginDialog = new LoginDialog();
-        createProgressDialog();
     }
 
     private void setupActionBar() {
@@ -249,7 +252,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
                         Payment payment = (Payment) childView;
                         CheckBox checkBox = (CheckBox)payment.findViewById(R.id.checkBox);
                         if(checkBox.isChecked()) {
-                            bNeedAskPIN = bNeedAskPIN || needAskPIN(payment);
+                            bNeedAskPIN = bNeedAskPIN || payment.needAskPIN();
                             ++paymentsCount;
                         }
                     }
@@ -258,17 +261,10 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
             }
         });
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(PaymentsActivity.this);
-        builder.setCancelable(true);
-        mSucceedDialog = builder.create();
-        View successView = (LinearLayout)getLayoutInflater().inflate(R.layout.result_dialog_layout, null);
-        successView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mSucceedDialog.dismiss();
-            }
-        });
-        mSucceedDialog.setView(successView);
+        createSucceedDialog();
+        mInfoDialog = new InfoDialog();
+        mLoginDialog = new LoginDialog();
+        createProgressDialog();
 
         createPayments();
     }
@@ -284,10 +280,6 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
         for (int i=0; i<pkcs11Models.length ; ++i) {
             mModelNames.put(pkcs11Models[i], marketingModels[i]);
         }
-    }
-
-    protected boolean needAskPIN(Payment payment) {
-        return payment.getAmount() >= Payment.THRESHOLD_PRICE;
     }
 
     @Override
@@ -329,8 +321,11 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
     @Override
     protected void manageSignError(Pkcs11Exception exception) {
         mProgressDialog.dismiss();
-        Toast.makeText(this, R.string.error, Toast.LENGTH_SHORT).show();
-        //logout(mToken);
+        String message = getResources().getString(R.string.error);
+        if(exception != null) {
+            message = exception.getMessage();
+        }
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
         // TODO
     }
 
@@ -449,7 +444,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
         if(null == payment)  return;
         int number = payment.getNum();
 
-        mInfoDialog.show(Html.fromHtml(createFullPaymentHtml(number)), needAskPIN(payment));
+        mInfoDialog.show(Html.fromHtml(createFullPaymentHtml(number)), payment.needAskPIN());
     }
 
     private void createProgressDialog() {
@@ -458,5 +453,19 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
         mProgressDialog = builder.create();
         View view = (LinearLayout) getLayoutInflater().inflate(R.layout.progress_dialog, null);
         mProgressDialog.setView(view);
+    }
+
+    private void createSucceedDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(PaymentsActivity.this);
+        builder.setCancelable(true);
+        mSucceedDialog = builder.create();
+        View successView = (LinearLayout)getLayoutInflater().inflate(R.layout.result_dialog_layout, null);
+        successView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mSucceedDialog.dismiss();
+            }
+        });
+        mSucceedDialog.setView(successView);
     }
 }
