@@ -406,6 +406,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
     }
 
     protected void signAction() {
+        mProgressDialog.show();
         sign(mToken, mCertificate, mSignData);
     }
 
