@@ -16,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -85,6 +86,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
         EditText mPinEditText;
         TextView mErrorTextView;
         String mPin;
+        boolean mLogonBeingPerformed = false;
         LoginDialog() {
             AlertDialog.Builder builder = new AlertDialog.Builder(PaymentsActivity.this);
             builder.setCancelable(true);
@@ -102,6 +104,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
                         mPin = mPinEditText.getText().toString();
                         mPinEditText.setText("");
                         mDialog.dismiss();
+                        mLogonBeingPerformed = true;
                         startLoginAndSignAction();
                     }
                 }
@@ -111,11 +114,11 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
             return mPin;
         }
         void show(String errorText) {
-            if(mDoLoginAndSign) {
+            if(mLogonBeingPerformed) {
                 mDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
                     @Override
                     public void onCancel(DialogInterface dialogInterface) {
-                        mDoLoginAndSign = false;
+                        mLogonBeingPerformed = false;
                         onBackPressed();
                         //TODO -- go back to LoginActivity
                     }
@@ -133,10 +136,19 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
             } else {
                 mErrorTextView.setText("");
             }
+            mDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
             mDialog.show();
+
         }
         void dismiss() {
             mDialog.dismiss();
+        }
+
+        public boolean isLogonBeingPerformed() {
+            return mLogonBeingPerformed;
+        }
+        public void setLogonFinished() {
+            mLogonBeingPerformed = false;
         }
     }
 
@@ -166,7 +178,6 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
     //
 
     // Logic
-    protected boolean mDoLoginAndSign = false;
     private int mChecks;
     //
 
@@ -307,19 +318,20 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
             message = exception.getMessage();
         }
         mLoginDialog.show(message);
-        //TODO
+        //TODO -- proper messages (localized)
     }
 
     @Override
     protected void manageLoginSucceed() {
-        if(mDoLoginAndSign){
-            mDoLoginAndSign = false;
-        }
+        mLoginDialog.setLogonFinished();
         sign(mToken, mCertificate, mSignData);
+        // proceed
     }
 
     @Override
     protected void manageSignError(Pkcs11Exception exception) {
+        //Not sure this gonna happen
+        // TODO -- process properly
         mProgressDialog.dismiss();
         String message = getResources().getString(R.string.error);
         if(exception != null) {
@@ -333,21 +345,23 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
     protected void manageSignSucceed(byte[] data) {
         mProgressDialog.dismiss();
         mSucceedDialog.show();
+        // Go on, you're the boss
     }
 
     @Override
     protected void manageLogoutError(Pkcs11Exception exception) {
-        if(mDoLoginAndSign) {
+        if(mLoginDialog.isLogonBeingPerformed()) { // Well, anyway try to login, if sign process started
             login(mToken, mLoginDialog.pin());
         }
-        // TODO
+        // Nothing to do, if failed -- u seem to be quiting anyway
     }
 
     @Override
     protected void manageLogoutSucceed() {
-        if(mDoLoginAndSign) {
+        if(mLoginDialog.isLogonBeingPerformed()) {
             login(mToken, mLoginDialog.pin());
-        }
+        }// Nothing to do -- u seem to be quiting anyway
+
     }
 
     private void createPayments() {
@@ -407,7 +421,6 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
     }
 
     protected void startLoginAndSignAction() {
-        mDoLoginAndSign = true;
         mProgressDialog.show();
         logout(mToken);
     }
