@@ -100,7 +100,7 @@ public class MainActivity extends ExternallyDismissableActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        LocalBroadcastManager.getInstance(this.getApplicationContext()).unregisterReceiver(mBluetoothStateReciever);
+        unregisterReceiver(mBluetoothStateReciever);
         if(isFinishing()) {
             TokenManagerListener.getInstance().destroy();
         }

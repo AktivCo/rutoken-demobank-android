@@ -105,7 +105,7 @@ public class TokenManagerListener {
             return;
         TokenManager.getInstance().destroy();
         LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mTokenReceiver);
-        mContext = null;
+        mInstance = null;
     }
 
     protected void onEnumerationFinished() {

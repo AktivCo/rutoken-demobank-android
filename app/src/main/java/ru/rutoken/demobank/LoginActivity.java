@@ -72,7 +72,6 @@ public class LoginActivity extends Pkcs11CallerActivity {
     @Override
     protected void manageLoginSucceed() {
         sign(mToken, mCertificate, mSignData);
-
     }
 
     @Override
@@ -83,6 +82,7 @@ public class LoginActivity extends Pkcs11CallerActivity {
 
     @Override
     protected void manageSignSucceed(byte[] data) {
+        showLogonFinished();
         Intent intent = new Intent(LoginActivity.this, PaymentsActivity.class);
         intent.putExtra("slotId", mSlotId);
         intent.putExtra("certificate", mCertificate);
