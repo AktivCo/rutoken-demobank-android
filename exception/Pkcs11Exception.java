@@ -10,8 +10,9 @@ import ru.rutoken.Pkcs11.Pkcs11Constants;
 public class Pkcs11Exception extends Pkcs11CallerException {
     private NativeLong code;
 
-    private Pkcs11Exception(NativeLong code) {
-        super(getLocalizedDescription(code));
+    private Pkcs11Exception(NativeLong rv) {
+        super(getLocalizedDescription(rv));
+        code = rv;
     }
 
     private static String getLocalizedDescription(NativeLong code) {
