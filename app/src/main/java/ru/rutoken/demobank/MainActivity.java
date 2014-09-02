@@ -32,6 +32,7 @@ import java.util.Set;
 import ru.rutoken.Pkcs11Caller.Certificate;
 import ru.rutoken.Pkcs11Caller.Token;
 import ru.rutoken.Pkcs11Caller.TokenManager;
+import ru.rutoken.utils.Pkcs11ErrorTranslator;
 import ru.rutoken.utils.TokenModelRecognizer;
 //import ru.rutoken.utils.TokenItem;
 
@@ -83,6 +84,8 @@ public class MainActivity extends ExternallyDismissableActivity {
         this.registerReceiver(mBluetoothStateReciever, filter);
         TokenManagerListener.getInstance().init(getApplicationContext());
         TokenModelRecognizer.getInstance().init(getApplicationContext());
+        Pkcs11ErrorTranslator.getInstance().init(getApplicationContext());
+
     }
 
     @Override

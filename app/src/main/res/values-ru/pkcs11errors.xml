@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer-array name="rv">
+        <item>0xA0</item>
+        <item>0xA1</item>
+        <item>0xA2</item>
+        <item>0xA3</item>
+        <item>0xA4</item>
+        <item>0x100</item>
+        <item>0x101</item>
+        <item>0x102</item>
+        <item>0x103</item>
+        <item>0x104</item>
+    </integer-array>
+    <string-array name="rvMessages">
+        <item>Неправильный PIN-код</item>
+        <item>Некорректный PIN-код</item>
+        <item>Неправильная длина PIN-кода</item>
+        <item>Срок действия PIN-кода истек</item>
+        <item>PIN-код заблокирован</item>
+        <item>Пользователь уже совершил вход на токен</item>
+        <item>Вход пользователя на токен не осуществлен</item>
+        <item>PIN-код пользователя не инициализирован</item>
+        <item>Некорректный тип пользователя</item>
+        <item>Сессия уже открыта другим пользователем</item>
+    </string-array>
+    <string name="generic_error"  formatted="false">Ошибка PKCS#11: 0x%08x</string>
+</resources>

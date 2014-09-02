@@ -36,6 +36,7 @@ import java.util.Date;
 import ru.rutoken.Pkcs11Caller.Token;
 import ru.rutoken.Pkcs11Caller.TokenManager;
 import ru.rutoken.Pkcs11Caller.exception.Pkcs11Exception;
+import ru.rutoken.utils.Pkcs11ErrorTranslator;
 import ru.rutoken.utils.TokenBatteryCharge;
 import ru.rutoken.utils.TokenModelRecognizer;
 
@@ -295,10 +296,9 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
         mProgressDialog.dismiss();
         String message = null;
         if(exception != null) {
-            message = exception.getMessage();
+            message = Pkcs11ErrorTranslator.getInstance().messageForRV(exception.getErrorCode());
         }
         mLoginDialog.show(message);
-        //TODO -- proper messages (localized)
     }
 
     @Override
@@ -315,7 +315,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
         mProgressDialog.dismiss();
         String message = getResources().getString(R.string.error);
         if(exception != null) {
-            message = exception.getMessage();
+            message = Pkcs11ErrorTranslator.getInstance().messageForRV(exception.getErrorCode());
         }
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
         // TODO

@@ -23,6 +23,7 @@ import com.sun.jna.NativeLong;
 import ru.rutoken.Pkcs11Caller.Token;
 import ru.rutoken.Pkcs11Caller.TokenManager;
 import ru.rutoken.Pkcs11Caller.exception.Pkcs11Exception;
+import ru.rutoken.utils.Pkcs11ErrorTranslator;
 
 
 public class LoginActivity extends Pkcs11CallerActivity {
@@ -57,7 +58,7 @@ public class LoginActivity extends Pkcs11CallerActivity {
     @Override
     protected void manageLoginError(Pkcs11Exception exception) {
         if(exception != null) {
-            mAlertTextView.setText(exception.getMessage());
+            mAlertTextView.setText(Pkcs11ErrorTranslator.getInstance().messageForRV(exception.getErrorCode()));
         }
         showLogonFinished();
         //TODO

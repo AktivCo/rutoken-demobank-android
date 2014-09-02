@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer-array name="rv">
+        <item>0xA0</item>
+        <item>0xA1</item>
+        <item>0xA2</item>
+        <item>0xA3</item>
+        <item>0xA4</item>
+        <item>0x100</item>
+        <item>0x101</item>
+        <item>0x102</item>
+        <item>0x103</item>
+        <item>0x104</item>
+    </integer-array>
+    <string-array name="rvMessages">
+        <item>PIN is incorrect</item>
+        <item>PIN is invalid</item>
+        <item>Incorreсt PIN length</item>
+        <item>PIN has expired</item>
+        <item>PIN is locked</item>
+        <item>User is already logged in</item>
+        <item>User is not logged in</item>
+        <item>User PIN is not initialized</item>
+        <item>User type is invalid</item>
+        <item>Another user is already logged in</item>
+    </string-array>
+    <string name="generic_error"  formatted="false">PKCS11 error: 0x%08x</string>
+</resources>
