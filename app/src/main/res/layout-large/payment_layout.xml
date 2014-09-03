@@ -15,7 +15,8 @@
         android:layout_centerVertical="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:textColor="#979797" />
+        android:textColor="#979797"
+        android:textSize="17dp" />
 
     <LinearLayout
         android:orientation="vertical"
@@ -42,7 +43,8 @@
                 android:layout_alignParentTop="true"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true"
-                android:textColor="#979797" />
+                android:textColor="#979797"
+                android:textSize="17dp" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -55,7 +57,8 @@
                 android:layout_alignParentStart="true"
                 android:textColor="@android:color/black"
                 android:textStyle="bold"
-                android:gravity="center" />
+                android:gravity="center"
+                android:textSize="17dp" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -66,7 +69,8 @@
                 android:layout_below="@+id/recieverTV"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true"
-                android:textColor="@android:color/black" />
+                android:textColor="@android:color/black"
+                android:textSize="17dp" />
 
             <CheckBox
                 android:layout_width="wrap_content"

@@ -21,7 +21,7 @@
 
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="60dp">
+                android:layout_height="40dp">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -30,7 +30,7 @@
                     android:text="12345"
                     android:id="@+id/tokenIdTV"
                     android:textColor="@android:color/black"
-                    android:textSize="30dp"
+                    android:textSize="20dp"
                     android:paddingLeft="20dp"
                     android:paddingRight="20dp"
                     android:gravity="center"
@@ -47,14 +47,14 @@
                     android:paddingLeft="20dp"
                     android:textColor="@android:color/black"
                     android:gravity="center"
-                    android:textSize="30dp"
+                    android:textSize="20dp"
                     android:layout_centerVertical="true"
                     android:layout_toLeftOf="@+id/batteryIV"
                     android:layout_toStartOf="@+id/batteryIV" />
 
                 <ImageView
-                    android:layout_width="60dp"
-                    android:layout_height="40dp"
+                    android:layout_width="50dp"
+                    android:layout_height="30dp"
                     android:id="@+id/batteryIV"
                     android:src="@drawable/battery_4_sec"
                     android:layout_centerVertical="true"
@@ -70,7 +70,7 @@
                     android:layout_centerVertical="true"
                     android:layout_alignParentLeft="true"
                     android:layout_alignParentStart="true"
-                    android:textSize="30dp"
+                    android:textSize="20dp"
                     android:textColor="@android:color/black"
                     android:gravity="center" />
             </RelativeLayout>

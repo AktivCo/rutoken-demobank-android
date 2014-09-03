@@ -12,7 +12,7 @@
         android:id="@+id/resultTV"
         android:textColor="@android:color/black"
         android:gravity="center"
-        android:textSize="40dp"
+        android:textSize="30dp"
         android:textStyle="bold"
         android:text="@string/done" />
 

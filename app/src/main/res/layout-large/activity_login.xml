@@ -27,6 +27,9 @@
         android:gravity="center"
         android:hint="@string/pin_hint"
         android:textColor="@android:color/black"
+        android:textIsSelectable="false"
+        android:textSize="20dp"
+        android:inputType="textPassword"
         android:textColorHint="@android:color/darker_gray" />
 
     <TextView
@@ -37,7 +40,8 @@
         android:layout_below="@+id/pinET"
         android:layout_centerHorizontal="true"
         android:textColor="#ffff0000"
-        android:gravity="center" />
+        android:gravity="center"
+        android:textSize="10dp" />
 
     <Button
         android:layout_width="wrap_content"
