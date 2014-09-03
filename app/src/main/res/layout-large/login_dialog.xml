@@ -12,7 +12,8 @@
         android:hint="@string/pin_hint"
         android:gravity="center"
         android:textColor="@android:color/black"
-        android:background="@android:color/white" />
+        android:background="@android:color/white"
+        android:textColorHint="@android:color/darker_gray" />
 
     <TextView
         android:layout_width="match_parent"
