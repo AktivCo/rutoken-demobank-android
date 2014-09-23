@@ -34,7 +34,7 @@ public class TokenBatteryCharge {
     public static int getBatteryPercentage(int batteryVoltage) {
         int i = 0;
         for (i = 0; i < mBatteryVoltage.length-1; i++) {
-            if ((batteryVoltage >= mBatteryVoltage[i]) && (batteryVoltage <= mBatteryVoltage[i + 1])) {
+            if ((batteryVoltage < mBatteryVoltage[i]) || ((batteryVoltage >= mBatteryVoltage[i]) && (batteryVoltage <= mBatteryVoltage[i + 1]))) {
                 break;
             }
         }
