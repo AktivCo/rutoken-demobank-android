@@ -1,4 +1,5 @@
 package ru.rutoken.Pkcs11Caller;
+
 import com.sun.jna.Native;
 import ru.rutoken.Pkcs11.RtPkcs11;
 
@@ -7,6 +8,7 @@ public class RtPkcs11Library {
 
     public static synchronized RtPkcs11 getInstance() {
         RtPkcs11 localInstance = instance;
+
         if (localInstance == null) {
             synchronized (RtPkcs11Library.class) {
                 localInstance = instance;
@@ -15,6 +17,7 @@ public class RtPkcs11Library {
                 }
             }
         }
+
         return localInstance;
     }
 }

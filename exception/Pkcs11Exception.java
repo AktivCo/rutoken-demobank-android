@@ -4,9 +4,6 @@ import com.sun.jna.NativeLong;
 
 import ru.rutoken.Pkcs11.Pkcs11Constants;
 
-/**
- * Created by mironenko on 07.08.2014.
- */
 public class Pkcs11Exception extends Pkcs11CallerException {
     private NativeLong code;
 
@@ -25,10 +22,6 @@ public class Pkcs11Exception extends Pkcs11CallerException {
     }
 
     public NativeLong getErrorCode() {return code;}
-
-    public String localizedDescription() {
-        return getLocalizedDescription(code);
-    }
 
     public static Pkcs11Exception exceptionWithCode(NativeLong code) {
         return new Pkcs11Exception(code);
