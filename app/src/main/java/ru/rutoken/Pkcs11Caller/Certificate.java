@@ -13,10 +13,10 @@ import ru.rutoken.Pkcs11Caller.exception.Pkcs11CallerException;
 import ru.rutoken.Pkcs11Caller.exception.Pkcs11Exception;
 
 public class Certificate {
-    X500Name mSubject;
-    byte[] mId;
+    private X500Name mSubject;
+    private byte[] mId;
 
-    Certificate(RtPkcs11 pkcs11, NativeLong session, NativeLong object)
+    public Certificate(RtPkcs11 pkcs11, NativeLong session, NativeLong object)
             throws Pkcs11CallerException {
         CK_ATTRIBUTE[] attributes = (CK_ATTRIBUTE[])(new CK_ATTRIBUTE()).toArray(2);
         attributes[0].type = Pkcs11Constants.CKA_SUBJECT;

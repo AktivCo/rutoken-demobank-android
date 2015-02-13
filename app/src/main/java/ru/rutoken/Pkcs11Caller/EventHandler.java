@@ -16,9 +16,6 @@ import ru.rutoken.Pkcs11.CK_SLOT_INFO;
 import ru.rutoken.Pkcs11.Pkcs11Constants;
 import ru.rutoken.Pkcs11Caller.exception.Pkcs11Exception;
 
-/**
- * Created by mironenko on 07.08.2014.
- */
 public class EventHandler extends Thread {
     Context mContext;
     public EventHandler(Context context) {
@@ -34,18 +31,21 @@ public class EventHandler extends Thread {
 
             CK_C_INITIALIZE_ARGS initializeArgs = new CK_C_INITIALIZE_ARGS(null, null, null, null, Pkcs11Constants.CKF_OS_LOCKING_OK, null);
             rv = RtPkcs11Library.getInstance().C_Initialize(initializeArgs);
+
             if (!rv.equals(Pkcs11Constants.CKR_OK)) {
                 throw Pkcs11Exception.exceptionWithCode(rv);
             }
 
             NativeLongByReference slotCount = new NativeLongByReference(new NativeLong(0));
             rv = RtPkcs11Library.getInstance().C_GetSlotList(false, null, slotCount);
+
             if (!rv.equals(Pkcs11Constants.CKR_OK)) {
                 throw Pkcs11Exception.exceptionWithCode(rv);
             }
 
             NativeLong slotIds[] = new NativeLong[slotCount.getValue().intValue()];
             rv = RtPkcs11Library.getInstance().C_GetSlotList(true, slotIds, slotCount);
+
             if (!rv.equals(Pkcs11Constants.CKR_OK)) {
                 throw Pkcs11Exception.exceptionWithCode(rv);
             }
@@ -65,6 +65,8 @@ public class EventHandler extends Thread {
 
             rv = RtPkcs11Library.getInstance().C_WaitForSlotEvent(new NativeLong(0), id, null);
 
+
+
             if (rv.equals(Pkcs11Constants.CKR_CRYPTOKI_NOT_INITIALIZED)) {
                 Log.d(getClass().getName(), "Exit EH");
                 return;
@@ -77,7 +79,6 @@ public class EventHandler extends Thread {
                 slotEventHappened(id.getValue());
             } catch (Exception e) {
                 mHandler.post(new EventRunnable(EventType.EVENT_HANDLER_FAILED, new NativeLong(-1)));
-                // TODO ??? return ???
             }
         }
     }
@@ -91,6 +92,7 @@ public class EventHandler extends Thread {
         CK_SLOT_INFO slotInfo = new CK_SLOT_INFO();
         NativeLong rv;
         rv = RtPkcs11Library.getInstance().C_GetSlotInfo(id, slotInfo);
+
         if (!rv.equals(Pkcs11Constants.CKR_OK)) {
             throw Pkcs11Exception.exceptionWithCode(rv);
         }

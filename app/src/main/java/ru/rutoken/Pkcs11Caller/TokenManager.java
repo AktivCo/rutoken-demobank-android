@@ -17,25 +17,26 @@ import java.util.Map;
 
 import ru.rutoken.Pkcs11Caller.exception.Pkcs11CallerException;
 
-/**
- * Created by mironenko on 07.08.2014.
- */
 public class TokenManager {
     private class TokenInfoLoader extends Thread {
         NativeLong mSlotId;
         Handler mHandler = new Handler(Looper.getMainLooper());
+
         TokenInfoLoader(NativeLong slotId) {
             mSlotId = slotId;
         }
+
         public void run() {
             EventType event = EventType.TIL;
             Token token = null;
+
             try {
                 token = new Token(mSlotId);
             } catch (Pkcs11CallerException e) {
                 Log.e(getClass().getName(), e.getMessage());
                 event = EventType.TIF;
             }
+
             mHandler.post(new EventRunnable(event, mSlotId, token));
         }
     }
@@ -112,6 +113,7 @@ public class TokenManager {
         }
         return newState;
     }
+
     AcceptableState processCurrentStateR0W1SD(EventType event, NativeLong slotId, Token token) throws TokenManagerException {
         AcceptableState newState;
         switch (event) {
@@ -135,6 +137,7 @@ public class TokenManager {
         }
         return newState;
     }
+
     AcceptableState processCurrentStateR0W0SR(EventType event, NativeLong slotId, Token token) throws TokenManagerException {
         AcceptableState newState;
         switch (event) {
@@ -155,6 +158,7 @@ public class TokenManager {
         }
         return newState;
     }
+
     AcceptableState processCurrentStateR1W0SR(EventType event, NativeLong slotId, Token token) throws TokenManagerException {
         AcceptableState newState;
         switch (event) {
@@ -172,6 +176,7 @@ public class TokenManager {
         }
         return newState;
     }
+
     AcceptableState processCurrentStateR1W0TIL(EventType event, NativeLong slotId, Token token) throws TokenManagerException {
         AcceptableState newState;
         switch (event) {
@@ -193,6 +198,7 @@ public class TokenManager {
         }
         return newState;
     }
+
     AcceptableState processCurrentStateR1W0TIF(EventType event, NativeLong slotId, Token token) throws TokenManagerException {
         AcceptableState newState;
         switch (event) {
@@ -218,6 +224,7 @@ public class TokenManager {
             sendEventHandlerFailed();
             return;
         }
+
         if(event == EventType.ENUMERATION_FINISHED) {
             sendEnumerationFinished();
             return;
@@ -256,7 +263,7 @@ public class TokenManager {
     }
 
     public synchronized void init(Context context) {
-        if(null != mContext)
+        if(mContext != null)
             return;
         mContext = context;
 
@@ -265,9 +272,10 @@ public class TokenManager {
     }
 
     public synchronized void destroy() {
-        if(null == mContext)
+        if(mContext == null)
             return;
         RtPkcs11Library.getInstance().C_Finalize(null);
+
         try {
             mEventHandler.join();
         } catch (InterruptedException e) {
@@ -285,6 +293,7 @@ public class TokenManager {
         for (NativeLong slotId: mTokens.keySet()) {
             sendTR(slotId);
         }
+
         mTokens.clear();
 
         mContext = null;
@@ -293,31 +302,39 @@ public class TokenManager {
 
     private void sendTWBA(NativeLong slotId) {
         sendIntentWithSlotId(TOKEN_WILL_BE_ADDED, slotId);
-    };
+    }
+
     private void sendTAF(NativeLong slotId) {
         sendIntentWithSlotId(TOKEN_ADDING_FAILED, slotId);
-    };
+    }
+
     private void sendTA(NativeLong slotId) {
         sendIntentWithSlotId(TOKEN_WAS_ADDED, slotId);
-    };
+    }
+
     private void sendTR(NativeLong slotId) {
         sendIntentWithSlotId(TOKEN_WAS_REMOVED, slotId);
-    };
+    }
+
     private void sendIntentWithSlotId(String intentType, NativeLong slotId) {
         Intent intent = new Intent(intentType);
         intent.putExtra("slotId", slotId);
         LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
     }
+
     private void sendEnumerationFinished() {
         LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(ENUMERATION_FINISHED));
-    };
+    }
+
     private void sendEventHandlerFailed() {
         LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(INTERNAL_ERROR));
-    };
+    }
+
     public synchronized NativeLong[] slots() {
         NativeLong[] slots = new NativeLong[mTokens.keySet().size()];
         return mTokens.keySet().toArray(slots);
-    };
+    }
+
     public Token tokenForSlot(NativeLong slotId) {
         return mTokens.get(slotId);
     }

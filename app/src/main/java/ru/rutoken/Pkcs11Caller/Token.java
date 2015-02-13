@@ -20,6 +20,7 @@ public class Token {
     public enum UserChangePolicy {
         USER, SO, BOTH
     }
+
     public enum BodyColor {
         WHITE, BLACK, UNKNOWN
     }
@@ -27,6 +28,7 @@ public class Token {
     private enum SmInitializedStatus {
         UNKNOWN, NEED_INITIALIZE, INITIALIZED
     }
+
     private NativeLong mId;
 
     private NativeLong mSession;
@@ -70,6 +72,7 @@ public class Token {
             NativeLongByReference session = new NativeLongByReference();
             NativeLong rv = RtPkcs11Library.getInstance().C_OpenSession(mId,
                     Pkcs11Constants.CKF_SERIAL_SESSION, null, null, session);
+
             if (!rv.equals(Pkcs11Constants.CKR_OK)) throw Pkcs11Exception.exceptionWithCode(rv);
             mSession = session.getValue();
 
@@ -136,6 +139,7 @@ public class Token {
         if (!rv.equals(Pkcs11Constants.CKR_OK)) {
             throw Pkcs11Exception.exceptionWithCode(rv);
         }
+
         rv = RtPkcs11Library.getInstance().C_EX_GetTokenInfoExtended(mId, tokenInfoEx);
         if (!rv.equals(Pkcs11Constants.CKR_OK)) {
             throw Pkcs11Exception.exceptionWithCode(rv);
@@ -155,6 +159,7 @@ public class Token {
         mCharge = tokenInfoEx.ulBatteryVoltage.intValue();
         mUserPinRetriesLeft = tokenInfoEx.ulUserRetryCountLeft.intValue();
         mAdminPinRetriesLeft = tokenInfoEx.ulAdminRetryCountLeft.intValue();
+
         if (tokenInfoEx.ulBodyColor.equals(RtPkcs11Constants.TOKEN_BODY_COLOR_WHITE)) {
             mColor = BodyColor.WHITE;
         } else if (tokenInfoEx.ulBodyColor.equals(RtPkcs11Constants.TOKEN_BODY_COLOR_BLACK)) {
@@ -162,6 +167,7 @@ public class Token {
         } else if (tokenInfoEx.ulBodyColor.equals(RtPkcs11Constants.TOKEN_BODY_COLOR_UNKNOWN)) {
                 mColor = BodyColor.UNKNOWN;
         }
+
         if (((tokenInfoEx.flags.intValue() & RtPkcs11Constants.TOKEN_FLAGS_ADMIN_CHANGE_USER_PIN.intValue()) != 0x00)
                 && ((tokenInfoEx.flags.intValue() & RtPkcs11Constants.TOKEN_FLAGS_USER_CHANGE_USER_PIN.intValue()) != 0x00)) {
             mUserPinChangePolicy = UserChangePolicy.BOTH;
@@ -170,6 +176,7 @@ public class Token {
         } else {
             mUserPinChangePolicy = UserChangePolicy.USER;
         }
+
         mSupportsSM = ((tokenInfoEx.flags.intValue() & RtPkcs11Constants.TOKEN_FLAGS_SUPPORT_SM.intValue()) != 0);
     }
 
@@ -188,6 +195,7 @@ public class Token {
                 NativeLong rv = mPkcs11.C_Login(mSession, Pkcs11Constants.CKU_USER,
                         pin.getBytes(), new NativeLong(pin.length()));
                 if (!rv.equals(Pkcs11Constants.CKR_OK)) throw Pkcs11Exception.exceptionWithCode(rv);
+
                 return null;
             }
         }.execute();
@@ -199,6 +207,7 @@ public class Token {
             protected Pkcs11Result doWork() throws Pkcs11CallerException {
                 NativeLong rv = mPkcs11.C_Logout(mSession);
                 if (!rv.equals(Pkcs11Constants.CKR_OK)) throw Pkcs11Exception.exceptionWithCode(rv);
+
                 return null;
             }
         }.execute();
