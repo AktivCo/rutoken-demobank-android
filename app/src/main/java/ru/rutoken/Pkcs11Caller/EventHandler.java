@@ -11,6 +11,7 @@ import com.sun.jna.ptr.NativeLongByReference;
 import java.util.HashMap;
 import java.util.Map;
 
+import ru.rutoken.Pkcs11.CK_C_INITIALIZE_ARGS;
 import ru.rutoken.Pkcs11.CK_SLOT_INFO;
 import ru.rutoken.Pkcs11.Pkcs11Constants;
 import ru.rutoken.Pkcs11Caller.exception.Pkcs11Exception;
@@ -30,8 +31,10 @@ public class EventHandler extends Thread {
     public void run() {
         try {
             NativeLong rv;
+
+            CK_C_INITIALIZE_ARGS initializeArgs = new CK_C_INITIALIZE_ARGS(null, null, null, null, Pkcs11Constants.CKF_OS_LOCKING_OK, null);
             synchronized (RtPkcs11Library.getInstance()) {
-                 rv = RtPkcs11Library.getInstance().C_Initialize(null);
+                rv = RtPkcs11Library.getInstance().C_Initialize(initializeArgs);
             }
             if (!rv.equals(Pkcs11Constants.CKR_OK)) {
                 throw Pkcs11Exception.exceptionWithCode(rv);
