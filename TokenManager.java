@@ -267,9 +267,7 @@ public class TokenManager {
     public synchronized void destroy() {
         if(null == mContext)
             return;
-        synchronized (RtPkcs11Library.getInstance()) {
-            RtPkcs11Library.getInstance().C_Finalize(null);
-        }
+        RtPkcs11Library.getInstance().C_Finalize(null);
         try {
             mEventHandler.join();
         } catch (InterruptedException e) {
