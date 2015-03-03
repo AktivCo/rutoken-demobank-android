@@ -39,7 +39,7 @@ public interface Pkcs11 extends Library {
     /* C_Initialize initializes the Cryptoki library. */
     NativeLong C_Initialize
     (
-            Pointer   pInitArgs  /* if this is not NULL_PTR, it gets
+            CK_C_INITIALIZE_ARGS   pInitArgs  /* if this is not NULL_PTR, it gets
                             * cast to CK_C_INITIALIZE_ARGS_PTR
                             * and dereferenced */
     );
@@ -653,3 +653,4 @@ public interface Pkcs11 extends Library {
             Pointer pReserved   /* reserved.  Should be NULL_PTR */
     );
 }
+
