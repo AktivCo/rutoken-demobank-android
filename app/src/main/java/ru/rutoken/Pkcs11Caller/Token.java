@@ -86,10 +86,8 @@ public class Token {
     }
 
     void close() throws Pkcs11Exception {
-        synchronized (RtPkcs11Library.getInstance()) {
-            NativeLong rv = RtPkcs11Library.getInstance().C_CloseSession(mSession);
-            if (!rv.equals(Pkcs11Constants.CKR_OK)) throw Pkcs11Exception.exceptionWithCode(rv);
-        }
+        NativeLong rv = RtPkcs11Library.getInstance().C_CloseSession(mSession);
+        if (!rv.equals(Pkcs11Constants.CKR_OK)) throw Pkcs11Exception.exceptionWithCode(rv);
     }
 
     private void initCertificatesList(RtPkcs11 pkcs11) throws Pkcs11CallerException {

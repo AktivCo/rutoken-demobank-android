@@ -33,30 +33,27 @@ public class EventHandler extends Thread {
             NativeLong rv;
 
             CK_C_INITIALIZE_ARGS initializeArgs = new CK_C_INITIALIZE_ARGS(null, null, null, null, Pkcs11Constants.CKF_OS_LOCKING_OK, null);
-            synchronized (RtPkcs11Library.getInstance()) {
-                rv = RtPkcs11Library.getInstance().C_Initialize(initializeArgs);
-            }
+            rv = RtPkcs11Library.getInstance().C_Initialize(initializeArgs);
             if (!rv.equals(Pkcs11Constants.CKR_OK)) {
                 throw Pkcs11Exception.exceptionWithCode(rv);
             }
 
             NativeLongByReference slotCount = new NativeLongByReference(new NativeLong(0));
-            synchronized (RtPkcs11Library.getInstance()) {
-                rv = RtPkcs11Library.getInstance().C_GetSlotList(false, null, slotCount);
-            }
+            rv = RtPkcs11Library.getInstance().C_GetSlotList(false, null, slotCount);
             if (!rv.equals(Pkcs11Constants.CKR_OK)) {
                 throw Pkcs11Exception.exceptionWithCode(rv);
             }
+
             NativeLong slotIds[] = new NativeLong[slotCount.getValue().intValue()];
-            synchronized (RtPkcs11Library.getInstance()) {
-                rv = RtPkcs11Library.getInstance().C_GetSlotList(true, slotIds, slotCount);
-            }
+            rv = RtPkcs11Library.getInstance().C_GetSlotList(true, slotIds, slotCount);
             if (!rv.equals(Pkcs11Constants.CKR_OK)) {
                 throw Pkcs11Exception.exceptionWithCode(rv);
             }
+
             for (int i = 0; i != slotCount.getValue().intValue(); ++i) {
                 slotEventHappened(slotIds[i]);
             }
+
             mHandler.post(new EventRunnable(EventType.ENUMERATION_FINISHED, new NativeLong(-1)));
         } catch (Exception e) {
             mHandler.post(new EventRunnable(EventType.EVENT_HANDLER_FAILED, new NativeLong(-1)));
@@ -65,20 +62,14 @@ public class EventHandler extends Thread {
         while(true) {
             NativeLongByReference id = new NativeLongByReference();
             NativeLong rv;
-            do {
-                synchronized (RtPkcs11Library.getInstance()) {
-                    rv = RtPkcs11Library.getInstance().C_WaitForSlotEvent(Pkcs11Constants.CKF_DONT_BLOCK, id, null);
-                }
-                try {
-                    sleep(1);
-                } catch (InterruptedException e) {
-                    return;
-                }
-            } while (rv.equals(Pkcs11Constants.CKR_NO_EVENT));
+
+            rv = RtPkcs11Library.getInstance().C_WaitForSlotEvent(new NativeLong(0), id, null);
+
             if (rv.equals(Pkcs11Constants.CKR_CRYPTOKI_NOT_INITIALIZED)) {
                 Log.d(getClass().getName(), "Exit EH");
                 return;
             }
+
             try {
                 if (!rv.equals(Pkcs11Constants.CKR_OK)) {
                     throw Pkcs11Exception.exceptionWithCode(rv);
@@ -99,9 +90,7 @@ public class EventHandler extends Thread {
     protected void slotEventHappened(NativeLong id) throws Pkcs11Exception {
         CK_SLOT_INFO slotInfo = new CK_SLOT_INFO();
         NativeLong rv;
-        synchronized (RtPkcs11Library.getInstance()) {
-            rv = RtPkcs11Library.getInstance().C_GetSlotInfo(id, slotInfo);
-        }
+        rv = RtPkcs11Library.getInstance().C_GetSlotInfo(id, slotInfo);
         if (!rv.equals(Pkcs11Constants.CKR_OK)) {
             throw Pkcs11Exception.exceptionWithCode(rv);
         }
