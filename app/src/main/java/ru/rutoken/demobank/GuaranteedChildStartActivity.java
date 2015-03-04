@@ -1,9 +1,5 @@
 package ru.rutoken.demobank;
 
-/**
- * Created by mironenko on 27.08.2014.
- */
-
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -12,18 +8,17 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 
-import java.nio.channels.GatheringByteChannel;
-
 /**
- * Created by mironenko on 27.08.2014.
  * All methods are processed in the MainThread -- no synchronization needed.
  */
+
 public class GuaranteedChildStartActivity extends Activity {
     private static IntentFilter mFilter;
     private int mHashCode;
     private boolean mPendingActivityStart = false;
     private Integer mParentHashCode = null;
     public static final String CHILD_ACTIVITY_CREATED = GuaranteedChildStartActivity.class.getName() + ".CHILD_ACTIVITY_CREATED";
+
     static {
         mFilter = new IntentFilter();
         mFilter.addAction(CHILD_ACTIVITY_CREATED);
@@ -50,15 +45,15 @@ public class GuaranteedChildStartActivity extends Activity {
         return mPendingActivityStart;
     }
 
-    protected void onChildCreated() {
+    protected void onChildCreated() {}
 
-    }
     @Override
-    public void startActivity(android.content.Intent intent) {
+    public void startActivity(Intent intent) {
         intent.putExtra("hashCode", mHashCode);
         mPendingActivityStart = true;
         super.startActivity(intent);
-    };
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,8 +64,8 @@ public class GuaranteedChildStartActivity extends Activity {
         if(parentHashCode != 0) {
             mParentHashCode = parentHashCode;
         }
-
     }
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -82,6 +77,7 @@ public class GuaranteedChildStartActivity extends Activity {
             LocalBroadcastManager.getInstance(this.getApplicationContext()).sendBroadcast(intent);
         }
     }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
