@@ -38,7 +38,7 @@ public class LoginActivity extends Pkcs11CallerActivity {
     protected NativeLong mSlotId = TokenManagerListener.NO_SLOT;
     protected NativeLong mCertificate = TokenManagerListener.NO_CERTIFICATE;
     protected Token mToken = null;
-    private final static String hardcodedPIN = "12345678";
+
     private static final byte mSignData[] = new byte[]{0,0,0};
     private static final String ACTIVITY_CLASS_IDENTIFIER = LoginActivity.class.getName();
     private Dialog mOverlayDialog;
@@ -66,7 +66,6 @@ public class LoginActivity extends Pkcs11CallerActivity {
             mAlertTextView.setText(Pkcs11ErrorTranslator.getInstance().messageForRV(exception.getErrorCode()));
         }
         showLogonFinished();
-        //TODO
     }
 
     @Override
@@ -77,7 +76,6 @@ public class LoginActivity extends Pkcs11CallerActivity {
     @Override
     protected void manageSignError(Pkcs11Exception exception) {
         logout(mToken);
-        // TODO
     }
 
     @Override
@@ -92,13 +90,11 @@ public class LoginActivity extends Pkcs11CallerActivity {
     @Override
     protected void manageLogoutError(Pkcs11Exception exception) {
         showLogonFinished();
-        //TODO
     }
 
     @Override
     protected void manageLogoutSucceed() {
         showLogonFinished();
-        //TODO
     }
 
     @Override
@@ -118,6 +114,7 @@ public class LoginActivity extends Pkcs11CallerActivity {
 
         setupActionBar();
         setupUI();
+        
         Intent intent = getIntent();
         mSlotId = (NativeLong)intent.getSerializableExtra("slotId");
         mCertificate = (NativeLong) intent.getSerializableExtra("certificate");
