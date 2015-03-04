@@ -1,7 +1,5 @@
 package ru.rutoken.demobank;
 
-import android.content.Intent;
-
 import com.sun.jna.NativeLong;
 
 import ru.rutoken.Pkcs11Caller.Pkcs11Callback;
@@ -9,15 +7,7 @@ import ru.rutoken.Pkcs11Caller.Token;
 import ru.rutoken.Pkcs11Caller.exception.Pkcs11CallerException;
 import ru.rutoken.Pkcs11Caller.exception.Pkcs11Exception;
 
-/**
- * Created by mironenko on 28.08.2014.
- */
 abstract public class Pkcs11CallerActivity extends ManagedActivity {
-    public static String translatePkcs11Exception(Pkcs11CallerException exception) {
-        if(Pkcs11Exception.class.isInstance(exception)) {
-            return ((Pkcs11Exception)exception).getMessage();
-        } else return "Unspecified error";
-    }
     private static Pkcs11Exception pkcs11exceptionFromCallerException(Pkcs11CallerException exception) {
         Pkcs11Exception exception1 = null;
         if(Pkcs11Exception.class.isInstance(exception)) {
@@ -30,10 +20,8 @@ abstract public class Pkcs11CallerActivity extends ManagedActivity {
             manageLoginError(pkcs11exceptionFromCallerException(exception));
         }
         public void execute(Object... arguments) {
-            assert(arguments.length == 0);
-
             Pkcs11CallerActivity.this.manageLoginSucceed();
-        };
+        }
     }
 
     class SignCallback extends Pkcs11Callback {
@@ -41,9 +29,8 @@ abstract public class Pkcs11CallerActivity extends ManagedActivity {
             manageSignError(pkcs11exceptionFromCallerException(exception));
         }
         public void execute(Object... arguments) {
-            assert(arguments.length != 0);
             manageSignSucceed((byte[])arguments[0]);
-        };
+        }
     }
 
     class LogoutCallback extends Pkcs11Callback {
@@ -51,9 +38,8 @@ abstract public class Pkcs11CallerActivity extends ManagedActivity {
             manageLogoutError(pkcs11exceptionFromCallerException(exception));
         }
         public void execute(Object... arguments) {
-            assert(arguments.length == 0);
             manageLogoutSucceed();
-        };
+        }
     }
 
     LoginCallback mLoginCallback = new LoginCallback();
