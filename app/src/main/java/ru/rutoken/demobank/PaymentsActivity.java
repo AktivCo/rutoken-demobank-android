@@ -24,7 +24,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -76,9 +75,6 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
             }
             mDialog.show();
         }
-        private void dismiss() {
-            mDialog.dismiss();
-        }
     }
 
     private class LoginDialog {
@@ -120,7 +116,6 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
                     public void onCancel(DialogInterface dialogInterface) {
                         mLogonBeingPerformed = false;
                         onBackPressed();
-                        //TODO -- go back to LoginActivity
                     }
                 });
             } else {
@@ -139,9 +134,6 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
             mDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
             mDialog.show();
 
-        }
-        void dismiss() {
-            mDialog.dismiss();
         }
 
         public boolean isLogonBeingPerformed() {
@@ -177,7 +169,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
     //
 
     // Logic
-    private int mChecks;
+    private int mChecksCount = 0;
     //
 
     // Support ExternallyDismissableActivity's abstract String getActivityClassIdentifier() method
@@ -252,7 +244,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
             public void onClick(View view) {
                 boolean bNeedAskPIN = false;
                 int paymentsCount = 0;
-                for(int i = 0; i<mPaymentsLayout.getChildCount(); ++i) {
+                for(int i = 0; i < mPaymentsLayout.getChildCount(); ++i) {
                     View childView = mPaymentsLayout.getChildAt(i);
                     if(Payment.class.isInstance(childView)) {
                         Payment payment = (Payment) childView;
@@ -276,7 +268,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
     }
 
     protected void uncheckAllPayments() {
-        for(int i = 0; i<mPaymentsLayout.getChildCount(); ++i) {
+        for(int i = 0; i < mPaymentsLayout.getChildCount(); ++i) {
             View childView = mPaymentsLayout.getChildAt(i);
             if(Payment.class.isInstance(childView)) {
                 Payment payment = (Payment) childView;
@@ -317,13 +309,10 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
     protected void manageLoginSucceed() {
         mLoginDialog.setLogonFinished();
         sign(mToken, mCertificate, mSignData);
-        // proceed
     }
 
     @Override
     protected void manageSignError(Pkcs11Exception exception) {
-        //Not sure this gonna happen
-        // TODO -- process properly
         uncheckAllPayments();
         mProgressDialog.dismiss();
         String message = getResources().getString(R.string.error);
@@ -331,7 +320,6 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
             message = Pkcs11ErrorTranslator.getInstance().messageForRV(exception.getErrorCode());
         }
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
-        // TODO
     }
 
     @Override
@@ -339,23 +327,20 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
         uncheckAllPayments();
         mProgressDialog.dismiss();
         mSucceedDialog.show();
-        // Go on, you're the boss
     }
 
     @Override
     protected void manageLogoutError(Pkcs11Exception exception) {
-        if(mLoginDialog.isLogonBeingPerformed()) { // Well, anyway try to login, if sign process started
+        if(mLoginDialog.isLogonBeingPerformed()) {
             login(mToken, mLoginDialog.pin());
         }
-        // Nothing to do, if failed -- u seem to be quiting anyway
     }
 
     @Override
     protected void manageLogoutSucceed() {
         if(mLoginDialog.isLogonBeingPerformed()) {
             login(mToken, mLoginDialog.pin());
-        }// Nothing to do -- u seem to be quiting anyway
-
+        }
     }
 
     private void createPayments() {
@@ -372,7 +357,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
                 // something wrong with the XML
             }
         }
-        ta.recycle(); // Important!
+        ta.recycle();
 
         int nRecipient = 0;
         int nPrice = 0;
@@ -400,11 +385,11 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
                 @Override
                 public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                     if (b) {
-                        ++mChecks;
+                        ++mChecksCount;
                         mPopupWindow.showAtLocation(mPaymentsLayout, Gravity.BOTTOM, 0, 0);
                     } else {
-                        --mChecks;
-                        if (mChecks == 0) {
+                        --mChecksCount;
+                        if (mChecksCount == 0) {
                             mPopupWindow.dismiss();
                         }
                     }
@@ -425,7 +410,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
     }
 
     protected String createFullPaymentHtml(int num) {
-        String result = new String();
+        String result = "";
         DateFormat df = DateFormat.getDateInstance();
         String date = df.format(new Date());
         result += "<h3>" + getResources().getString(R.string.payment) + String.format("%d", num+Payment.FIRST_NUMBER)+"</h3>";
