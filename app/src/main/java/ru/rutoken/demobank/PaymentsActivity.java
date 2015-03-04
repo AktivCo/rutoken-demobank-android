@@ -181,7 +181,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
     //
 
     // Support ExternallyDismissableActivity's abstract String getActivityClassIdentifier() method
-    private static final String ACTIVITY_CLASS_IDENTIFIER = ExternallyDismissableActivity.class.getName();
+    private static final String ACTIVITY_CLASS_IDENTIFIER = PaymentsActivity.class.getName();
 
     public String getActivityClassIdentifier() {
         return ACTIVITY_CLASS_IDENTIFIER;

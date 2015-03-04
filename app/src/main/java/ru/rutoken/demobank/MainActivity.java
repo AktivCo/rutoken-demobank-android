@@ -36,7 +36,7 @@ import ru.rutoken.utils.Pkcs11ErrorTranslator;
 import ru.rutoken.utils.TokenModelRecognizer;
 //import ru.rutoken.utils.TokenItem;
 
-public class MainActivity extends ExternallyDismissableActivity {
+public class MainActivity extends ManagedActivity {
     //GUI
     private TextView mInfoTextView;
     private ProgressBar mTWBAProgressBar;

@@ -30,7 +30,7 @@ public class TokenManagerListener {
     private Context mContext;
     public static String MAIN_ACTIVITY_IDENTIFIER = TokenManagerListener.class.getName() + "MAIN_ACTIVITY";
     private MainActivity mMainActivity = null;
-    private List<ExternallyDismissableActivity> mActivities = Collections.synchronizedList(new LinkedList<ExternallyDismissableActivity>());
+    private List<ManagedActivity> mActivities = Collections.synchronizedList(new LinkedList<ManagedActivity>());
 
     private boolean mWaitingForMainActivity = false;
     static {
@@ -158,7 +158,7 @@ public class TokenManagerListener {
             }
 
             if(mMainActivity == null) {
-                for (ExternallyDismissableActivity activity : mActivities) {
+                for (ManagedActivity activity : mActivities) {
                     activity.finishExternally();
                 }
                 mWaitingForMainActivity = true;
@@ -223,7 +223,7 @@ public class TokenManagerListener {
         }
     }
 
-    public void onActivityResumed(ExternallyDismissableActivity activity) {
+    public void onActivityResumed(ManagedActivity activity) {
         mActivities.add(activity);
         if (activity.getActivityClassIdentifier() == MAIN_ACTIVITY_IDENTIFIER) {
             mMainActivity = (MainActivity)activity;
@@ -231,14 +231,14 @@ public class TokenManagerListener {
             mWaitingForMainActivity = false;
         } else {
             if(mWaitingForMainActivity) {
-                for (ExternallyDismissableActivity activity1 : mActivities) {
-                    activity1.finishExternally();
+                for (ManagedActivity a : mActivities) {
+                    a.finishExternally();
                 }
             }
         }
     }
 
-    public void onActivityPaused(ExternallyDismissableActivity activity) {
+    public void onActivityPaused(ManagedActivity activity) {
         mActivities.remove(activity);
         if (activity.getActivityClassIdentifier() == MAIN_ACTIVITY_IDENTIFIER) {
             mMainActivity = null;

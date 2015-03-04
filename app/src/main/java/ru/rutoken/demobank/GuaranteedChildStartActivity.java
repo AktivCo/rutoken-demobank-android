@@ -9,6 +9,8 @@ import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 
 /**
+ * Activity calls onChildCreated method when child activity is started.
+ * Beware to use startActivity to start child activity.
  * All methods are processed in the MainThread -- no synchronization needed.
  */
 

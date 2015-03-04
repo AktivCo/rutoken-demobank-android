@@ -12,7 +12,7 @@ import ru.rutoken.Pkcs11Caller.exception.Pkcs11Exception;
 /**
  * Created by mironenko on 28.08.2014.
  */
-abstract public class Pkcs11CallerActivity extends ExternallyDismissableActivity {
+abstract public class Pkcs11CallerActivity extends ManagedActivity {
     public static String translatePkcs11Exception(Pkcs11CallerException exception) {
         if(Pkcs11Exception.class.isInstance(exception)) {
             return ((Pkcs11Exception)exception).getMessage();
