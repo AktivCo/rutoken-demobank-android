@@ -9,9 +9,6 @@ import android.widget.TextView;
 import java.text.DateFormat;
 import java.util.Date;
 
-/**
- * Created by Lashin on 29.08.2014.
- */
 public class Payment extends RelativeLayout {
     private TextView mNumTextView;
     private TextView mDateTextView;
@@ -20,11 +17,6 @@ public class Payment extends RelativeLayout {
     private int mAmount;
     public static final int FIRST_NUMBER = 746;
     public static final int THRESHOLD_PRICE = 50000;
-
-    public Payment(Context context) {
-        super(context);
-        initPayment();
-    }
 
     public Payment(Context context, AttributeSet attrs, int num, String recipient, int amount) {
         super(context, attrs);
