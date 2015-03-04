@@ -1,9 +1,5 @@
 package ru.rutoken.demobank;
 
-/*
- * @author Aktiv Co. <hotline@rutoken.ru>
- */
-
 import android.app.ActionBar;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
@@ -12,29 +8,22 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
-import android.support.v4.content.LocalBroadcastManager;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import org.spongycastle.asn1.x500.AttributeTypeAndValue;
 import org.spongycastle.asn1.x500.RDN;
 import org.spongycastle.asn1.x500.X500Name;
 import org.spongycastle.asn1.x500.style.BCStyle;
 import org.spongycastle.asn1.x500.style.IETFUtils;
 
-import java.util.Set;
-
 import ru.rutoken.Pkcs11Caller.Certificate;
 import ru.rutoken.Pkcs11Caller.Token;
-import ru.rutoken.Pkcs11Caller.TokenManager;
 import ru.rutoken.utils.Pkcs11ErrorTranslator;
 import ru.rutoken.utils.TokenModelRecognizer;
-//import ru.rutoken.utils.TokenItem;
 
 public class MainActivity extends ManagedActivity {
     //GUI
@@ -148,9 +137,8 @@ public class MainActivity extends ManagedActivity {
 
     private static String commonNameFromX500Name(X500Name name) {
         String commonName = "";
-        RDN[] rdns = null;
-        rdns = name.getRDNs(BCStyle.CN);
-        if(null == rdns || 0 == rdns.length)
+        RDN[] rdns = name.getRDNs(BCStyle.CN);
+        if(rdns == null || rdns.length == 0)
             return commonName;
         commonName = IETFUtils.valueToString(rdns[0].getFirst().getValue());
         return commonName;
@@ -174,7 +162,7 @@ public class MainActivity extends ManagedActivity {
         Token token = TokenManagerListener.getInstance().getToken();
 
         if(token != null) {
-            certificateData = new String();
+            certificateData = "";
             certificateData += TokenModelRecognizer.getInstance().marketingNameForPkcs11Name(token.getModel());
             certificateData += " ";
             certificateData += token.getShortDecSerialNumber();
@@ -189,8 +177,6 @@ public class MainActivity extends ManagedActivity {
             mInfoTextView.setText(certificateData);
             mInfoTextView.setEnabled(false);
         } else if(TokenManagerListener.getInstance().shallWaitForToken()) {
-            Token waitToken = TokenManagerListener.getInstance().getWaitToken();
-            X500Name subject = waitToken.getCertificate(TokenManagerListener.getInstance().getWaitCertificate()).getSubject();
             certificateData = String.format(getResources().getString(R.string.wait_token),
                     TokenModelRecognizer.getInstance().marketingNameForPkcs11Name(TokenManagerListener.getInstance().getWaitToken().getModel())
                             + " " + TokenManagerListener.getInstance().getWaitToken().getShortDecSerialNumber());
