@@ -8,15 +8,12 @@ import java.util.Map;
 
 import ru.rutoken.demobank.R;
 
-/**
- * Created by mironenko on 02.09.2014.
- */
 public class TokenModelRecognizer {
     private static TokenModelRecognizer mInstance = null;
     private Context mContext;
-    private Map<String,String> mModelNames = new HashMap<String,String>();
+    private Map<String, String> mModelNames = new HashMap<String, String>();
     public synchronized void init(Context context) {
-        if(null != mContext)
+        if(mContext != null)
             return;
         mContext = context;
         fillInModelNames();
@@ -24,13 +21,13 @@ public class TokenModelRecognizer {
 
     protected void fillInModelNames() {
         Resources res = mContext.getResources();
-        if(null == res) {
+        if(res == null) {
             return;
         }
         String pkcs11Models[] = res.getStringArray(R.array.pkcs11_names);
         String marketingModels[] = res.getStringArray(R.array.marketing_names);
         assert(pkcs11Models.length == marketingModels.length);
-        for (int i=0; i<pkcs11Models.length ; ++i) {
+        for (int i = 0; i < pkcs11Models.length; ++i) {
             mModelNames.put(pkcs11Models[i], marketingModels[i]);
         }
     }
@@ -50,7 +47,7 @@ public class TokenModelRecognizer {
 
     public String marketingNameForPkcs11Name(String pkcs11Model) {
         String marketingModelName = mModelNames.get(pkcs11Model);
-        if(null == marketingModelName) {
+        if(marketingModelName == null) {
             marketingModelName = "Unsupported Model";
         }
         return marketingModelName;
