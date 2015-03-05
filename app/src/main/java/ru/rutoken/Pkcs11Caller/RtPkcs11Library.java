@@ -1,6 +1,7 @@
 package ru.rutoken.Pkcs11Caller;
 
 import com.sun.jna.Native;
+
 import ru.rutoken.Pkcs11.RtPkcs11;
 
 public class RtPkcs11Library {
