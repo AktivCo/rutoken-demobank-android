@@ -19,8 +19,8 @@ import ru.rutoken.Pkcs11Caller.exception.Pkcs11CallerException;
 
 public class TokenManager {
     private class TokenInfoLoader extends Thread {
-        NativeLong mSlotId;
-        Handler mHandler = new Handler(Looper.getMainLooper());
+        private NativeLong mSlotId;
+        private Handler mHandler = new Handler(Looper.getMainLooper());
 
         TokenInfoLoader(NativeLong slotId) {
             mSlotId = slotId;
@@ -41,7 +41,7 @@ public class TokenManager {
         }
     }
 
-    class TokenManagerException extends Exception {
+    private class TokenManagerException extends Exception {
         TokenManagerException(String what) {
             super(what);
         }
@@ -267,7 +267,7 @@ public class TokenManager {
             return;
         mContext = context;
 
-        mEventHandler = new EventHandler(mContext);
+        mEventHandler = new EventHandler();
         mEventHandler.start();
     }
 

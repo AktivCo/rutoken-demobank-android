@@ -1,6 +1,5 @@
 package ru.rutoken.Pkcs11Caller;
 
-import android.content.Context;
 import android.os.Looper;
 import android.os.Handler;
 import android.util.Log;
@@ -17,12 +16,9 @@ import ru.rutoken.Pkcs11.Pkcs11Constants;
 import ru.rutoken.Pkcs11Caller.exception.Pkcs11Exception;
 
 public class EventHandler extends Thread {
-    Context mContext;
-    public EventHandler(Context context) {
-        mContext = context;
-    }
-    Map<NativeLong, EventType> lastSlotEvent = new HashMap<NativeLong, EventType>();
-    Handler mHandler = new Handler(Looper.getMainLooper());
+    public EventHandler() {}
+    private Map<NativeLong, EventType> lastSlotEvent = new HashMap<NativeLong, EventType>();
+    private Handler mHandler = new Handler(Looper.getMainLooper());
 
     @Override
     public void run() {
@@ -105,10 +101,10 @@ public class EventHandler extends Thread {
         }
 
         if (lastSlotEvent.get(id) == event) {
-            mHandler.post(new EventRunnable(oppositeEvent(event),id));
-            lastSlotEvent.put(id,oppositeEvent(event));
+            mHandler.post(new EventRunnable(oppositeEvent(event), id));
+            lastSlotEvent.put(id, oppositeEvent(event));
         }
-        mHandler.post(new EventRunnable(event,id));
-        lastSlotEvent.put(id,event);
+        mHandler.post(new EventRunnable(event, id));
+        lastSlotEvent.put(id, event);
     }
 }
