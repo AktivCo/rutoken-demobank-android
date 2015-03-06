@@ -1,10 +1,11 @@
+
 package ru.rutoken.utils;
 
 import ru.rutoken.demobank.R;
 
 public class TokenBatteryCharge {
     static final int PERCENTS_FULL = 100;
-    private static final int[] mBatteryVoltage = new int[PERCENTS_FULL+1];
+    private static final int[] mBatteryVoltage = new int[PERCENTS_FULL + 1];
     static {
         fillBatteryPercentageArray();
     }
@@ -33,8 +34,9 @@ public class TokenBatteryCharge {
 
     public static int getBatteryPercentage(int batteryVoltage) {
         int i = 0;
-        for (i = 0; i < mBatteryVoltage.length-1; i++) {
-            if ((batteryVoltage < mBatteryVoltage[i]) || ((batteryVoltage >= mBatteryVoltage[i]) && (batteryVoltage <= mBatteryVoltage[i + 1]))) {
+        for (i = 0; i < mBatteryVoltage.length - 1; i++) {
+            if ((batteryVoltage < mBatteryVoltage[i])
+                    || ((batteryVoltage >= mBatteryVoltage[i]) && (batteryVoltage <= mBatteryVoltage[i + 1]))) {
                 break;
             }
         }
