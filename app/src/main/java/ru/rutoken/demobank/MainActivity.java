@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2015, CJSC Aktiv-Soft. See https://download.rutoken.ru/License_Agreement.pdf
+ * All Rights Reserved.
+ */
 
 package ru.rutoken.demobank;
 
