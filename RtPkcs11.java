@@ -1,6 +1,6 @@
-package ru.rutoken.Pkcs11;
 
-/* rtpkcs11f.h include file for PKCS #11. */
+package ru.rutoken.Pkcs11;
+/* Derived from rtpkcs11f.h include file for PKCS #11. */
 
 /*
  * @author Aktiv Co. <hotline@rutoken.ru>
