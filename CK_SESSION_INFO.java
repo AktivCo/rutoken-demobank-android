@@ -44,6 +44,7 @@
  *  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY  OF SUCH DAMAGE.
  */
+
 package ru.rutoken.Pkcs11;
 
 /**
@@ -64,16 +65,19 @@ public class CK_SESSION_INFO extends Structure {
 
     public NativeLong state;
 
-    public NativeLong flags;          /* see below */
+    public NativeLong flags; /* see below */
 
-    /* ulDeviceError was changed from CK_USHORT to CK_ULONG for
-     * v2.0 */
-    public NativeLong ulDeviceError;  /* device-dependent error code */
+    /*
+     * ulDeviceError was changed from CK_USHORT to CK_ULONG for v2.0
+     */
+    public NativeLong ulDeviceError; /* device-dependent error code */
 
-    public CK_SESSION_INFO(){super();}
+    public CK_SESSION_INFO() {
+        super();
+    }
 
     public CK_SESSION_INFO(NativeLong slotID, NativeLong state,
-                           NativeLong flags, NativeLong ulDeviceError) {
+            NativeLong flags, NativeLong ulDeviceError) {
         this.slotID = slotID;
         this.state = state;
         this.flags = flags;
@@ -81,10 +85,11 @@ public class CK_SESSION_INFO extends Structure {
     }
 
     protected List<String> getFieldOrder() {
-        return Arrays.asList(new String[]{"slotID"
-                , "state"
-                , "flags"
-                , "ulDeviceError"
+        return Arrays.asList(new String[] {
+                "slotID",
+                "state",
+                "flags",
+                "ulDeviceError"
         });
     }
 

@@ -44,6 +44,7 @@
  *  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY  OF SUCH DAMAGE.
  */
+
 package ru.rutoken.Pkcs11;
 
 /**
@@ -66,19 +67,22 @@ public class CK_MECHANISM_INFO extends Structure {
 
     public NativeLong flags;
 
-    public CK_MECHANISM_INFO() {super();}
+    public CK_MECHANISM_INFO() {
+        super();
+    }
 
     public CK_MECHANISM_INFO(NativeLong minKeySize, NativeLong maxKeySize,
-                             NativeLong flags) {
+            NativeLong flags) {
         this.ulMinKeySize = minKeySize;
         this.ulMaxKeySize = maxKeySize;
         this.flags = flags;
     }
 
     protected List<String> getFieldOrder() {
-        return Arrays.asList(new String[]{"ulMinKeySize"
-                , "ulMaxKeySize"
-                , "flags"
+        return Arrays.asList(new String[] {
+                "ulMinKeySize",
+                "ulMaxKeySize",
+                "flags"
         });
     }
 }

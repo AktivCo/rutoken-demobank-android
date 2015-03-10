@@ -44,6 +44,7 @@
  *  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY  OF SUCH DAMAGE.
  */
+
 package ru.rutoken.Pkcs11;
 
 /**
@@ -60,7 +61,9 @@ import java.util.Arrays;
 import java.util.List;
 
 public class CK_ATTRIBUTE extends Structure {
-    public CK_ATTRIBUTE() {super();}
+    public CK_ATTRIBUTE() {
+        super();
+    }
 
     public CK_ATTRIBUTE(NativeLong type, Pointer pVal, NativeLong ulValLen) {
         this.type = type;
@@ -74,12 +77,13 @@ public class CK_ATTRIBUTE extends Structure {
     public Pointer pValue;
 
     /* ulValueLen went from CK_USHORT to CK_ULONG for v2.0 */
-    public NativeLong          ulValueLen;  /* in bytes */
+    public NativeLong ulValueLen; /* in bytes */
 
     protected List<String> getFieldOrder() {
-        return Arrays.asList(new String[]{"type"
-                , "pValue"
-                , "ulValueLen"
+        return Arrays.asList(new String[] {
+                "type",
+                "pValue",
+                "ulValueLen"
         });
     }
 }
