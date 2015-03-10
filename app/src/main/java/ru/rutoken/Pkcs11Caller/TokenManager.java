@@ -1,3 +1,4 @@
+
 package ru.rutoken.Pkcs11Caller;
 
 import android.content.Context;
@@ -65,23 +66,34 @@ public class TokenManager {
     private Map<NativeLong, TokenInfoLoader> tilThreads = Collections.synchronizedMap(new HashMap<NativeLong, TokenInfoLoader>());
     private Map<AcceptableState, Method> mCurrentStateProcessors;
 
-    public static final String ENUMERATION_FINISHED = TokenManager.class.getName()+".ENUMERATION_FINISHED";
-    public static final String TOKEN_WILL_BE_ADDED = EventHandler.class.getName()+".TOKEN_WILL_BE_ADDED";
-    public static final String TOKEN_ADDING_FAILED = EventHandler.class.getName()+".TOKEN_ADDING_FAILED";
-    public static final String TOKEN_WAS_ADDED = EventHandler.class.getName()+".TOKEN_WAS_ADDED";
-    public static final String TOKEN_WAS_REMOVED = EventHandler.class.getName()+".TOKEN_WAS_REMOVED";
-    public static final String INTERNAL_ERROR = EventHandler.class.getName()+".INTERNAL_ERROR";
-
+    public static final String ENUMERATION_FINISHED = TokenManager.class.getName() + ".ENUMERATION_FINISHED";
+    public static final String TOKEN_WILL_BE_ADDED = EventHandler.class.getName() + ".TOKEN_WILL_BE_ADDED";
+    public static final String TOKEN_ADDING_FAILED = EventHandler.class.getName() + ".TOKEN_ADDING_FAILED";
+    public static final String TOKEN_WAS_ADDED = EventHandler.class.getName() + ".TOKEN_WAS_ADDED";
+    public static final String TOKEN_WAS_REMOVED = EventHandler.class.getName() + ".TOKEN_WAS_REMOVED";
+    public static final String INTERNAL_ERROR = EventHandler.class.getName() + ".INTERNAL_ERROR";
 
     private TokenManager() {
         Map<AcceptableState, Method> tmp = new HashMap<AcceptableState, Method>();
         try {
-            tmp.put(AcceptableState.R0W0SD, TokenManager.class.getDeclaredMethod("processCurrentStateR0W0SD", new Class[] {EventType.class, NativeLong.class, Token.class}));
-            tmp.put(AcceptableState.R0W1SD, TokenManager.class.getDeclaredMethod("processCurrentStateR0W1SD", new Class[] {EventType.class, NativeLong.class, Token.class}));
-            tmp.put(AcceptableState.R0W0SR, TokenManager.class.getDeclaredMethod("processCurrentStateR0W0SR", new Class[] {EventType.class, NativeLong.class, Token.class}));
-            tmp.put(AcceptableState.R1W0SR, TokenManager.class.getDeclaredMethod("processCurrentStateR1W0SR", new Class[] {EventType.class, NativeLong.class, Token.class}));
-            tmp.put(AcceptableState.R1W0TIL, TokenManager.class.getDeclaredMethod("processCurrentStateR1W0TIL", new Class[] {EventType.class, NativeLong.class, Token.class}));
-            tmp.put(AcceptableState.R1W0TIF, TokenManager.class.getDeclaredMethod("processCurrentStateR1W0TIF", new Class[] {EventType.class, NativeLong.class, Token.class}));
+            tmp.put(AcceptableState.R0W0SD, TokenManager.class.getDeclaredMethod("processCurrentStateR0W0SD", new Class[] {
+                    EventType.class, NativeLong.class, Token.class
+            }));
+            tmp.put(AcceptableState.R0W1SD, TokenManager.class.getDeclaredMethod("processCurrentStateR0W1SD", new Class[] {
+                    EventType.class, NativeLong.class, Token.class
+            }));
+            tmp.put(AcceptableState.R0W0SR, TokenManager.class.getDeclaredMethod("processCurrentStateR0W0SR", new Class[] {
+                    EventType.class, NativeLong.class, Token.class
+            }));
+            tmp.put(AcceptableState.R1W0SR, TokenManager.class.getDeclaredMethod("processCurrentStateR1W0SR", new Class[] {
+                    EventType.class, NativeLong.class, Token.class
+            }));
+            tmp.put(AcceptableState.R1W0TIL, TokenManager.class.getDeclaredMethod("processCurrentStateR1W0TIL", new Class[] {
+                    EventType.class, NativeLong.class, Token.class
+            }));
+            tmp.put(AcceptableState.R1W0TIF, TokenManager.class.getDeclaredMethod("processCurrentStateR1W0TIF", new Class[] {
+                    EventType.class, NativeLong.class, Token.class
+            }));
         } catch (NoSuchMethodException e) {
             Log.e(getClass().getName(), e.getMessage());
         }
@@ -220,18 +232,18 @@ public class TokenManager {
     }
 
     public synchronized void processEvent(EventType event, NativeLong slotId, Token token) {
-        if(event == EventType.EVENT_HANDLER_FAILED) {
+        if (event == EventType.EVENT_HANDLER_FAILED) {
             sendEventHandlerFailed();
             return;
         }
 
-        if(event == EventType.ENUMERATION_FINISHED) {
+        if (event == EventType.ENUMERATION_FINISHED) {
             sendEnumerationFinished();
             return;
         }
 
         AcceptableState state = stateMachines.get(slotId);
-        if(state == null) {
+        if (state == null) {
             state = AcceptableState.R1W0SR;
             stateMachines.put(slotId, state);
         }
@@ -263,7 +275,7 @@ public class TokenManager {
     }
 
     public synchronized void init(Context context) {
-        if(mContext != null)
+        if (mContext != null)
             return;
         mContext = context;
 
@@ -272,7 +284,7 @@ public class TokenManager {
     }
 
     public synchronized void destroy() {
-        if(mContext == null)
+        if (mContext == null)
             return;
         RtPkcs11Library.getInstance().C_Finalize(null);
 
@@ -282,7 +294,7 @@ public class TokenManager {
             Log.e(getClass().getName(), "Interrupted exception");
         }
 
-        for(TokenInfoLoader loader: tilThreads.values()) {
+        for (TokenInfoLoader loader : tilThreads.values()) {
             try {
                 loader.join();
             } catch (InterruptedException e) {
@@ -290,7 +302,7 @@ public class TokenManager {
             }
         }
 
-        for (NativeLong slotId: mTokens.keySet()) {
+        for (NativeLong slotId : mTokens.keySet()) {
             sendTR(slotId);
         }
 

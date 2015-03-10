@@ -1,3 +1,4 @@
+
 package ru.rutoken.Pkcs11Caller.exception;
 
 import com.sun.jna.NativeLong;
@@ -21,7 +22,9 @@ public class Pkcs11Exception extends Pkcs11CallerException {
         else return String.format("Unknown PKCS11 error %08x", code.intValue());
     }
 
-    public NativeLong getErrorCode() {return code;}
+    public NativeLong getErrorCode() {
+        return code;
+    }
 
     public static Pkcs11Exception exceptionWithCode(NativeLong code) {
         return new Pkcs11Exception(code);

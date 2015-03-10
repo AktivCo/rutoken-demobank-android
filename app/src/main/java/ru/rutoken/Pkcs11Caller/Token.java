@@ -1,3 +1,4 @@
+
 package ru.rutoken.Pkcs11Caller;
 
 import com.sun.jna.Native;
@@ -49,19 +50,57 @@ public class Token {
     private SmInitializedStatus mSmInitializedStatus = SmInitializedStatus.UNKNOWN;
     private HashMap<NativeLong, Certificate> mCertificateMap = new HashMap<NativeLong, Certificate>();
 
-    public String getLabel() { return mLabel; }
-    public String getModel() { return mModel; }
-    public String getSerialNumber() { return mSerialNumber; }
-    public String getShortDecSerialNumber() { return mShortDecSerialNumber; }
-    public String getHardwareVersion() { return mHardwareVersion; }
-    public int getTotalMemory() { return mTotalMemory; }
-    public int getFreeMemory() { return mFreeMemory; }
-    public int getCharge() { return mCharge; }
-    public int getUserPinRetriesLeft() { return mUserPinRetriesLeft; }
-    public int getAdminPinRetriesLeft() { return mAdminPinRetriesLeft; }
-    public BodyColor getColor() { return mColor; }
-    public UserChangePolicy getUserPinChangePolicy() { return mUserPinChangePolicy; }
-    public boolean supportsSM() {return mSupportsSM;}
+    public String getLabel() {
+        return mLabel;
+    }
+
+    public String getModel() {
+        return mModel;
+    }
+
+    public String getSerialNumber() {
+        return mSerialNumber;
+    }
+
+    public String getShortDecSerialNumber() {
+        return mShortDecSerialNumber;
+    }
+
+    public String getHardwareVersion() {
+        return mHardwareVersion;
+    }
+
+    public int getTotalMemory() {
+        return mTotalMemory;
+    }
+
+    public int getFreeMemory() {
+        return mFreeMemory;
+    }
+
+    public int getCharge() {
+        return mCharge;
+    }
+
+    public int getUserPinRetriesLeft() {
+        return mUserPinRetriesLeft;
+    }
+
+    public int getAdminPinRetriesLeft() {
+        return mAdminPinRetriesLeft;
+    }
+
+    public BodyColor getColor() {
+        return mColor;
+    }
+
+    public UserChangePolicy getUserPinChangePolicy() {
+        return mUserPinChangePolicy;
+    }
+
+    public boolean supportsSM() {
+        return mSupportsSM;
+    }
 
     Token(NativeLong slotId) throws Pkcs11CallerException {
         RtPkcs11 pkcs11 = RtPkcs11Library.getInstance();
@@ -94,7 +133,7 @@ public class Token {
     }
 
     private void initCertificatesList(RtPkcs11 pkcs11) throws Pkcs11CallerException {
-        CK_ATTRIBUTE[] template = (CK_ATTRIBUTE[])(new CK_ATTRIBUTE()).toArray(2);
+        CK_ATTRIBUTE[] template = (CK_ATTRIBUTE[]) (new CK_ATTRIBUTE()).toArray(2);
 
         NativeLongByReference certClass =
                 new NativeLongByReference(Pkcs11Constants.CKO_CERTIFICATE);
@@ -125,7 +164,7 @@ public class Token {
         if (!rv.equals(Pkcs11Constants.CKR_OK)) throw Pkcs11Exception.exceptionWithCode(rv);
         else if (!rv2.equals(Pkcs11Constants.CKR_OK)) throw Pkcs11Exception.exceptionWithCode(rv2);
 
-        for (NativeLong c: certs) {
+        for (NativeLong c : certs) {
             mCertificateMap.put(c, new Certificate(pkcs11, mSession, c));
         }
     }
@@ -163,9 +202,9 @@ public class Token {
         if (tokenInfoEx.ulBodyColor.equals(RtPkcs11Constants.TOKEN_BODY_COLOR_WHITE)) {
             mColor = BodyColor.WHITE;
         } else if (tokenInfoEx.ulBodyColor.equals(RtPkcs11Constants.TOKEN_BODY_COLOR_BLACK)) {
-                mColor = BodyColor.BLACK;
+            mColor = BodyColor.BLACK;
         } else if (tokenInfoEx.ulBodyColor.equals(RtPkcs11Constants.TOKEN_BODY_COLOR_UNKNOWN)) {
-                mColor = BodyColor.UNKNOWN;
+            mColor = BodyColor.UNKNOWN;
         }
 
         if (((tokenInfoEx.flags.intValue() & RtPkcs11Constants.TOKEN_FLAGS_ADMIN_CHANGE_USER_PIN.intValue()) != 0x00)
@@ -214,14 +253,14 @@ public class Token {
     }
 
     public void sign(final NativeLong certificate, final byte[] data,
-                     Pkcs11Callback callback) {
+            Pkcs11Callback callback) {
         new Pkcs11AsyncTask(callback) {
             @Override
             protected Pkcs11Result doWork() throws Pkcs11CallerException {
                 Certificate cert = mCertificateMap.get(certificate);
                 if (cert == null) throw new CertNotFoundException();
 
-                CK_ATTRIBUTE[] template = (CK_ATTRIBUTE[])(new CK_ATTRIBUTE()).toArray(2);
+                CK_ATTRIBUTE[] template = (CK_ATTRIBUTE[]) (new CK_ATTRIBUTE()).toArray(2);
 
                 final NativeLongByReference keyClass =
                         new NativeLongByReference(Pkcs11Constants.CKO_PRIVATE_KEY);
@@ -251,7 +290,9 @@ public class Token {
                 else if (!rv2.equals(Pkcs11Constants.CKR_OK)) throw Pkcs11Exception.exceptionWithCode(rv);
                 else if (count.getValue().intValue() <= 0) throw new KeyNotFoundException();
 
-                final byte[] oid = {0x06, 0x07, 0x2a, (byte)0x85, 0x03, 0x02, 0x02, 0x1e, 0x01};
+                final byte[] oid = {
+                        0x06, 0x07, 0x2a, (byte) 0x85, 0x03, 0x02, 0x02, 0x1e, 0x01
+                };
                 ByteBuffer oidBuffer = ByteBuffer.allocateDirect(oid.length);
                 oidBuffer.put(oid);
                 CK_MECHANISM mechanism =

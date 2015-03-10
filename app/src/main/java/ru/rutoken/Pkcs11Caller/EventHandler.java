@@ -1,3 +1,4 @@
+
 package ru.rutoken.Pkcs11Caller;
 
 import android.os.Looper;
@@ -16,7 +17,9 @@ import ru.rutoken.Pkcs11.Pkcs11Constants;
 import ru.rutoken.Pkcs11Caller.exception.Pkcs11Exception;
 
 public class EventHandler extends Thread {
-    public EventHandler() {}
+    public EventHandler() {
+    }
+
     private Map<NativeLong, EventType> lastSlotEvent = new HashMap<NativeLong, EventType>();
     private Handler mHandler = new Handler(Looper.getMainLooper());
 
@@ -55,13 +58,11 @@ public class EventHandler extends Thread {
             mHandler.post(new EventRunnable(EventType.EVENT_HANDLER_FAILED, new NativeLong(-1)));
         }
 
-        while(true) {
+        while (true) {
             NativeLongByReference id = new NativeLongByReference();
             NativeLong rv;
 
             rv = RtPkcs11Library.getInstance().C_WaitForSlotEvent(new NativeLong(0), id, null);
-
-
 
             if (rv.equals(Pkcs11Constants.CKR_CRYPTOKI_NOT_INITIALIZED)) {
                 Log.d(getClass().getName(), "Exit EH");
@@ -80,7 +81,7 @@ public class EventHandler extends Thread {
     }
 
     static EventType oppositeEvent(EventType event) {
-        if(event == EventType.SD) return EventType.SR;
+        if (event == EventType.SD) return EventType.SR;
         return EventType.SD;
     }
 

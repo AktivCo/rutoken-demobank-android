@@ -1,3 +1,4 @@
+
 package ru.rutoken.Pkcs11Caller;
 
 import com.sun.jna.Memory;
@@ -18,7 +19,7 @@ public class Certificate {
 
     public Certificate(RtPkcs11 pkcs11, NativeLong session, NativeLong object)
             throws Pkcs11CallerException {
-        CK_ATTRIBUTE[] attributes = (CK_ATTRIBUTE[])(new CK_ATTRIBUTE()).toArray(2);
+        CK_ATTRIBUTE[] attributes = (CK_ATTRIBUTE[]) (new CK_ATTRIBUTE()).toArray(2);
         attributes[0].type = Pkcs11Constants.CKA_SUBJECT;
         attributes[1].type = Pkcs11Constants.CKA_ID;
 
@@ -26,7 +27,7 @@ public class Certificate {
                 attributes, new NativeLong(attributes.length));
         if (!rv.equals(Pkcs11Constants.CKR_OK)) throw Pkcs11Exception.exceptionWithCode(rv);
 
-        for (CK_ATTRIBUTE attr: attributes) {
+        for (CK_ATTRIBUTE attr : attributes) {
             attr.pValue = new Memory(attr.ulValueLen.intValue());
         }
 
@@ -42,7 +43,11 @@ public class Certificate {
         mId = attributes[1].pValue.getByteArray(0, attributes[1].ulValueLen.intValue());
     }
 
-    public X500Name getSubject() { return mSubject; }
+    public X500Name getSubject() {
+        return mSubject;
+    }
 
-    public byte[] getId() { return mId; }
+    public byte[] getId() {
+        return mId;
+    }
 }
