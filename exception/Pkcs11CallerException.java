@@ -1,3 +1,4 @@
+
 package ru.rutoken.Pkcs11Caller.exception;
 
 public abstract class Pkcs11CallerException extends Exception {
