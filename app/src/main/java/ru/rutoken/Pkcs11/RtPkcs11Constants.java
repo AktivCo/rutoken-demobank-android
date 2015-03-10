@@ -1,17 +1,12 @@
+
 package ru.rutoken.Pkcs11;
+/* Derived from rtpkcs11t.h include file for PKCS #11. */
 
-import com.sun.jna.NativeLong;
-
-/*******************************************************************
- * Rutoken ECP                                                      *
- * Copyright (C) Aktiv Co. 2003-11                                  *
- * rtpkcs11t.h                                                      *
- * Файл, включающий все символы для работы с библиотекой PKCS#11,   *
- * а также расширения для Rutoken ECP.                              *
- ********************************************************************/
 /*
  * @author Aktiv Co. <hotline@rutoken.ru>
  */
+
+import com.sun.jna.NativeLong;
 
 public interface RtPkcs11Constants {
 /*-----------------------------------------------------------------*/
