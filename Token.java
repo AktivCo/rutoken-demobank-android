@@ -193,7 +193,7 @@ public class Token {
         mSerialNumber = Utils.removeTrailingSpaces(tokenInfo.serialNumber);
         int decSerial = Integer.parseInt(mSerialNumber, 16);
         String decSerialString = String.valueOf(decSerial);
-        mShortDecSerialNumber = decSerialString.substring(decSerialString.length() - 5);
+        mShortDecSerialNumber = String.valueOf(decSerial % 100000);
         mHardwareVersion = String.format("%d.%d.%d.%d",
                 tokenInfo.hardwareVersion.major, tokenInfo.hardwareVersion.minor,
                 tokenInfo.firmwareVersion.major, tokenInfo.firmwareVersion.minor);
