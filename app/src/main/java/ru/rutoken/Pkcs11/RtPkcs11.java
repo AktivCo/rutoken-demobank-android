@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2015, CJSC Aktiv-Soft. See the LICENSE file at the top-level directory of this distribution.
+ * All Rights Reserved.
+ */
 
 package ru.rutoken.Pkcs11;
 /* Derived from rtpkcs11f.h include file for PKCS #11. */
