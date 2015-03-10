@@ -1,4 +1,9 @@
 /*
+ * Copyright (c) 2015, CJSC Aktiv-Soft. See the LICENSE file at the top-level directory of this distribution.
+ * All Rights Reserved.
+ */
+
+/*
  * reserved comment block
  * DO NOT REMOVE OR ALTER!
  */
