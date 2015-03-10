@@ -67,17 +67,18 @@ public class CK_INFO extends Structure {
 
     public NativeLong flags;
 
-
-/* libraryDescription and libraryVersion are new for v2.0 */
+    /* libraryDescription and libraryVersion are new for v2.0 */
 
     public byte[] libraryDescription = new byte[32];
 
     public CK_VERSION libraryVersion;
 
-    public CK_INFO() {super();}
+    public CK_INFO() {
+        super();
+    }
 
     public CK_INFO(CK_VERSION cryptoVer, byte[] vendor, NativeLong flags,
-                   byte[] libDesc, CK_VERSION libVer) {
+            byte[] libDesc, CK_VERSION libVer) {
         this.cryptokiVersion = cryptoVer;
         this.manufacturerID = vendor;
         this.flags = flags;
@@ -86,11 +87,13 @@ public class CK_INFO extends Structure {
     }
 
     protected List<String> getFieldOrder() {
-        return Arrays.asList(new String[]{"cryptokiVersion"
-                , "manufacturerID"
-                , "flags"
-                , "libraryDescription"
-                , "libraryVersion"});
+        return Arrays.asList(new String[] {
+                "cryptokiVersion",
+                "manufacturerID",
+                "flags",
+                "libraryDescription",
+                "libraryVersion"
+        });
     }
 
 }

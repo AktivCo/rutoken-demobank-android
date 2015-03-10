@@ -44,6 +44,7 @@
  *  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY  OF SUCH DAMAGE.
  */
+
 package ru.rutoken.Pkcs11;
 
 /**
@@ -65,8 +66,9 @@ public class CK_MECHANISM extends Structure {
 
     public Pointer pParameter;
 
-    /* ulParameterLen was changed from CK_USHORT to CK_ULONG for
-       * v2.0 */
+    /*
+     * ulParameterLen was changed from CK_USHORT to CK_ULONG for v2.0
+     */
     public NativeLong ulParameterLen;
 
     public CK_MECHANISM() {
@@ -80,9 +82,10 @@ public class CK_MECHANISM extends Structure {
     }
 
     protected List<String> getFieldOrder() {
-        return Arrays.asList(new String[]{"mechanism"
-                , "pParameter"
-                , "ulParameterLen"
+        return Arrays.asList(new String[] {
+                "mechanism",
+                "pParameter",
+                "ulParameterLen"
         });
     }
 }

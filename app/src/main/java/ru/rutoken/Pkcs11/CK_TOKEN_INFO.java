@@ -61,59 +61,64 @@ import java.util.List;
 
 public class CK_TOKEN_INFO extends Structure {
 
-    /* label, manufacturerID, and model have been changed from
-     * CK_CHAR to CK_UTF8CHAR for v2.11. */
-    public byte[] label = new byte[32];           /* blank padded */ // 32 bytes
+    /*
+     * label, manufacturerID, and model have been changed from CK_CHAR to CK_UTF8CHAR for v2.11.
+     */
+    public byte[] label = new byte[32]; /* blank padded */// 32 bytes
 
-    public byte[] manufacturerID = new byte[32];  /* blank padded */
+    public byte[] manufacturerID = new byte[32]; /* blank padded */
 
-    public byte[] model = new byte[16];           /* blank padded */
+    public byte[] model = new byte[16]; /* blank padded */
 
-    public byte[] serialNumber = new byte[16];    /* blank padded */
+    public byte[] serialNumber = new byte[16]; /* blank padded */
 
-    public NativeLong flags;               /* see below */
+    public NativeLong flags; /* see below */
 
-    /* ulMaxSessionCount, ulSessionCount, ulMaxRwSessionCount,
-     * ulRwSessionCount, ulMaxPinLen, and ulMinPinLen have all been
-     * changed from CK_USHORT to CK_ULONG for v2.0 */
-    public NativeLong ulMaxSessionCount;     /* max open sessions */
+    /*
+     * ulMaxSessionCount, ulSessionCount, ulMaxRwSessionCount, ulRwSessionCount, ulMaxPinLen, and
+     * ulMinPinLen have all been changed from CK_USHORT to CK_ULONG for v2.0
+     */
+    public NativeLong ulMaxSessionCount; /* max open sessions */
 
-    public NativeLong ulSessionCount;        /* sess. now open */
+    public NativeLong ulSessionCount; /* sess. now open */
 
-    public NativeLong ulMaxRwSessionCount;   /* max R/W sessions */
+    public NativeLong ulMaxRwSessionCount; /* max R/W sessions */
 
-    public NativeLong ulRwSessionCount;      /* R/W sess. now open */
+    public NativeLong ulRwSessionCount; /* R/W sess. now open */
 
-    public NativeLong ulMaxPinLen;           /* in bytes */
+    public NativeLong ulMaxPinLen; /* in bytes */
 
-    public NativeLong ulMinPinLen;           /* in bytes */
+    public NativeLong ulMinPinLen; /* in bytes */
 
-    public NativeLong ulTotalPublicMemory;   /* in bytes */
+    public NativeLong ulTotalPublicMemory; /* in bytes */
 
-    public NativeLong ulFreePublicMemory;    /* in bytes */
+    public NativeLong ulFreePublicMemory; /* in bytes */
 
-    public NativeLong ulTotalPrivateMemory;  /* in bytes */
+    public NativeLong ulTotalPrivateMemory; /* in bytes */
 
-    public NativeLong ulFreePrivateMemory;   /* in bytes */
+    public NativeLong ulFreePrivateMemory; /* in bytes */
 
-    /* hardwareVersion, firmwareVersion, and time are new for
-     * v2.0 */
-    public CK_VERSION    hardwareVersion;       /* version of hardware */
+    /*
+     * hardwareVersion, firmwareVersion, and time are new for v2.0
+     */
+    public CK_VERSION hardwareVersion; /* version of hardware */
 
-    public CK_VERSION    firmwareVersion;       /* version of firmware */
+    public CK_VERSION firmwareVersion; /* version of firmware */
 
-    public byte[] utcTime = new byte[16];           /* time */
+    public byte[] utcTime = new byte[16]; /* time */
 
-    public CK_TOKEN_INFO(){super();}
+    public CK_TOKEN_INFO() {
+        super();
+    }
 
     public CK_TOKEN_INFO(byte[] label, byte[] vendor, byte[] model,
-                         byte[] serialNo, NativeLong flags,
-                         NativeLong sessionMax, NativeLong session,
-                         NativeLong rwSessionMax, NativeLong rwSession,
-                         NativeLong pinLenMax, NativeLong pinLenMin,
-                         NativeLong totalPubMem, NativeLong freePubMem,
-                         NativeLong totalPrivMem, NativeLong freePrivMem,
-                         CK_VERSION hwVer, CK_VERSION fwVer, byte[] utcTime) {
+            byte[] serialNo, NativeLong flags,
+            NativeLong sessionMax, NativeLong session,
+            NativeLong rwSessionMax, NativeLong rwSession,
+            NativeLong pinLenMax, NativeLong pinLenMin,
+            NativeLong totalPubMem, NativeLong freePubMem,
+            NativeLong totalPrivMem, NativeLong freePrivMem,
+            CK_VERSION hwVer, CK_VERSION fwVer, byte[] utcTime) {
         this.label = label;
         this.manufacturerID = vendor;
         this.model = model;
@@ -135,24 +140,25 @@ public class CK_TOKEN_INFO extends Structure {
     }
 
     protected List<String> getFieldOrder() {
-        return Arrays.asList(new String[]{"label"
-                , "manufacturerID"
-                , "model"
-                , "serialNumber"
-                , "flags"
-                , "ulMaxSessionCount"
-                , "ulSessionCount"
-                , "ulMaxRwSessionCount"
-                , "ulRwSessionCount"
-                , "ulMaxPinLen"
-                , "ulMinPinLen"
-                , "ulTotalPublicMemory"
-                , "ulFreePublicMemory"
-                , "ulTotalPrivateMemory"
-                , "ulFreePrivateMemory"
-                , "hardwareVersion"
-                , "firmwareVersion"
-                , "utcTime"
+        return Arrays.asList(new String[] {
+                "label",
+                "manufacturerID",
+                "model",
+                "serialNumber",
+                "flags",
+                "ulMaxSessionCount",
+                "ulSessionCount",
+                "ulMaxRwSessionCount",
+                "ulRwSessionCount",
+                "ulMaxPinLen",
+                "ulMinPinLen",
+                "ulTotalPublicMemory",
+                "ulFreePublicMemory",
+                "ulTotalPrivateMemory",
+                "ulFreePrivateMemory",
+                "hardwareVersion",
+                "firmwareVersion",
+                "utcTime",
         });
     }
 }

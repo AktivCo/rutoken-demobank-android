@@ -1,3 +1,4 @@
+
 package ru.rutoken.Pkcs11;
 
 /**
@@ -10,69 +11,75 @@ import java.util.Arrays;
 import java.util.List;
 
 /* CK_TOKEN_INFO_EXTENDED provides extended information about a token */
-public class CK_TOKEN_INFO_EXTENDED  extends Structure {
+public class CK_TOKEN_INFO_EXTENDED extends Structure {
 
-  /* init this field by size of this structure
-   * [in] - size of input structure
-   * [out] - return size of filled structure
-   */
-  public NativeLong ulSizeofThisStructure;
-  /* type of token: */
-  public NativeLong ulTokenType;       /* see below */
-  /* exchange protocol number */
-  public NativeLong ulProtocolNumber;
-  /* microcode number */
-  public NativeLong ulMicrocodeNumber;
-  /* order number */
-  public NativeLong ulOrderNumber;
-  /* information flags */
-  /* TOKEN_FLAGS_ADMIN_CHANGE_USER_PIN - administrator can change user PIN
-   * TOKEN_FLAGS_USER_CHANGE_USER_PIN  - user can change user PIN
-   * TOKEN_FLAGS_ADMIN_PIN_NOT_DEFAULT - administrator PIN not default
-   * TOKEN_FLAGS_USER_PIN_NOT_DEFAULT  - user PIN not default
-   * TOKEN_FLAGS_SUPPORT_FKN           - token support CryptoPro FKN
-   */
-  public NativeLong flags;            /* see below */
-  /* maximum and minimum PIN length */
-  public NativeLong ulMaxAdminPinLen;
-  public NativeLong ulMinAdminPinLen;
-  public NativeLong ulMaxUserPinLen;
-  public NativeLong ulMinUserPinLen;
-  /* max count of unsuccessful login attempts */
-  public NativeLong ulMaxAdminRetryCount;
-  /* count of unsuccessful attempts left (for administrator PIN)
-   * if field equal 0 - that means that PIN is blocked */
-  public NativeLong ulAdminRetryCountLeft;
-  /* min counts of unsuccessful login attempts */
-  public NativeLong ulMaxUserRetryCount;
-  /* count of unsuccessful attempts left (for user PIN)
-   * if field equal 0 - that means that PIN is blocked */
-  public NativeLong ulUserRetryCountLeft;
-  /* token serial number in Big Endian format */
-  public byte[] serialNumber = new byte[8];
-  /* size of all memory */
-  public NativeLong ulTotalMemory;    /* in bytes */
-  /* size of free memory */
-  public NativeLong ulFreeMemory;     /* in bytes */
-  /* atr of the token */
-  public byte[] ATR = new byte[64];
-  /* size of atr */
-  public NativeLong ulATRLen;
-  /* class of token */
-  public NativeLong ulTokenClass;     /* see below */
-  /* Battery Voltage */
-  public NativeLong ulBatteryVoltage; /* microvolts */
+    /*
+     * init this field by size of this structure [in] - size of input structure [out] - return size
+     * of filled structure
+     */
+    public NativeLong ulSizeofThisStructure;
+    /* type of token: */
+    public NativeLong ulTokenType; /* see below */
+    /* exchange protocol number */
+    public NativeLong ulProtocolNumber;
+    /* microcode number */
+    public NativeLong ulMicrocodeNumber;
+    /* order number */
+    public NativeLong ulOrderNumber;
+    /* information flags */
+    /*
+     * TOKEN_FLAGS_ADMIN_CHANGE_USER_PIN - administrator can change user PIN
+     * TOKEN_FLAGS_USER_CHANGE_USER_PIN - user can change user PIN TOKEN_FLAGS_ADMIN_PIN_NOT_DEFAULT
+     * - administrator PIN not default TOKEN_FLAGS_USER_PIN_NOT_DEFAULT - user PIN not default
+     * TOKEN_FLAGS_SUPPORT_FKN - token support CryptoPro FKN
+     */
+    public NativeLong flags; /* see below */
+    /* maximum and minimum PIN length */
+    public NativeLong ulMaxAdminPinLen;
+    public NativeLong ulMinAdminPinLen;
+    public NativeLong ulMaxUserPinLen;
+    public NativeLong ulMinUserPinLen;
+    /* max count of unsuccessful login attempts */
+    public NativeLong ulMaxAdminRetryCount;
+    /*
+     * count of unsuccessful attempts left (for administrator PIN) if field equal 0 - that means
+     * that PIN is blocked
+     */
+    public NativeLong ulAdminRetryCountLeft;
+    /* min counts of unsuccessful login attempts */
+    public NativeLong ulMaxUserRetryCount;
+    /*
+     * count of unsuccessful attempts left (for user PIN) if field equal 0 - that means that PIN is
+     * blocked
+     */
+    public NativeLong ulUserRetryCountLeft;
+    /* token serial number in Big Endian format */
+    public byte[] serialNumber = new byte[8];
+    /* size of all memory */
+    public NativeLong ulTotalMemory; /* in bytes */
+    /* size of free memory */
+    public NativeLong ulFreeMemory; /* in bytes */
+    /* atr of the token */
+    public byte[] ATR = new byte[64];
+    /* size of atr */
+    public NativeLong ulATRLen;
+    /* class of token */
+    public NativeLong ulTokenClass; /* see below */
+    /* Battery Voltage */
+    public NativeLong ulBatteryVoltage; /* microvolts */
 
-  public NativeLong ulBodyColor;
+    public NativeLong ulBodyColor;
 
-  public CK_TOKEN_INFO_EXTENDED(){super();}
+    public CK_TOKEN_INFO_EXTENDED() {
+        super();
+    }
 
-  public CK_TOKEN_INFO_EXTENDED(NativeLong ulSizeofThisStructure, NativeLong ulTokenType, NativeLong ulProtocolNumber,
-                                NativeLong ulMicrocodeNumber, NativeLong ulOrderNumber, NativeLong flags, NativeLong ulMaxAdminPinLen,
-                                NativeLong ulMinAdminPinLen, NativeLong ulMaxUserPinLen, NativeLong ulMinUserPinLen,
-                                NativeLong ulMaxAdminRetryCount, NativeLong ulAdminRetryCountLeft, NativeLong ulMaxUserRetryCount,
-                                NativeLong ulUserRetryCountLeft, byte[] serialNumber, NativeLong ulTotalMemory, NativeLong ulFreeMemory,
-                                byte[] ATR, NativeLong ulATRLen, NativeLong ulTokenClass, NativeLong ulBatteryVoltage, NativeLong ulBodyColor) {
+    public CK_TOKEN_INFO_EXTENDED(NativeLong ulSizeofThisStructure, NativeLong ulTokenType, NativeLong ulProtocolNumber,
+            NativeLong ulMicrocodeNumber, NativeLong ulOrderNumber, NativeLong flags, NativeLong ulMaxAdminPinLen,
+            NativeLong ulMinAdminPinLen, NativeLong ulMaxUserPinLen, NativeLong ulMinUserPinLen,
+            NativeLong ulMaxAdminRetryCount, NativeLong ulAdminRetryCountLeft, NativeLong ulMaxUserRetryCount,
+            NativeLong ulUserRetryCountLeft, byte[] serialNumber, NativeLong ulTotalMemory, NativeLong ulFreeMemory,
+            byte[] ATR, NativeLong ulATRLen, NativeLong ulTokenClass, NativeLong ulBatteryVoltage, NativeLong ulBodyColor) {
         this.ulSizeofThisStructure = ulSizeofThisStructure;
         this.ulTokenType = ulTokenType;
         this.ulProtocolNumber = ulProtocolNumber;
@@ -98,7 +105,7 @@ public class CK_TOKEN_INFO_EXTENDED  extends Structure {
     }
 
     protected List<String> getFieldOrder() {
-        return Arrays.asList(new String[]{
+        return Arrays.asList(new String[] {
                 "ulSizeofThisStructure",
                 "ulTokenType",
                 "ulProtocolNumber",

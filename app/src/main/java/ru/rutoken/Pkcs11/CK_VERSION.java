@@ -59,14 +59,16 @@ import java.util.Arrays;
 import java.util.List;
 
 public class CK_VERSION extends Structure {
-    public byte major;  /* integer portion of version number */
-    public byte minor;  /* 1/100ths portion of version number */
+    public byte major; /* integer portion of version number */
+    public byte minor; /* 1/100ths portion of version number */
 
-    public CK_VERSION(){super();}
+    public CK_VERSION() {
+        super();
+    }
 
     public CK_VERSION(int major, int minor) {
-        this.major = (byte)major;
-        this.minor = (byte)minor;
+        this.major = (byte) major;
+        this.minor = (byte) minor;
     }
 
     /**
@@ -89,7 +91,10 @@ public class CK_VERSION extends Structure {
     }
 
     protected List<String> getFieldOrder() {
-        return Arrays.asList(new String[]{"major", "minor"});
+        return Arrays.asList(new String[] {
+                "major",
+                "minor"
+        });
     }
 
 }

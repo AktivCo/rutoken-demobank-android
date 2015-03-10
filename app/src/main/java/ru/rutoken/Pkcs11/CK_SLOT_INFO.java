@@ -61,8 +61,9 @@ import java.util.List;
 
 public class CK_SLOT_INFO extends Structure {
 
-    /* slotDescription and manufacturerID have been changed from
-     * CK_CHAR to CK_UTF8CHAR for v2.11. */
+    /*
+     * slotDescription and manufacturerID have been changed from CK_CHAR to CK_UTF8CHAR for v2.11.
+     */
 
     public byte[] slotDescription = new byte[64];
 
@@ -74,10 +75,12 @@ public class CK_SLOT_INFO extends Structure {
 
     public CK_VERSION firmwareVersion;
 
-    public CK_SLOT_INFO() {super();}
+    public CK_SLOT_INFO() {
+        super();
+    }
 
     public CK_SLOT_INFO(byte[] slotDesc, byte[] vendor,
-                        NativeLong flags, CK_VERSION hwVer, CK_VERSION fwVer) {
+            NativeLong flags, CK_VERSION hwVer, CK_VERSION fwVer) {
         this.slotDescription = slotDesc;
         this.manufacturerID = vendor;
         this.flags = flags;
@@ -86,10 +89,12 @@ public class CK_SLOT_INFO extends Structure {
     }
 
     protected List<String> getFieldOrder() {
-        return Arrays.asList(new String[]{"slotDescription"
-                , "manufacturerID"
-                , "flags"
-                , "hardwareVersion"
-                , "firmwareVersion"});
+        return Arrays.asList(new String[] {
+                "slotDescription",
+                "manufacturerID",
+                "flags",
+                "hardwareVersion",
+                "firmwareVersion"
+        });
     }
 }
