@@ -1,3 +1,4 @@
+
 package ru.rutoken.demobank;
 
 abstract public class ExternallyDismissableActivity extends GuaranteedChildStartActivity {
@@ -6,14 +7,14 @@ abstract public class ExternallyDismissableActivity extends GuaranteedChildStart
     @Override
     protected void onChildCreated() {
         super.onChildCreated();
-        if(mPendingDismiss) {
+        if (mPendingDismiss) {
             mPendingDismiss = false;
             finish();
         }
     }
 
     protected void finishExternally() {
-        if(hasPendingChildStart()) {
+        if (hasPendingChildStart()) {
             mPendingDismiss = true;
         } else {
             finish();

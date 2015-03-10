@@ -1,3 +1,4 @@
+
 package ru.rutoken.demobank;
 
 import android.app.ActionBar;
@@ -26,17 +27,16 @@ import ru.rutoken.utils.Pkcs11ErrorTranslator;
 import ru.rutoken.utils.TokenModelRecognizer;
 
 public class MainActivity extends ManagedActivity {
-    //GUI
+    // GUI
     private TextView mInfoTextView;
     private ProgressBar mTWBAProgressBar;
 
-    //Vars
+    // Vars
     private static final String ACTIVITY_CLASS_IDENTIFIER = TokenManagerListener.MAIN_ACTIVITY_IDENTIFIER;
 
     public String getActivityClassIdentifier() {
         return ACTIVITY_CLASS_IDENTIFIER;
     }
-
 
     private final BroadcastReceiver mBluetoothStateReciever = new BroadcastReceiver() {
         @Override
@@ -47,7 +47,7 @@ public class MainActivity extends ManagedActivity {
                 final int state = intent.getIntExtra(
                         BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);
 
-                switch(state) {
+                switch (state) {
                     case BluetoothAdapter.STATE_OFF:
                         mInfoTextView.setText(R.string.turn_bt_on);
                         break;
@@ -64,8 +64,7 @@ public class MainActivity extends ManagedActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
-        setRequestedOrientation(
-                ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
 
         setupActionBar();
         setupUI();
@@ -79,25 +78,26 @@ public class MainActivity extends ManagedActivity {
 
     @Override
     public void onBackPressed() {
-        if(TokenManagerListener.getInstance().shallWaitForToken()) {
+        if (TokenManagerListener.getInstance().shallWaitForToken()) {
             TokenManagerListener.getInstance().resetWaitForToken();
         } else {
             super.onBackPressed();
         }
         updateScreen();
     }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(mBluetoothStateReciever);
-        if(isFinishing()) {
+        if (isFinishing()) {
             TokenManagerListener.getInstance().destroy();
         }
     }
 
     private void setupUI() {
-        mInfoTextView = (TextView)findViewById(R.id.infoTV);
-        mTWBAProgressBar = (ProgressBar)findViewById(R.id.twbaPB);
+        mInfoTextView = (TextView) findViewById(R.id.infoTV);
+        mTWBAProgressBar = (ProgressBar) findViewById(R.id.twbaPB);
 
         mTWBAProgressBar.setVisibility(View.INVISIBLE);
 
@@ -116,14 +116,15 @@ public class MainActivity extends ManagedActivity {
         intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
         startActivity(intent);
     }
+
     private void setupActionBar() {
-        LayoutInflater inflater = (LayoutInflater)this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        LayoutInflater inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View v = inflater.inflate(R.layout.actionbar_layout, null);
 
         ActionBar.LayoutParams params = new ActionBar.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.CENTER);
 
-        /*Custom actionbar*/
+        /* Custom actionbar */
         ActionBar actionBar = getActionBar();
         if (actionBar != null) {
             actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
@@ -138,7 +139,7 @@ public class MainActivity extends ManagedActivity {
     private static String commonNameFromX500Name(X500Name name) {
         String commonName = "";
         RDN[] rdns = name.getRDNs(BCStyle.CN);
-        if(rdns == null || rdns.length == 0)
+        if (rdns == null || rdns.length == 0)
             return commonName;
         commonName = IETFUtils.valueToString(rdns[0].getFirst().getValue());
         return commonName;
@@ -150,7 +151,7 @@ public class MainActivity extends ManagedActivity {
     }
 
     private void updateProgressBar() {
-        if(TokenManagerListener.getInstance().shallShowProgressBar()) {
+        if (TokenManagerListener.getInstance().shallShowProgressBar()) {
             mTWBAProgressBar.setVisibility(View.VISIBLE);
         } else {
             mTWBAProgressBar.setVisibility(View.INVISIBLE);
@@ -161,7 +162,7 @@ public class MainActivity extends ManagedActivity {
         String certificateData = null;
         Token token = TokenManagerListener.getInstance().getToken();
 
-        if(token != null) {
+        if (token != null) {
             certificateData = "";
             certificateData += TokenModelRecognizer.getInstance().marketingNameForPkcs11Name(token.getModel());
             certificateData += " ";
@@ -172,11 +173,11 @@ public class MainActivity extends ManagedActivity {
             certificateData += commonNameFromX500Name(token.getCertificate(TokenManagerListener.getInstance().getCertificate()).getSubject());
             mInfoTextView.setText(certificateData);
             mInfoTextView.setEnabled(true);
-        } else if(token != null) {
+        } else if (token != null) {
             certificateData += getResources().getString(R.string.no_certificate);
             mInfoTextView.setText(certificateData);
             mInfoTextView.setEnabled(false);
-        } else if(TokenManagerListener.getInstance().shallWaitForToken()) {
+        } else if (TokenManagerListener.getInstance().shallWaitForToken()) {
             certificateData = String.format(getResources().getString(R.string.wait_token),
                     TokenModelRecognizer.getInstance().marketingNameForPkcs11Name(TokenManagerListener.getInstance().getWaitToken().getModel())
                             + " " + TokenManagerListener.getInstance().getWaitToken().getShortDecSerialNumber());

@@ -1,3 +1,4 @@
+
 package ru.rutoken.demobank;
 
 import android.app.ActionBar;
@@ -27,9 +28,8 @@ import ru.rutoken.Pkcs11Caller.TokenManager;
 import ru.rutoken.Pkcs11Caller.exception.Pkcs11Exception;
 import ru.rutoken.utils.Pkcs11ErrorTranslator;
 
-
 public class LoginActivity extends Pkcs11CallerActivity {
-    //GUI
+    // GUI
     private Button mLoginButton;
     private EditText mPinEditText;
     private TextView mAlertTextView;
@@ -39,7 +39,9 @@ public class LoginActivity extends Pkcs11CallerActivity {
     protected NativeLong mCertificate = TokenManagerListener.NO_CERTIFICATE;
     protected Token mToken = null;
 
-    private static final byte mSignData[] = new byte[]{0,0,0};
+    private static final byte mSignData[] = new byte[] {
+            0, 0, 0
+    };
     private static final String ACTIVITY_CLASS_IDENTIFIER = LoginActivity.class.getName();
     private Dialog mOverlayDialog;
 
@@ -59,10 +61,9 @@ public class LoginActivity extends Pkcs11CallerActivity {
         mOverlayDialog.dismiss();
     }
 
-
     @Override
     protected void manageLoginError(Pkcs11Exception exception) {
-        if(exception != null) {
+        if (exception != null) {
             mAlertTextView.setText(Pkcs11ErrorTranslator.getInstance().messageForRV(exception.getErrorCode()));
         }
         showLogonFinished();
@@ -109,17 +110,16 @@ public class LoginActivity extends Pkcs11CallerActivity {
             setContentView(R.layout.activity_login);
         }
 
-        setRequestedOrientation(
-                ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
 
         setupActionBar();
         setupUI();
-        
+
         Intent intent = getIntent();
-        mSlotId = (NativeLong)intent.getSerializableExtra("slotId");
+        mSlotId = (NativeLong) intent.getSerializableExtra("slotId");
         mCertificate = (NativeLong) intent.getSerializableExtra("certificate");
         mToken = TokenManager.getInstance().tokenForSlot(mSlotId);
-        if(null == mToken) {
+        if (null == mToken) {
             finish();
         }
         mOverlayDialog = new Dialog(this, android.R.style.Theme_Panel);
@@ -127,13 +127,13 @@ public class LoginActivity extends Pkcs11CallerActivity {
     }
 
     private void setupActionBar() {
-        LayoutInflater inflater = (LayoutInflater)this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        LayoutInflater inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View v = inflater.inflate(R.layout.actionbar_layout, null);
 
         ActionBar.LayoutParams params = new ActionBar.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.CENTER);
 
-        /*Custom actionbar*/
+        /* Custom actionbar */
         ActionBar actionBar = getActionBar();
         if (actionBar != null) {
             actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
@@ -146,10 +146,10 @@ public class LoginActivity extends Pkcs11CallerActivity {
     }
 
     private void setupUI() {
-        mLoginButton = (Button)findViewById(R.id.loginB);
-        mPinEditText = (EditText)findViewById(R.id.pinET);
-        mAlertTextView = (TextView)findViewById(R.id.alertTV);
-        mLoginProgressBar = (ProgressBar)findViewById(R.id.loginPB);
+        mLoginButton = (Button) findViewById(R.id.loginB);
+        mPinEditText = (EditText) findViewById(R.id.pinET);
+        mAlertTextView = (TextView) findViewById(R.id.alertTV);
+        mLoginProgressBar = (ProgressBar) findViewById(R.id.loginPB);
 
         mLoginProgressBar.setVisibility(View.GONE);
 

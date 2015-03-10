@@ -1,3 +1,4 @@
+
 package ru.rutoken.demobank;
 
 import android.app.Activity;
@@ -9,9 +10,9 @@ import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 
 /**
- * Activity calls onChildCreated method when child activity is started.
- * Beware to use startActivity to start child activity.
- * All methods are processed in the MainThread -- no synchronization needed.
+ * Activity calls onChildCreated method when child activity is started. Beware to use startActivity
+ * to start child activity. All methods are processed in the MainThread -- no synchronization
+ * needed.
  */
 
 public class GuaranteedChildStartActivity extends Activity {
@@ -33,7 +34,7 @@ public class GuaranteedChildStartActivity extends Activity {
 
             if (action.equals(CHILD_ACTIVITY_CREATED)) {
                 int hashCode = intent.getIntExtra("hashCode", 0);
-                if(mHashCode == hashCode) {
+                if (mHashCode == hashCode) {
                     synchronized (GuaranteedChildStartActivity.this) {
                         mPendingActivityStart = false;
                         onChildCreated();
@@ -47,7 +48,8 @@ public class GuaranteedChildStartActivity extends Activity {
         return mPendingActivityStart;
     }
 
-    protected void onChildCreated() {}
+    protected void onChildCreated() {
+    }
 
     @Override
     public void startActivity(Intent intent) {
@@ -63,7 +65,7 @@ public class GuaranteedChildStartActivity extends Activity {
         mHashCode = System.identityHashCode(this);
         Intent i = getIntent();
         int parentHashCode = i.getIntExtra("hashCode", 0);
-        if(parentHashCode != 0) {
+        if (parentHashCode != 0) {
             mParentHashCode = parentHashCode;
         }
     }
@@ -71,7 +73,7 @@ public class GuaranteedChildStartActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        if(null != mParentHashCode) {
+        if (null != mParentHashCode) {
             int parentHashCode = mParentHashCode;
             mParentHashCode = null;
             Intent intent = new Intent(CHILD_ACTIVITY_CREATED);

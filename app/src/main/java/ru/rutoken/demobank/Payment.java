@@ -1,3 +1,4 @@
+
 package ru.rutoken.demobank;
 
 import android.content.Context;
@@ -23,7 +24,7 @@ public class Payment extends RelativeLayout {
         initPayment();
         DateFormat df = DateFormat.getDateInstance();
         mDateTextView.setText(df.format(new Date()));
-        mNumTextView.setText(String.format("%d", num+FIRST_NUMBER));
+        mNumTextView.setText(String.format("%d", num + FIRST_NUMBER));
         mRecieverTextView.setText(recipient);
         mAmount = amount;
         String amountString = String.format("%d", mAmount).replaceAll("\\d\\d\\d$", " $0 руб");
@@ -31,22 +32,32 @@ public class Payment extends RelativeLayout {
     }
 
     private void initPayment() {
-        LayoutInflater inflater = (LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(R.layout.payment_layout, this);
 
-        mNumTextView = (TextView)findViewById(R.id.numTV);
-        mDateTextView = (TextView)findViewById(R.id.dateTV);
-        mRecieverTextView = (TextView)findViewById(R.id.recieverTV);
-        mAmountTextView = (TextView)findViewById(R.id.amountTV);
+        mNumTextView = (TextView) findViewById(R.id.numTV);
+        mDateTextView = (TextView) findViewById(R.id.dateTV);
+        mRecieverTextView = (TextView) findViewById(R.id.recieverTV);
+        mAmountTextView = (TextView) findViewById(R.id.amountTV);
     }
 
     public boolean needAskPIN() {
         return mAmount >= Payment.THRESHOLD_PRICE;
     }
 
+    public int getNum() {
+        return Integer.parseInt(mNumTextView.getText().toString()) - FIRST_NUMBER;
+    }
 
-    public int getNum() {return Integer.parseInt(mNumTextView.getText().toString())-FIRST_NUMBER;}
-    public String getDate() {return mDateTextView.getText().toString();}
-    public String getReciever() {return mRecieverTextView.getText().toString();}
-    public int getAmount() {return mAmount;}
+    public String getDate() {
+        return mDateTextView.getText().toString();
+    }
+
+    public String getReciever() {
+        return mRecieverTextView.getText().toString();
+    }
+
+    public int getAmount() {
+        return mAmount;
+    }
 }

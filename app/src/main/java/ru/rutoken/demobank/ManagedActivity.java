@@ -1,3 +1,4 @@
+
 package ru.rutoken.demobank;
 
 abstract public class ManagedActivity extends ExternallyDismissableActivity {

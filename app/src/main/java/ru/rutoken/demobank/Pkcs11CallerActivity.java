@@ -1,3 +1,4 @@
+
 package ru.rutoken.demobank;
 
 import com.sun.jna.NativeLong;
@@ -10,15 +11,17 @@ import ru.rutoken.Pkcs11Caller.exception.Pkcs11Exception;
 abstract public class Pkcs11CallerActivity extends ManagedActivity {
     private static Pkcs11Exception pkcs11exceptionFromCallerException(Pkcs11CallerException exception) {
         Pkcs11Exception exception1 = null;
-        if(Pkcs11Exception.class.isInstance(exception)) {
-            exception1 = ((Pkcs11Exception)exception);
+        if (Pkcs11Exception.class.isInstance(exception)) {
+            exception1 = ((Pkcs11Exception) exception);
         }
         return exception1;
     }
+
     class LoginCallback extends Pkcs11Callback {
         public void execute(Pkcs11CallerException exception) {
             manageLoginError(pkcs11exceptionFromCallerException(exception));
         }
+
         public void execute(Object... arguments) {
             Pkcs11CallerActivity.this.manageLoginSucceed();
         }
@@ -28,8 +31,9 @@ abstract public class Pkcs11CallerActivity extends ManagedActivity {
         public void execute(Pkcs11CallerException exception) {
             manageSignError(pkcs11exceptionFromCallerException(exception));
         }
+
         public void execute(Object... arguments) {
-            manageSignSucceed((byte[])arguments[0]);
+            manageSignSucceed((byte[]) arguments[0]);
         }
     }
 
@@ -37,6 +41,7 @@ abstract public class Pkcs11CallerActivity extends ManagedActivity {
         public void execute(Pkcs11CallerException exception) {
             manageLogoutError(pkcs11exceptionFromCallerException(exception));
         }
+
         public void execute(Object... arguments) {
             manageLogoutSucceed();
         }
@@ -50,7 +55,7 @@ abstract public class Pkcs11CallerActivity extends ManagedActivity {
         token.sign(certificate, signData, mSignCallback);
     }
 
-    protected void login(Token token,  String pin) {
+    protected void login(Token token, String pin) {
         token.login(pin, mLoginCallback);
     }
 

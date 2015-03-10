@@ -1,3 +1,4 @@
+
 package ru.rutoken.demobank;
 
 import android.content.BroadcastReceiver;
@@ -76,7 +77,7 @@ public class TokenManagerListener {
     }
 
     public synchronized void init(Context context) {
-        if(mContext != null)
+        if (mContext != null)
             return;
 
         mContext = context;
@@ -93,7 +94,7 @@ public class TokenManagerListener {
     }
 
     public synchronized void destroy() {
-        if(mContext == null)
+        if (mContext == null)
             return;
 
         TokenManager.getInstance().destroy();
@@ -107,29 +108,28 @@ public class TokenManagerListener {
 
     protected void onTokenWillBeAdded(Intent intent) {
         ++mTwbaCounter;
-        if(mMainActivity != null) mMainActivity.updateScreen();
+        if (mMainActivity != null) mMainActivity.updateScreen();
     }
 
     protected void onTokenAddingFailed(Intent intent) {
         --mTwbaCounter;
-        if(mMainActivity != null) mMainActivity.updateScreen();
+        if (mMainActivity != null) mMainActivity.updateScreen();
 
     }
 
     protected void onTokenAdded(Intent intent) {
         --mTwbaCounter;
-        if(mMainActivity != null) mMainActivity.updateScreen();
+        if (mMainActivity != null) mMainActivity.updateScreen();
 
-        NativeLong slotId = (NativeLong)intent.getSerializableExtra("slotId");
+        NativeLong slotId = (NativeLong) intent.getSerializableExtra("slotId");
         if (slotId == null) return;
 
         Token token = TokenManager.getInstance().tokenForSlot(slotId);
         processConnectedToken(slotId, token);
     }
 
-
     protected void onTokenRemoved(Intent intent) {
-        NativeLong slotId = (NativeLong)intent.getSerializableExtra("slotId");
+        NativeLong slotId = (NativeLong) intent.getSerializableExtra("slotId");
         onTokenRemoved(slotId);
     }
 
@@ -146,15 +146,15 @@ public class TokenManagerListener {
 
             resetSlotInfo();
 
-            if(mMainActivity != null) mMainActivity.updateScreen();
+            if (mMainActivity != null) mMainActivity.updateScreen();
 
-            for(NativeLong slot: TokenManager.getInstance().slots()) {
-                if(!mSlotId.equals(NO_SLOT))
+            for (NativeLong slot : TokenManager.getInstance().slots()) {
+                if (!mSlotId.equals(NO_SLOT))
                     break;
                 processConnectedToken(slot, TokenManager.getInstance().tokenForSlot(slot));
             }
 
-            if(mMainActivity == null) {
+            if (mMainActivity == null) {
                 for (ManagedActivity activity : mActivities) {
                     activity.finishExternally();
                 }
@@ -180,12 +180,12 @@ public class TokenManagerListener {
     }
 
     protected void processConnectedToken(NativeLong slotId, Token token) {
-        if(token == null) return;
+        if (token == null) return;
 
         String serial = token.getSerialNumber();
         Set<NativeLong> certificates = token.enumerateCertificates();
 
-        if(mDoWait) { // process wait token once
+        if (mDoWait) { // process wait token once
             do {
                 if (certificates == null) break;
                 if (!serial.equals(mWaitToken.getSerialNumber())) break;
@@ -203,7 +203,7 @@ public class TokenManagerListener {
                     if (mMainActivity != null) mMainActivity.startPINActivity();
                     break;
                 }
-            } while(false);
+            } while (false);
         }
         // Process new token, if need
         if (mSlotId.equals(NO_SLOT)) {
@@ -215,18 +215,18 @@ public class TokenManagerListener {
                 mCertificate = NO_CERTIFICATE;
             }
 
-            if(mMainActivity != null) mMainActivity.updateScreen();
+            if (mMainActivity != null) mMainActivity.updateScreen();
         }
     }
 
     public void onActivityResumed(ManagedActivity activity) {
         mActivities.add(activity);
         if (activity.getActivityClassIdentifier().equals(MAIN_ACTIVITY_IDENTIFIER)) {
-            mMainActivity = (MainActivity)activity;
+            mMainActivity = (MainActivity) activity;
             mMainActivity.updateScreen();
             mWaitingForMainActivity = false;
         } else {
-            if(mWaitingForMainActivity) {
+            if (mWaitingForMainActivity) {
                 for (ManagedActivity a : mActivities) {
                     a.finishExternally();
                 }
@@ -242,7 +242,7 @@ public class TokenManagerListener {
     }
 
     public boolean shallShowProgressBar() {
-        return (mTwbaCounter>0);
+        return (mTwbaCounter > 0);
     }
 
     public boolean shallWaitForToken() {
@@ -251,7 +251,7 @@ public class TokenManagerListener {
 
     public void resetWaitForToken() {
         resetWaitSlotState();
-        if(mMainActivity != null) mMainActivity.updateScreen();
+        if (mMainActivity != null) mMainActivity.updateScreen();
         onTokenRemoved(NO_SLOT);
     }
 
@@ -282,6 +282,5 @@ public class TokenManagerListener {
     public void resetPaymentsCreated() {
         mPaymentsCreated = false;
     }
-
 
 }
