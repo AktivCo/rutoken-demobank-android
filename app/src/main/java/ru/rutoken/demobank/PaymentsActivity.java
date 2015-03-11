@@ -243,9 +243,14 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
                 + " " + mToken.getShortDecSerialNumber());
         mTokenIDTextView.setText("");
 
-        int charge = TokenBatteryCharge.getBatteryPercentage(mToken.getCharge());
-        mTokenBatteryTextView.setText(charge + "%");
-        mTokenBatteryImageView.setImageResource(TokenBatteryCharge.getBatteryImageForVoltage(mToken.getCharge()));
+        if (mToken.getModel().contains("ECP BT")) {
+            int charge = TokenBatteryCharge.getBatteryPercentage(mToken.getCharge());
+            mTokenBatteryTextView.setText(charge + "%");
+            mTokenBatteryImageView.setImageResource(TokenBatteryCharge.getBatteryImageForVoltage(mToken.getCharge()));
+        } else {
+            mTokenBatteryTextView.setText("");
+            mTokenBatteryImageView.setImageResource(android.R.color.transparent);
+        }
 
         LayoutInflater inflater = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
         View popupView = inflater.inflate(R.layout.popup_layout, null);
