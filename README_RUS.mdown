@@ -1,0 +1,33 @@
+##Описание
+
+Рутокен DemoBank это демонстрационное приложение которое позволяет показать типичное применение электронного идентификатора [Рутокен ЭЦП Bluetooth] (http://www.rutoken.ru/products/all/rutoken-ecp-bluetooth/) на практике, а также содержит классы значительно упрощающие работу со сложным устройством совмещающем в себе логику поведения как типичного Buetooth-аксессуара, так и смарт-карты со считывателем.
+
+##Требования
+
+Рутокен DemoBank может быть собран с использованием:
+* [Gradle] (https://gradle.org/) 2.2.1 и старше;
+* Android Studio 1.0.2 и старше;
+* Android SDK Build-tools 20 и старше;
+* Android SDK Platform 19 и старше.
+
+Внешние зависимости находятся в [Рутокен SDK] (http://www.rutoken.ru/developers/sdk/)
+
+Необходимые библиотеки:
+* librtpkcs11ecp.so (Rutoken SDK).
+
+##Как собрать
+* Прежде чем собирать проект, поместите библиотеку librtpkcs11ecp.so по пути app/libs/librtpkcs11ecp.so
+
+###Чтобы собрать из консоли:
+* выполните:
+    ~/demobank-android$> gradle build
+###Чтобы собрать с помощью Android Studio:
+* запустите Android Studio;
+* выберите "File">"Import Project...": "~/demobank-android/build.gradle"
+* выберите "Build">"Make project"
+
+##Лицензия
+
+Программный код проекта распространяется по [модифицированной лицензии BSD] (LICENSE_RUS), если противное не указано в файле с исходным кодом,
+содержимое папки app/src/main/java/ru/rutoken/demobank содержит объекты авторского права и распространяется по коммерческой лицензии ЗАО "Актив-Софт", [текст лицензии] (https://download.rutoken.ru/License_Agreement.pdf).
+Данный продукт содержит программное обеспечение, разработанное IAIK of Graz University of Technology.

@@ -1,0 +1,32 @@
+##Description
+
+Rutoken DemoBank is a demonstration application which show typical usage of electronic identifier [Rutoken ECP Bluetooth] (http://www.rutoken.ru/products/all/rutoken-ecp-bluetooth/) and also contains some useful classes for developers to significantly ease developing for complicated device, combining both typical Bluetooth accesory and SmartCard with reader logics.
+
+##Requirements
+
+Rutoken DemoBank should be built using:
+* [Gradle] (https://gradle.org/) 2.2.1 and newer;
+* Android Studio 1.0.2 and newer;
+* Android SDK Build-tools 20 and newer;
+* Android SDK Platform 19 and newer.
+
+External dependencies are located in [Rutoken SDK] (http://www.rutoken.ru/developers/sdk/) 
+
+Required libraries:
+* librtpkcs11ecp.so (Rutoken SDK).
+
+##How to build
+* Prior to building project place librtpkcs11ecp.so library by the path app/libs/librtpkcs11ecp.so
+### To build from console:
+* run:
+    ~/demobank-android$> gradle build 
+### To build with Android Studio:
+* open Android Studio
+* select "File">"Import Project...": "~/demobank-android/build.gradle"
+* select "Build">"Make project"
+
+##License
+
+Project source code is  distributed under [New BSD license] (LICENSE) if the opposite is not mentioned in the source code entity itself,
+app/src/main/java/ru/rutoken/demobank directory contains objects of copyright and distributed under commercial license of CJSC “Aktiv-Soft”, [License Agreement] (https://download.rutoken.ru/License_Agreement.pdf) (only in Russian).
+This product includes software developed by IAIK of Graz University of Technology.
