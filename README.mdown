@@ -16,11 +16,13 @@ Required libraries:
 * librtpkcs11ecp.so (Rutoken SDK).
 
 ##How to build
-* Prior to building project place librtpkcs11ecp.so library by the path app/libs/librtpkcs11ecp.so
-### To build from console:
+Prior to building project place librtpkcs11ecp.so library by the path app/libs/librtpkcs11ecp.so
+
+To build from console:
 * run:
     ~/demobank-android$> gradle build 
-### To build with Android Studio:
+
+To build with Android Studio:
 * open Android Studio
 * select "File">"Import Project...": "~/demobank-android/build.gradle"
 * select "Build">"Make project"

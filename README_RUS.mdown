@@ -16,12 +16,13 @@
 * librtpkcs11ecp.so (Rutoken SDK).
 
 ##Как собрать
-* Прежде чем собирать проект, поместите библиотеку librtpkcs11ecp.so по пути app/libs/librtpkcs11ecp.so
+Прежде чем собирать проект, поместите библиотеку librtpkcs11ecp.so по пути app/libs/librtpkcs11ecp.so
 
-###Чтобы собрать из консоли:
+Чтобы собрать из консоли:
 * выполните:
     ~/demobank-android$> gradle build
-###Чтобы собрать с помощью Android Studio:
+
+Чтобы собрать с помощью Android Studio:
 * запустите Android Studio;
 * выберите "File">"Import Project...": "~/demobank-android/build.gradle"
 * выберите "Build">"Make project"
