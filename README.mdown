@@ -1,3 +1,5 @@
+[Russian/Русский](README_RUS.mdown) 
+
 ##Description
 
 Rutoken DemoBank is a demonstration application which show typical usage of electronic identifier [Rutoken ECP Bluetooth] (http://www.rutoken.ru/products/all/rutoken-ecp-bluetooth/) and also contains some useful classes for developers to significantly ease developing for complicated device, combining both typical Bluetooth accesory and SmartCard with reader logics.
@@ -26,6 +28,24 @@ To build with Android Studio:
 * open Android Studio
 * select "File">"Import Project...": "~/demobank-android/build.gradle"
 * select "Build">"Make project"
+
+##Preliminary actions
+
+To create key pairs and certificate on Rutoken ECP Bluetooth, follow these steps:
+
+* Download and install [Rutoken plugin](http://www.rutoken.ru/products/all/rutoken-plugin/) on your desktop computer.
+* Restart your browser to complete plugin installation
+* Go to a [Rutoken DemoBank](http://demobank.rutoken.ru) website
+* Connect Rutoken ECP Bluetooth to your desktop via USB cable
+* Make sure that only red LED is active (without blue). If not, hold the button on device until blue light disappears.
+* Make sure that Rutoken ECP is found by the website
+* Choose «User Registration” («Регистрация Пользователя» ) and enter the PIN when it'd be requested.
+* Make sure that website have found a certificate and a key pair on your device.
+* Disconnect the device from the desktop and connect it to the iOS device via Bluetooth
+
+##Restriction
+
+* Rutoken DemoBank can only be run on physical devices, not on emulators.
 
 ##License
 
