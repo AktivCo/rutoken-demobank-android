@@ -41,7 +41,7 @@ To create key pairs and certificate on Rutoken ECP Bluetooth, follow these steps
 * Make sure that Rutoken ECP is found by the website
 * Choose «User Registration” («Регистрация Пользователя» ) and enter the PIN when it'd be requested.
 * Make sure that website have found a certificate and a key pair on your device.
-* Disconnect the device from the desktop and connect it to the iOS device via Bluetooth
+* Disconnect the device from the desktop and connect it to the Android device via Bluetooth
 
 ##Restriction
 
