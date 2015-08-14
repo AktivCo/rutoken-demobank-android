@@ -14,8 +14,8 @@ repositories {
 }
 
 android {
-    compileSdkVersion 19
-    buildToolsVersion "20"
+    compileSdkVersion 22
+    buildToolsVersion "22.0.1"
     lintOptions {
         abortOnError false
     }
@@ -108,15 +108,17 @@ tasks.withType(JavaCompile) {
 
 dependencies {
     compile fileTree(dir: "libs", include: "*.jar")
-    compile group: 'com.madgag.spongycastle', name: 'core', version: '1.51.0.0'
+    compile 'com.madgag.spongycastle:core:1.52.0.0'
+    compile 'com.madgag.spongycastle:prov:1.52.0.0'
+    compile 'com.madgag.spongycastle:pkix:1.52.0.0'
 }
 
 dependencies {
     compile files("$buildDir/native-libs/native-libs.jar") {
         builtBy 'nativeLibsToJar'
     }
-    compile "com.android.support:support-v4:20.+"
+    compile "com.android.support:support-v4:22.2.1"
 }
 dependencies {
-    compile 'com.android.support:appcompat-v7:19.+'
+    compile 'com.android.support:appcompat-v7:22.2.1'
 }

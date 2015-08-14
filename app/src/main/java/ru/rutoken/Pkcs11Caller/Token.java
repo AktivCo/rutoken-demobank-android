@@ -15,7 +15,13 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Set;
 
-import ru.rutoken.Pkcs11.*;
+import ru.rutoken.Pkcs11.CK_ATTRIBUTE;
+import ru.rutoken.Pkcs11.CK_MECHANISM;
+import ru.rutoken.Pkcs11.CK_TOKEN_INFO;
+import ru.rutoken.Pkcs11.CK_TOKEN_INFO_EXTENDED;
+import ru.rutoken.Pkcs11.Pkcs11Constants;
+import ru.rutoken.Pkcs11.RtPkcs11;
+import ru.rutoken.Pkcs11.RtPkcs11Constants;
 import ru.rutoken.Pkcs11Caller.exception.CertNotFoundException;
 import ru.rutoken.Pkcs11Caller.exception.KeyNotFoundException;
 import ru.rutoken.Pkcs11Caller.exception.Pkcs11CallerException;
@@ -264,35 +270,11 @@ public class Token {
                 Certificate cert = mCertificateMap.get(certificate);
                 if (cert == null) throw new CertNotFoundException();
 
-                CK_ATTRIBUTE[] template = (CK_ATTRIBUTE[]) (new CK_ATTRIBUTE()).toArray(2);
+                NativeLong keyHandle = cert.getPrivateKeyHandle(mPkcs11, mSession);
+                if (keyHandle == null) throw new KeyNotFoundException();
 
-                final NativeLongByReference keyClass =
-                        new NativeLongByReference(Pkcs11Constants.CKO_PRIVATE_KEY);
-                template[0].type = Pkcs11Constants.CKA_CLASS;
-                template[0].pValue = keyClass.getPointer();
-                template[0].ulValueLen = new NativeLong(NativeLong.SIZE);
-
-                byte[] id = cert.getId();
-                ByteBuffer idBuffer = ByteBuffer.allocateDirect(id.length);
-                idBuffer.put(id);
-                template[1].type = Pkcs11Constants.CKA_ID;
-                template[1].pValue = Native.getDirectBufferPointer(idBuffer);
-                template[1].ulValueLen = new NativeLong(id.length);
-
-                NativeLong rv = mPkcs11.C_FindObjectsInit(mSession,
-                        template, new NativeLong(template.length));
-                if (!rv.equals(Pkcs11Constants.CKR_OK)) throw Pkcs11Exception.exceptionWithCode(rv);
-
-                NativeLong objects[] = new NativeLong[2];
                 NativeLongByReference count =
-                        new NativeLongByReference(new NativeLong(objects.length));
-                rv = mPkcs11.C_FindObjects(mSession, objects, new NativeLong(objects.length),
-                        count);
-
-                NativeLong rv2 = mPkcs11.C_FindObjectsFinal(mSession);
-                if (!rv.equals(Pkcs11Constants.CKR_OK)) throw Pkcs11Exception.exceptionWithCode(rv);
-                else if (!rv2.equals(Pkcs11Constants.CKR_OK)) throw Pkcs11Exception.exceptionWithCode(rv);
-                else if (count.getValue().intValue() <= 0) throw new KeyNotFoundException();
+                        new NativeLongByReference(new NativeLong());
 
                 final byte[] oid = {
                         0x06, 0x07, 0x2a, (byte) 0x85, 0x03, 0x02, 0x02, 0x1e, 0x01
@@ -303,7 +285,7 @@ public class Token {
                         new CK_MECHANISM(RtPkcs11Constants.CKM_GOSTR3410_WITH_GOSTR3411,
                                 Native.getDirectBufferPointer(oidBuffer),
                                 new NativeLong(oid.length));
-                rv = mPkcs11.C_SignInit(mSession, mechanism, objects[0]);
+                NativeLong rv = mPkcs11.C_SignInit(mSession, mechanism, keyHandle);
                 if (!rv.equals(Pkcs11Constants.CKR_OK)) throw Pkcs11Exception.exceptionWithCode(rv);
 
                 rv = mPkcs11.C_Sign(mSession, data, new NativeLong(data.length), null, count);
