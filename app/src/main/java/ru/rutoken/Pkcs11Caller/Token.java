@@ -13,6 +13,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import ru.rutoken.Pkcs11.CK_ATTRIBUTE;
@@ -22,6 +23,7 @@ import ru.rutoken.Pkcs11.CK_TOKEN_INFO_EXTENDED;
 import ru.rutoken.Pkcs11.Pkcs11Constants;
 import ru.rutoken.Pkcs11.RtPkcs11;
 import ru.rutoken.Pkcs11.RtPkcs11Constants;
+import ru.rutoken.Pkcs11Caller.Certificate.CertificateCategory;
 import ru.rutoken.Pkcs11Caller.exception.CertNotFoundException;
 import ru.rutoken.Pkcs11Caller.exception.KeyNotFoundException;
 import ru.rutoken.Pkcs11Caller.exception.Pkcs11CallerException;
@@ -142,7 +144,7 @@ public class Token {
         if (!rv.equals(Pkcs11Constants.CKR_OK)) throw Pkcs11Exception.exceptionWithCode(rv);
     }
 
-    private void initCertificatesList(RtPkcs11 pkcs11) throws Pkcs11CallerException {
+    private Map<NativeLong, Certificate> getCertificatesWithCategory(RtPkcs11 pkcs11, CertificateCategory category) throws Pkcs11CallerException {
         CK_ATTRIBUTE[] template = (CK_ATTRIBUTE[]) (new CK_ATTRIBUTE()).toArray(2);
 
         NativeLongByReference certClass =
@@ -151,8 +153,7 @@ public class Token {
         template[0].pValue = certClass.getPointer();
         template[0].ulValueLen = new NativeLong(NativeLong.SIZE);
 
-        // token user category
-        NativeLongByReference certCategory = new NativeLongByReference(new NativeLong(1));
+        NativeLongByReference certCategory = new NativeLongByReference(new NativeLong(category.getValue()));
         template[1].type = Pkcs11Constants.CKA_CERTIFICATE_CATEGORY;
         template[1].pValue = certCategory.getPointer();
         template[1].ulValueLen = new NativeLong(NativeLong.SIZE);
@@ -174,8 +175,18 @@ public class Token {
         if (!rv.equals(Pkcs11Constants.CKR_OK)) throw Pkcs11Exception.exceptionWithCode(rv);
         else if (!rv2.equals(Pkcs11Constants.CKR_OK)) throw Pkcs11Exception.exceptionWithCode(rv2);
 
+        HashMap<NativeLong, Certificate> certificateMap = new HashMap<NativeLong, Certificate>();
         for (NativeLong c : certs) {
-            mCertificateMap.put(c, new Certificate(pkcs11, mSession, c));
+            certificateMap.put(c, new Certificate(pkcs11, mSession, c));
+        }
+
+        return certificateMap;
+    }
+
+    private void initCertificatesList(RtPkcs11 pkcs11) throws Pkcs11CallerException {
+        CertificateCategory supportedCategories[] = {CertificateCategory.UNSPECIFIED, CertificateCategory.USER};
+        for (CertificateCategory category: supportedCategories) {
+            mCertificateMap.putAll(getCertificatesWithCategory(pkcs11, category));
         }
     }
 

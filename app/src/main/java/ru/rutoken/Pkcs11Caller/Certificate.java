@@ -31,6 +31,20 @@ public class Certificate {
     private X500Name mSubject;
     private byte[] mKeyPairId;
 
+    public enum CertificateCategory {
+        UNSPECIFIED(0),
+        USER(1),
+        AUTHORITY(2),
+        OTHER(3);
+        int mValue;
+        CertificateCategory(int value) {
+            mValue = value;
+        }
+        int getValue() {
+            return mValue;
+        }
+    }
+
     public Certificate(RtPkcs11 pkcs11, NativeLong session, NativeLong object)
             throws Pkcs11CallerException {
         CK_ATTRIBUTE[] attributes = (CK_ATTRIBUTE[]) (new CK_ATTRIBUTE()).toArray(2);
