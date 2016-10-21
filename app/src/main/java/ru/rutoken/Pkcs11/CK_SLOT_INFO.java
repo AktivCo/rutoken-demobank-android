@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, CJSC Aktiv-Soft. See the LICENSE file at the top-level directory of this distribution.
+ * Copyright (c) 2016, CJSC Aktiv-Soft. See the LICENSE file at the top-level directory of this distribution.
  * All Rights Reserved.
  */
 
@@ -59,12 +59,11 @@ package ru.rutoken.Pkcs11;
  */
 
 import com.sun.jna.NativeLong;
-import com.sun.jna.Structure;
 
 import java.util.Arrays;
 import java.util.List;
 
-public class CK_SLOT_INFO extends Structure {
+public class CK_SLOT_INFO extends Pkcs11Structure {
 
     /*
      * slotDescription and manufacturerID have been changed from CK_CHAR to CK_UTF8CHAR for v2.11.
@@ -80,9 +79,7 @@ public class CK_SLOT_INFO extends Structure {
 
     public CK_VERSION firmwareVersion;
 
-    public CK_SLOT_INFO() {
-        super();
-    }
+    public CK_SLOT_INFO() {}
 
     public CK_SLOT_INFO(byte[] slotDesc, byte[] vendor,
             NativeLong flags, CK_VERSION hwVer, CK_VERSION fwVer) {

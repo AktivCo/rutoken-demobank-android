@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, CJSC Aktiv-Soft. See the LICENSE file at the top-level directory of this distribution.
+ * Copyright (c) 2016, CJSC Aktiv-Soft. See the LICENSE file at the top-level directory of this distribution.
  * All Rights Reserved.
  */
 
@@ -10,12 +10,12 @@ package ru.rutoken.Pkcs11;
  */
 
 import com.sun.jna.NativeLong;
-import com.sun.jna.Structure;
+
 import java.util.Arrays;
 import java.util.List;
 
 /* CK_TOKEN_INFO_EXTENDED provides extended information about a token */
-public class CK_TOKEN_INFO_EXTENDED extends Structure {
+public class CK_TOKEN_INFO_EXTENDED extends Pkcs11Structure {
 
     /*
      * init this field by size of this structure [in] - size of input structure [out] - return size
@@ -32,10 +32,11 @@ public class CK_TOKEN_INFO_EXTENDED extends Structure {
     public NativeLong ulOrderNumber;
     /* information flags */
     /*
-     * TOKEN_FLAGS_ADMIN_CHANGE_USER_PIN - administrator can change user PIN
-     * TOKEN_FLAGS_USER_CHANGE_USER_PIN - user can change user PIN TOKEN_FLAGS_ADMIN_PIN_NOT_DEFAULT
-     * - administrator PIN not default TOKEN_FLAGS_USER_PIN_NOT_DEFAULT - user PIN not default
-     * TOKEN_FLAGS_SUPPORT_FKN - token support CryptoPro FKN
+     * TOKEN_FLAGS_ADMIN_CHANGE_USER_PIN - Administrator can change User PIN
+     * TOKEN_FLAGS_USER_CHANGE_USER_PIN - User can change User PIN
+     * TOKEN_FLAGS_ADMIN_PIN_NOT_DEFAULT - Administrator PIN is not default
+     * TOKEN_FLAGS_USER_PIN_NOT_DEFAULT - User PIN is not default
+     * TOKEN_FLAGS_SUPPORT_FKN - token supports CryptoPro FKN
      */
     public NativeLong flags; /* see below */
     /* maximum and minimum PIN length */
@@ -43,17 +44,17 @@ public class CK_TOKEN_INFO_EXTENDED extends Structure {
     public NativeLong ulMinAdminPinLen;
     public NativeLong ulMaxUserPinLen;
     public NativeLong ulMinUserPinLen;
-    /* max count of unsuccessful login attempts */
+    /* max count of unsuccessful Administrator login attempts */
     public NativeLong ulMaxAdminRetryCount;
     /*
-     * count of unsuccessful attempts left (for administrator PIN) if field equal 0 - that means
+     * count of unsuccessful login attempts left (for Administrator PIN) if field equals 0 - that means
      * that PIN is blocked
      */
     public NativeLong ulAdminRetryCountLeft;
-    /* min counts of unsuccessful login attempts */
+    /* min counts of unsuccessful User login attempts */
     public NativeLong ulMaxUserRetryCount;
     /*
-     * count of unsuccessful attempts left (for user PIN) if field equal 0 - that means that PIN is
+     * count of unsuccessful login attempts left (for User PIN) if field equals 0 - that means that PIN is
      * blocked
      */
     public NativeLong ulUserRetryCountLeft;
@@ -63,20 +64,18 @@ public class CK_TOKEN_INFO_EXTENDED extends Structure {
     public NativeLong ulTotalMemory; /* in bytes */
     /* size of free memory */
     public NativeLong ulFreeMemory; /* in bytes */
-    /* atr of the token */
+    /* ATR of the token */
     public byte[] ATR = new byte[64];
-    /* size of atr */
+    /* size of ATR */
     public NativeLong ulATRLen;
     /* class of token */
     public NativeLong ulTokenClass; /* see below */
-    /* Battery Voltage */
+    /* Battery voltage */
     public NativeLong ulBatteryVoltage; /* microvolts */
 
     public NativeLong ulBodyColor;
 
-    public CK_TOKEN_INFO_EXTENDED() {
-        super();
-    }
+    public CK_TOKEN_INFO_EXTENDED() {}
 
     public CK_TOKEN_INFO_EXTENDED(NativeLong ulSizeofThisStructure, NativeLong ulTokenType, NativeLong ulProtocolNumber,
             NativeLong ulMicrocodeNumber, NativeLong ulOrderNumber, NativeLong flags, NativeLong ulMaxAdminPinLen,

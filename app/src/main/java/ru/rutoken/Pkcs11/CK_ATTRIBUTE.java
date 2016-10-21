@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, CJSC Aktiv-Soft. See the LICENSE file at the top-level directory of this distribution.
+ * Copyright (c) 2016, CJSC Aktiv-Soft. See the LICENSE file at the top-level directory of this distribution.
  * All Rights Reserved.
  */
 
@@ -58,23 +58,67 @@ package ru.rutoken.Pkcs11;
  * @author Aktiv Co. <hotline@rutoken.ru>
  */
 
-import com.sun.jna.NativeLong;
-import com.sun.jna.Structure;
-import com.sun.jna.Pointer;
+import com.sun.jna.*;
 
 import java.util.Arrays;
 import java.util.List;
 
-public class CK_ATTRIBUTE extends Structure {
-    public CK_ATTRIBUTE() {
-        super();
-    }
+public class CK_ATTRIBUTE extends Pkcs11Structure {
+
+    public CK_ATTRIBUTE() {}
 
     public CK_ATTRIBUTE(NativeLong type, Pointer pVal, NativeLong ulValLen) {
+        setAttr(type, pVal, ulValLen);
+    }
+
+    public CK_ATTRIBUTE(NativeLong type, NativeLong value) {
+        setAttr(type, value);
+    }
+
+    public CK_ATTRIBUTE(NativeLong type, byte[] value) {
+        setAttr(type, value);
+    }
+
+    public CK_ATTRIBUTE(NativeLong type, boolean value) {
+        setAttr(type, value);
+    }
+
+    public CK_ATTRIBUTE(NativeLong type, String value) {
+        setAttr(type, value);
+    }
+
+    public void setAttr(NativeLong type, Pointer pVal, NativeLong ulValLen) {
         this.type = type;
         this.pValue = pVal;
         this.ulValueLen = ulValLen;
+    }
 
+    public void setAttr(NativeLong type, NativeLong value) {
+        this.type = type;
+        pValue = new Memory(NativeLong.SIZE);
+        pValue.setNativeLong(0, value);
+        ulValueLen = new NativeLong(NativeLong.SIZE);
+    }
+
+    public void setAttr(NativeLong type, byte[] value) {
+        this.type = type;
+        pValue = new Memory(value.length);
+        pValue.write(0, value, 0, value.length);
+        ulValueLen = new NativeLong(value.length);
+    }
+
+    public void setAttr(NativeLong type, boolean value) {
+        this.type = type;
+        pValue = new Memory(Native.getNativeSize(Byte.TYPE));
+        pValue.setByte(0, (byte)(value ? 1 : 0));
+        ulValueLen = new NativeLong(Native.getNativeSize(Byte.TYPE));
+    }
+
+    public void setAttr(NativeLong type, String value) {
+        this.type = type;
+        pValue = new Memory(value.length() + 1);
+        pValue.setString(0, value);
+        ulValueLen = new NativeLong(value.length() + 1);
     }
 
     public NativeLong type;

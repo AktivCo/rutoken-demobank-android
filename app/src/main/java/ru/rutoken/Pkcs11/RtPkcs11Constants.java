@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, CJSC Aktiv-Soft. See the LICENSE file at the top-level directory of this distribution.
+ * Copyright (c) 2016, CJSC Aktiv-Soft. See the LICENSE file at the top-level directory of this distribution.
  * All Rights Reserved.
  */
 
@@ -17,15 +17,13 @@ public interface RtPkcs11Constants {
 /* Расширенные коды ошибок                                         */
 /*-----------------------------------------------------------------*/
 
-    public static final NativeLong CKR_CORRUPTED_MAPFILE = new NativeLong(Pkcs11Constants.CKR_VENDOR_DEFINED.intValue()+1);
-    public static final NativeLong CKR_WRONG_VERSION_FIELD = new NativeLong(Pkcs11Constants.CKR_VENDOR_DEFINED.intValue()+2);
-    public static final NativeLong CKR_WRONG_PKCS1_ENCODING = new NativeLong(Pkcs11Constants.CKR_VENDOR_DEFINED.intValue()+3);
-
-    /* Неверный формат данных, переданных на подпись в PINPad,
-     * или пользователь отказался от подписи данных */
-    public static final NativeLong CKR_PINPAD_DATA_INCORRECT = new NativeLong(Pkcs11Constants.CKR_VENDOR_DEFINED.intValue()+0x6FB1); // 0x80006FB1
-    /* Размер данных, переданных на подпись в PINPad, больше допустимого */
-    public static final NativeLong CKR_PINPAD_WRONG_DATALEN = new NativeLong(Pkcs11Constants.CKR_VENDOR_DEFINED.intValue()+0x6FB6); // 0x80006FB6
+    public static final NativeLong CKR_CORRUPTED_MAPFILE = new NativeLong(Pkcs11Constants.CKR_VENDOR_DEFINED.longValue()+1);
+    public static final NativeLong CKR_WRONG_VERSION_FIELD = new NativeLong(Pkcs11Constants.CKR_VENDOR_DEFINED.longValue()+2);
+    public static final NativeLong CKR_WRONG_PKCS1_ENCODING = new NativeLong(Pkcs11Constants.CKR_VENDOR_DEFINED.longValue()+3);
+    public static final NativeLong CKR_RTPKCS11_DATA_CORRUPTED = new NativeLong(Pkcs11Constants.CKR_VENDOR_DEFINED.longValue()+4);
+    public static final NativeLong CKR_RTPKCS11_RSF_DATA_CORRUPTED = new NativeLong(Pkcs11Constants.CKR_VENDOR_DEFINED.longValue()+5);
+    public static final NativeLong CKR_SM_PASSWORD_INVALID = new NativeLong(Pkcs11Constants.CKR_VENDOR_DEFINED.longValue()+6);
+    public static final NativeLong CKR_LICENSE_READ_ONLY = new NativeLong(Pkcs11Constants.CKR_VENDOR_DEFINED.longValue()+7);
 
 /*-----------------------------------------------------------------*/
 /* Необходимые определения для работы с расширениями PKCS для ГОСТ */
@@ -61,24 +59,39 @@ public interface RtPkcs11Constants {
 /* Token flags (field "flags" from CK_TOKEN_INFO_EXTENDED +
  * field "ChangeUserPINPolicy" from CK_RUTOKEN_INIT_PARAM) */
 /* TOKEN_FLAGS_ADMIN_CHANGE_USER_PIN - if it is set, that
- * means that administrator (SO) can change user PIN
+ * means that Administrator (SO) can change User PIN
  */
     public static final NativeLong TOKEN_FLAGS_ADMIN_CHANGE_USER_PIN = new NativeLong(0x00000001);
 
 /* TOKEN_FLAGS_USER_CHANGE_USER_PIN - if it is set, that
- * means that user can change user PIN
+ * means that User can change User PIN
  */
     public static final NativeLong TOKEN_FLAGS_USER_CHANGE_USER_PIN  = new NativeLong(0x00000002);
 
 /* TOKEN_FLAGS_ADMIN_PIN_NOT_DEFAULT - if it is set, that
- * means that current administrator (SO) PIN is not default
+ * means that current Administrator (SO) PIN is not default
  */
     public static final NativeLong TOKEN_FLAGS_ADMIN_PIN_NOT_DEFAULT = new NativeLong(0x00000004);
 
 /* TOKEN_FLAGS_USER_PIN_NOT_DEFAULT - if it is set, that
- * means that current user PIN not default
+ * means that current User PIN is not default
  */
     public static final NativeLong TOKEN_FLAGS_USER_PIN_NOT_DEFAULT  = new NativeLong(0x00000008);
+
+/* Token types (field "ulTokenType") */
+    public static final NativeLong TOKEN_TYPE_UNKNOWN               = new NativeLong(0xFF);
+    public static final NativeLong TOKEN_TYPE_RUTOKEN_ECP           = new NativeLong(0x01);
+    public static final NativeLong TOKEN_TYPE_RUTOKEN_LITE          = new NativeLong(0x02);
+    public static final NativeLong TOKEN_TYPE_RUTOKEN               = new NativeLong(0x03);
+    public static final NativeLong TOKEN_TYPE_RUTOKEN_PINPAD_FAMILY = new NativeLong(0x04);
+    public static final NativeLong TOKEN_TYPE_RUTOKEN_ECPDUAL_USB   = new NativeLong(0x09);
+    public static final NativeLong TOKEN_TYPE_RUTOKEN_ECPDUAL_BT    = new NativeLong(0x69);
+    public static final NativeLong TOKEN_TYPE_RUTOKEN_ECPDUAL_UART  = new NativeLong(0xA9);
+    public static final NativeLong TOKEN_TYPE_RUTOKEN_WEB           = new NativeLong(0x23);
+    public static final NativeLong TOKEN_TYPE_RUTOKEN_SC_JC         = new NativeLong(0x41);
+    public static final NativeLong TOKEN_TYPE_RUTOKEN_LITE_SC_JC    = new NativeLong(0x42);
+    public static final NativeLong TOKEN_TYPE_RUTOKEN_ECP_SD        = new NativeLong(0x81);
+    public static final NativeLong TOKEN_TYPE_RUTOKEN_LITE_SD       = new NativeLong(0x82);
 
 /* TOKEN_FLAGS_SUPPORT_FKN - if it is set, that
  * means that token support CryptoPro FKN

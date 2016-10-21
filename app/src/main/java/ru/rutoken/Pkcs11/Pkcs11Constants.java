@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, CJSC Aktiv-Soft. See the LICENSE file at the top-level directory of this distribution.
+ * Copyright (c) 2016, CJSC Aktiv-Soft. See the LICENSE file at the top-level directory of this distribution.
  * All Rights Reserved.
  */
 
@@ -51,93 +51,87 @@ public interface Pkcs11Constants {
      *      Bit Flag              Mask        Meaning
      */
     public static final NativeLong  CKF_TOKEN_PRESENT = new NativeLong(0x00000001);  /* a token is there */
-    public static final NativeLong  CKF_REMOVABLE_DEVICE = new NativeLong(0x00000002);  /* removable devices*/
+    public static final NativeLong  CKF_REMOVABLE_DEVICE = new NativeLong(0x00000002);  /* removable devices */
     public static final NativeLong  CKF_HW_SLOT = new NativeLong(0x00000004);  /* hardware slot */
 
     /* The flags parameter is defined as follows:
-     *      Bit Flag                    Mask        Meaning
-     */
-    public static final NativeLong  CKF_RNG = new NativeLong(0x00000001);  /* has random #
-                                                 * generator */
-    public static final NativeLong  CKF_WRITE_PROTECTED = new NativeLong(0x00000002);  /* token is
-                                                 * write-
-                                                 * protected */
-    public static final NativeLong  CKF_LOGIN_REQUIRED = new NativeLong(0x00000004);  /* user must
-                                                 * login */
-    public static final NativeLong  CKF_USER_PIN_INITIALIZED = new NativeLong(0x00000008);  /* normal user's
-                                                 * PIN is set */
+     *      Bit Flag                    Mask        Meaning */
+    public static final NativeLong  CKF_RNG = new NativeLong(0x00000001);  /* has random # generator */
+    public static final NativeLong  CKF_WRITE_PROTECTED = new NativeLong(0x00000002);  /* token is write-protected */
+    public static final NativeLong  CKF_LOGIN_REQUIRED = new NativeLong(0x00000004);  /* user must login */
+    public static final NativeLong  CKF_USER_PIN_INITIALIZED = new NativeLong(0x00000008);  /* normal user's PIN is set */
 
-    /* CKF_RESTORE_KEY_NOT_NEEDED is new for v2.0.  If it is set,
+    /* CKF_RESTORE_KEY_NOT_NEEDED is new for v2.0. If it is set,
      * that means that *every* time the state of cryptographic
      * operations of a session is successfully saved, all keys
      * needed to continue those operations are stored in the state */
     public static final NativeLong  CKF_RESTORE_KEY_NOT_NEEDED = new NativeLong(0x00000020);
 
-    /* CKF_CLOCK_ON_TOKEN is new for v2.0.  If it is set, that means
+    /* CKF_CLOCK_ON_TOKEN is new for v2.0. If it is set, that means
      * that the token has some sort of clock.  The time on that
      * clock is returned in the token info structure */
     public static final NativeLong  CKF_CLOCK_ON_TOKEN = new NativeLong(0x00000040);
 
-    /* CKF_PROTECTED_AUTHENTICATION_PATH is new for v2.0.  If it is
+    /* CKF_PROTECTED_AUTHENTICATION_PATH is new for v2.0. If it is
      * set, that means that there is some way for the user to login
      * without sending a PIN through the Cryptoki library itself */
     public static final NativeLong  CKF_PROTECTED_AUTHENTICATION_PATH = new NativeLong(0x00000100);
 
-    /* CKF_DUAL_CRYPTO_OPERATIONS is new for v2.0.  If it is true,
+    /* CKF_DUAL_CRYPTO_OPERATIONS is new for v2.0. If it is true,
      * that means that a single session with the token can perform
      * dual simultaneous cryptographic operations (digest and
      * encrypt; decrypt and digest; sign and encrypt; and decrypt
      * and sign) */
     public static final NativeLong  CKF_DUAL_CRYPTO_OPERATIONS = new NativeLong(0x00000200);
 
-    /* CKF_TOKEN_INITIALIZED if new for v2.10. If it is true, the
+    /* CKF_TOKEN_INITIALIZED is new for v2.10. If it is true, the
      * token has been initialized using C_InitializeToken or an
      * equivalent mechanism outside the scope of PKCS #11.
      * Calling C_InitializeToken when this flag is set will cause
      * the token to be reinitialized. */
     public static final NativeLong  CKF_TOKEN_INITIALIZED = new NativeLong(0x00000400);
 
-    /* CKF_SECONDARY_AUTHENTICATION if new for v2.10. If it is
+    /* CKF_SECONDARY_AUTHENTICATION is new for v2.10. If it is
      * true, the token supports secondary authentication for
      * private key objects. This flag is deprecated in v2.11 and
        onwards. */
     public static final NativeLong  CKF_SECONDARY_AUTHENTICATION = new NativeLong(0x00000800);
 
-    /* CKF_USER_PIN_COUNT_LOW if new for v2.10. If it is true, an
+    /* CKF_USER_PIN_COUNT_LOW is new for v2.10. If it is true, an
      * incorrect user login PIN has been entered at least once
      * since the last successful authentication. */
     public static final NativeLong  CKF_USER_PIN_COUNT_LOW = new NativeLong(0x00010000);
 
-    /* CKF_USER_PIN_FINAL_TRY if new for v2.10. If it is true,
-     * supplying an incorrect user PIN will it to become locked. */
+    /* CKF_USER_PIN_FINAL_TRY is new for v2.10. If it is true,
+     * entering an incorrect user PIN will lock it. */
     public static final NativeLong  CKF_USER_PIN_FINAL_TRY = new NativeLong(0x00020000);
 
-    /* CKF_USER_PIN_LOCKED if new for v2.10. If it is true, the
+    /* CKF_USER_PIN_LOCKED is new for v2.10. If it is true, the
      * user PIN has been locked. User login to the token is not
      * possible. */
     public static final NativeLong  CKF_USER_PIN_LOCKED = new NativeLong(0x00040000);
 
-    /* CKF_USER_PIN_TO_BE_CHANGED if new for v2.10. If it is true,
+    /* CKF_USER_PIN_TO_BE_CHANGED is new for v2.10. If it is true,
      * the user PIN value is the default value set by token
      * initialization or manufacturing, or the PIN has been
      * expired by the card. */
     public static final NativeLong  CKF_USER_PIN_TO_BE_CHANGED = new NativeLong(0x00080000);
 
-    /* CKF_SO_PIN_COUNT_LOW if new for v2.10. If it is true, an
+    /* CKF_SO_PIN_COUNT_LOW is new for v2.10. If it is true, an
      * incorrect SO login PIN has been entered at least once since
      * the last successful authentication. */
     public static final NativeLong  CKF_SO_PIN_COUNT_LOW = new NativeLong(0x00100000);
 
-    /* CKF_SO_PIN_FINAL_TRY if new for v2.10. If it is true,
-     * supplying an incorrect SO PIN will it to become locked. */
+    /* CKF_SO_PIN_FINAL_TRY is new for v2.10. If it is true,
+     * entering an incorrect SO PIN will lock it. */
     public static final NativeLong  CKF_SO_PIN_FINAL_TRY = new NativeLong(0x00200000);
 
-    /* CKF_SO_PIN_LOCKED if new for v2.10. If it is true, the SO
+    /* CKF_SO_PIN_LOCKED is new for v2.10. If it is true, the SO
      * PIN has been locked. SO login to the token is not possible.
      */
     public static final NativeLong  CKF_SO_PIN_LOCKED = new NativeLong(0x00400000);
 
-    /* CKF_SO_PIN_TO_BE_CHANGED if new for v2.10. If it is true,
+    /* CKF_SO_PIN_TO_BE_CHANGED is new for v2.10. If it is true,
      * the SO PIN value is the default value set by token
      * initialization or manufacturing, or the PIN has been
      * expired by the card. */
@@ -163,9 +157,9 @@ public interface Pkcs11Constants {
     public static final NativeLong  CKF_SERIAL_SESSION = new NativeLong(0x00000004);  /* no parallel */
 
     /* The following classes of objects are defined: */
-/* CKO_HW_FEATURE is new for v2.10 */
-/* CKO_DOMAIN_PARAMETERS is new for v2.11 */
-/* CKO_MECHANISM is new for v2.20 */
+    /* CKO_HW_FEATURE is new for v2.10 */
+    /* CKO_DOMAIN_PARAMETERS is new for v2.11 */
+    /* CKO_MECHANISM is new for v2.20 */
     public static final NativeLong  CKO_DATA = new NativeLong(0x00000000);
     public static final NativeLong  CKO_CERTIFICATE = new NativeLong(0x00000001);
     public static final NativeLong  CKO_PUBLIC_KEY = new NativeLong(0x00000002);
@@ -181,7 +175,7 @@ public interface Pkcs11Constants {
     public static final NativeLong  CKO_VENDOR_DEFINED = new NativeLong(0x80000000);
 
     /* The following hardware feature types are defined */
-/* CKH_USER_INTERFACE is new for v2.20 */
+    /* CKH_USER_INTERFACE is new for v2.20 */
     public static final NativeLong  CKH_MONOTONIC_COUNTER = new NativeLong(0x00000001);
     public static final NativeLong  CKH_CLOCK = new NativeLong(0x00000002);
     public static final NativeLong  CKH_USER_INTERFACE = new NativeLong(0x00000003);
@@ -193,7 +187,7 @@ public interface Pkcs11Constants {
     public static final NativeLong  CKK_DH = new NativeLong(0x00000002);
 
     /* CKK_ECDSA and CKK_KEA are new for v2.0 */
-/* CKK_ECDSA is deprecated in v2.11, CKK_EC is preferred. */
+    /* CKK_ECDSA is deprecated in v2.11, CKK_EC is preferred. */
     public static final NativeLong  CKK_ECDSA = new NativeLong(0x00000003);
     public static final NativeLong  CKK_EC = new NativeLong(0x00000003);
     public static final NativeLong  CKK_X9_42_DH = new NativeLong(0x00000004);
@@ -238,8 +232,8 @@ public interface Pkcs11Constants {
     public static final NativeLong  CKK_VENDOR_DEFINED = new NativeLong(0x80000000);
 
     /* The following certificate types are defined: */
-/* CKC_X_509_ATTR_CERT is new for v2.10 */
-/* CKC_WTLS is new for v2.20 */
+    /* CKC_X_509_ATTR_CERT is new for v2.10 */
+    /* CKC_WTLS is new for v2.20 */
     public static final NativeLong  CKC_X_509 = new NativeLong(0x00000000);
     public static final NativeLong  CKC_X_509_ATTR_CERT = new NativeLong(0x00000001);
     public static final NativeLong  CKC_WTLS = new NativeLong(0x00000002);
@@ -327,7 +321,7 @@ public interface Pkcs11Constants {
     public static final NativeLong  CKA_PRIME_BITS = new NativeLong(0x00000133);
     public static final NativeLong  CKA_SUBPRIME_BITS = new NativeLong(0x00000134);
     public static final NativeLong  CKA_SUB_PRIME_BITS = CKA_SUBPRIME_BITS;
-/* (To retain backwards-compatibility) */
+    /* (To retain backwards-compatibility) */
 
     public static final NativeLong  CKA_VALUE_BITS = new NativeLong(0x00000160);
     public static final NativeLong  CKA_VALUE_LEN = new NativeLong(0x00000161);
@@ -362,8 +356,8 @@ public interface Pkcs11Constants {
     public static final NativeLong  CKA_ALWAYS_AUTHENTICATE = new NativeLong(0x00000202);
 
     public static final NativeLong  CKA_WRAP_WITH_TRUSTED = new NativeLong(0x00000210);
-    public static final NativeLong CKA_WRAP_TEMPLATE = new NativeLong(CKF_ARRAY_ATTRIBUTE.intValue()|0x00000211);
-    public static final NativeLong CKA_UNWRAP_TEMPLATE = new NativeLong(CKF_ARRAY_ATTRIBUTE.intValue()|0x00000212);
+    public static final NativeLong CKA_WRAP_TEMPLATE = new NativeLong(CKF_ARRAY_ATTRIBUTE.longValue()|0x00000211);
+    public static final NativeLong CKA_UNWRAP_TEMPLATE = new NativeLong(CKF_ARRAY_ATTRIBUTE.longValue()|0x00000212);
 
     /* CKA_OTP... atttributes are new for PKCS #11 v2.20 amendment 3. */
     public static final NativeLong  CKA_OTP_FORMAT = new NativeLong(0x00000220);
@@ -403,7 +397,7 @@ public interface Pkcs11Constants {
     public static final NativeLong  CKA_REQUIRED_CMS_ATTRIBUTES = new NativeLong(0x00000501);
     public static final NativeLong  CKA_DEFAULT_CMS_ATTRIBUTES = new NativeLong(0x00000502);
     public static final NativeLong  CKA_SUPPORTED_CMS_ATTRIBUTES = new NativeLong(0x00000503);
-    public static final NativeLong  CKA_ALLOWED_MECHANISMS = new NativeLong(CKF_ARRAY_ATTRIBUTE.intValue()|0x00000600);
+    public static final NativeLong  CKA_ALLOWED_MECHANISMS = new NativeLong(CKF_ARRAY_ATTRIBUTE.longValue()|0x00000600);
 
     public static final NativeLong  CKA_VENDOR_DEFINED = new NativeLong(0x80000000);
 
@@ -447,7 +441,7 @@ public interface Pkcs11Constants {
     public static final NativeLong  CKR_HOST_MEMORY = new NativeLong(0x00000002);
     public static final NativeLong  CKR_SLOT_ID_INVALID = new NativeLong(0x00000003);
 
-/* CKR_FLAGS_INVALID was removed for v2.0 */
+    /* CKR_FLAGS_INVALID was removed for v2.0 */
 
     /* CKR_GENERAL_ERROR and CKR_FUNCTION_FAILED are new for v2.0 */
     public static final NativeLong  CKR_GENERAL_ERROR = new NativeLong(0x00000005);
@@ -479,7 +473,7 @@ public interface Pkcs11Constants {
 
     public static final NativeLong  CKR_KEY_HANDLE_INVALID = new NativeLong(0x00000060);
 
-/* CKR_KEY_SENSITIVE was removed for v2.0 */
+    /* CKR_KEY_SENSITIVE was removed for v2.0 */
 
     public static final NativeLong  CKR_KEY_SIZE_RANGE = new NativeLong(0x00000062);
     public static final NativeLong  CKR_KEY_TYPE_INCONSISTENT = new NativeLong(0x00000063);
@@ -540,7 +534,7 @@ public interface Pkcs11Constants {
     public static final NativeLong  CKR_USER_TYPE_INVALID = new NativeLong(0x00000103);
 
     /* CKR_USER_ANOTHER_ALREADY_LOGGED_IN and CKR_USER_TOO_MANY_TYPES
-     * are new to v2.01 */
+     * are new for v2.01 */
     public static final NativeLong  CKR_USER_ANOTHER_ALREADY_LOGGED_IN = new NativeLong(0x00000104);
     public static final NativeLong  CKR_USER_TOO_MANY_TYPES = new NativeLong(0x00000105);
 
@@ -551,19 +545,19 @@ public interface Pkcs11Constants {
     public static final NativeLong  CKR_WRAPPING_KEY_TYPE_INCONSISTENT = new NativeLong(0x00000115);
     public static final NativeLong  CKR_RANDOM_SEED_NOT_SUPPORTED = new NativeLong(0x00000120);
 
-    /* These are new to v2.0 */
+    /* This is new for v2.0 */
     public static final NativeLong  CKR_RANDOM_NO_RNG = new NativeLong(0x00000121);
 
-    /* These are new to v2.11 */
+    /* This is new for v2.11 */
     public static final NativeLong  CKR_DOMAIN_PARAMS_INVALID = new NativeLong(0x00000130);
 
-    /* These are new to v2.0 */
+    /* These are new for v2.0 */
     public static final NativeLong  CKR_BUFFER_TOO_SMALL = new NativeLong(0x00000150);
     public static final NativeLong  CKR_SAVED_STATE_INVALID = new NativeLong(0x00000160);
     public static final NativeLong  CKR_INFORMATION_SENSITIVE = new NativeLong(0x00000170);
     public static final NativeLong  CKR_STATE_UNSAVEABLE = new NativeLong(0x00000180);
 
-    /* These are new to v2.01 */
+    /* These are new for v2.01 */
     public static final NativeLong  CKR_CRYPTOKI_NOT_INITIALIZED = new NativeLong(0x00000190);
     public static final NativeLong  CKR_CRYPTOKI_ALREADY_INITIALIZED = new NativeLong(0x00000191);
     public static final NativeLong  CKR_MUTEX_BAD = new NativeLong(0x000001A0);
@@ -573,7 +567,7 @@ public interface Pkcs11Constants {
     public static final NativeLong  CKR_NEW_PIN_MODE = new NativeLong(0x000001B0);
     public static final NativeLong  CKR_NEXT_OTP = new NativeLong(0x000001B1);
 
-    /* This is new to v2.20 */
+    /* This is new for v2.20 */
     public static final NativeLong  CKR_FUNCTION_REJECTED = new NativeLong(0x00000200);
 
     public static final NativeLong  CKR_VENDOR_DEFINED = new NativeLong(0x80000000);
@@ -590,8 +584,8 @@ public interface Pkcs11Constants {
     public static final NativeLong  CKF_DONT_BLOCK = new NativeLong(1);
 
     /* The following MGFs are defined */
-/* CKG_MGF1_SHA256, CKG_MGF1_SHA384, and CKG_MGF1_SHA512
- * are new for v2.20 */
+    /* CKG_MGF1_SHA256, CKG_MGF1_SHA384, and CKG_MGF1_SHA512
+     * are new for v2.20 */
     public static final NativeLong  CKG_MGF1_SHA1 = new NativeLong(0x00000001);
     public static final NativeLong  CKG_MGF1_SHA256 = new NativeLong(0x00000002);
     public static final NativeLong  CKG_MGF1_SHA384 = new NativeLong(0x00000003);

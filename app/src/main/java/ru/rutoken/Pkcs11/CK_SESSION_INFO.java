@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, CJSC Aktiv-Soft. See the LICENSE file at the top-level directory of this distribution.
+ * Copyright (c) 2016, CJSC Aktiv-Soft. See the LICENSE file at the top-level directory of this distribution.
  * All Rights Reserved.
  */
 
@@ -59,12 +59,10 @@ package ru.rutoken.Pkcs11;
  */
 
 import com.sun.jna.NativeLong;
-import com.sun.jna.Structure;
-
 import java.util.Arrays;
 import java.util.List;
 
-public class CK_SESSION_INFO extends Structure {
+public class CK_SESSION_INFO extends Pkcs11Structure {
 
     public NativeLong slotID;
 
@@ -77,9 +75,7 @@ public class CK_SESSION_INFO extends Structure {
      */
     public NativeLong ulDeviceError; /* device-dependent error code */
 
-    public CK_SESSION_INFO() {
-        super();
-    }
+    public CK_SESSION_INFO() {}
 
     public CK_SESSION_INFO(NativeLong slotID, NativeLong state,
             NativeLong flags, NativeLong ulDeviceError) {

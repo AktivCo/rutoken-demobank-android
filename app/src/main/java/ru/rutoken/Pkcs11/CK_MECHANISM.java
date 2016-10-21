@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, CJSC Aktiv-Soft. See the LICENSE file at the top-level directory of this distribution.
+ * Copyright (c) 2016, CJSC Aktiv-Soft. See the LICENSE file at the top-level directory of this distribution.
  * All Rights Reserved.
  */
 
@@ -59,13 +59,12 @@ package ru.rutoken.Pkcs11;
  */
 
 import com.sun.jna.NativeLong;
-import com.sun.jna.Structure;
 import com.sun.jna.Pointer;
 
 import java.util.Arrays;
 import java.util.List;
 
-public class CK_MECHANISM extends Structure {
+public class CK_MECHANISM extends Pkcs11Structure {
 
     public NativeLong mechanism;
 
@@ -76,9 +75,7 @@ public class CK_MECHANISM extends Structure {
      */
     public NativeLong ulParameterLen;
 
-    public CK_MECHANISM() {
-        super();
-    }
+    public CK_MECHANISM() {}
 
     public CK_MECHANISM(NativeLong mech, Pointer pParam, NativeLong ulParamLen) {
         mechanism = mech;

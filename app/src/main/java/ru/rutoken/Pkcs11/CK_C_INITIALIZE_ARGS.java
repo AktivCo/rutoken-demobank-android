@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, CJSC Aktiv-Soft. See the LICENSE file at the top-level directory of this distribution.
+ * Copyright (c) 2016, CJSC Aktiv-Soft. See the LICENSE file at the top-level directory of this distribution.
  * All Rights Reserved.
  */
 
@@ -7,16 +7,13 @@ package ru.rutoken.Pkcs11;
 
 import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
-import com.sun.jna.Structure;
 
 import java.util.Arrays;
 import java.util.List;
 
 
-public class CK_C_INITIALIZE_ARGS extends Structure {
-    public CK_C_INITIALIZE_ARGS() {
-        super();
-    }
+public class CK_C_INITIALIZE_ARGS extends Pkcs11Structure {
+    public CK_C_INITIALIZE_ARGS() {}
 
     public CK_C_INITIALIZE_ARGS(Pointer CreateMutex, Pointer DestroyMutex, Pointer LockMutex,
             Pointer UnlockMutex, NativeLong flags, Pointer pReserved) {

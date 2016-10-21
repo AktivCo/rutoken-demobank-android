@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, CJSC Aktiv-Soft. See the LICENSE file at the top-level directory of this distribution.
+ * Copyright (c) 2016, CJSC Aktiv-Soft. See the LICENSE file at the top-level directory of this distribution.
  * All Rights Reserved.
  */
 
@@ -58,18 +58,14 @@ package ru.rutoken.Pkcs11;
  * @author Aktiv Co. <hotline@rutoken.ru>
  */
 
-import com.sun.jna.Structure;
-
 import java.util.Arrays;
 import java.util.List;
 
-public class CK_VERSION extends Structure {
+public class CK_VERSION extends Pkcs11Structure {
     public byte major; /* integer portion of version number */
     public byte minor; /* 1/100ths portion of version number */
 
-    public CK_VERSION() {
-        super();
-    }
+    public CK_VERSION() {}
 
     public CK_VERSION(int major, int minor) {
         this.major = (byte) major;
