@@ -7,6 +7,7 @@
     <string name="no_certificate">Отсутствует сертификат на токене</string>
     <string name="pin_hint">Введите PIN-код</string>
     <string name="ok">OK</string>
+    <string name="cancel">Отмена</string>
     <string name="pin_alert">Неправильный PIN, попробуйте ещё раз</string>
     <string name="sign">Подписать и отправить</string>
     <string name="error">Внутренняя ошибка</string>
@@ -14,4 +15,5 @@
     <string name="need_pin_message">Для отправки потребуется ввод PIN.</string>
     <string name="batch_sign_message" formatted="false">Количество платежных поручений: %d.</string>
     <string name="batch_require_proceed">Пожалуйста, подтвердите отправку.</string>
+    <string name="request_install_rutoken_service">Панель Управления Рутокен необходима для доступа к устройствам Рутокен. Установить сейчас?</string>
 </resources>

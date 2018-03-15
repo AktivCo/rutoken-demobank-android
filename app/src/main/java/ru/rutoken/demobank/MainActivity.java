@@ -29,6 +29,7 @@ import ru.rutoken.Pkcs11Caller.Certificate;
 import ru.rutoken.Pkcs11Caller.Token;
 import ru.rutoken.utils.Pkcs11ErrorTranslator;
 import ru.rutoken.utils.TokenModelRecognizer;
+import ru.rutoken.utils.PackageInfoHelper;
 
 public class MainActivity extends ManagedActivity {
     // GUI
@@ -78,6 +79,10 @@ public class MainActivity extends ManagedActivity {
         TokenModelRecognizer.getInstance().init(getApplicationContext());
         Pkcs11ErrorTranslator.getInstance().init(getApplicationContext());
 
+        // dirty: check rutoken service installation on home activity creation - but we can't show fragment from GlobalApp
+        boolean isRutokenServiceInstalled = PackageInfoHelper.installed(this, getString(R.string.rutoken_service_package));
+        if (!isRutokenServiceInstalled)
+            (new RutokenServiceInstallDialogFragment()).show(getFragmentManager(), "rutoken service installation dialog");
     }
 
     @Override
