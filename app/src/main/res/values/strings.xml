@@ -8,6 +8,7 @@
     <string name="no_certificate">Certificate is missing</string>
     <string name="pin_hint">Input PIN</string>
     <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
     <string name="pin_alert">PIN incorrect, try again</string>
     <string name="sign">Sign and Send</string>
     <string name="error">Internal error</string>
@@ -15,5 +16,7 @@
     <string name="need_pin_message">You need to input PIN to proceed.</string>
     <string name="batch_sign_message" formatted="false">%d payments will be sent.</string>
     <string name="batch_require_proceed">Please, confirm operation.</string>
+    <string name="request_install_rutoken_service">Rutoken Service is required to access Rutoken devices. Install now?</string>
+    <string name="rutoken_service_package" translatable="false">ru.rutoken</string>
 
 </resources>
