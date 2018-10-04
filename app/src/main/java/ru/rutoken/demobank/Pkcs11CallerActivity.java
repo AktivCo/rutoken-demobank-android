@@ -7,10 +7,10 @@ package ru.rutoken.demobank;
 
 import com.sun.jna.NativeLong;
 
-import ru.rutoken.Pkcs11Caller.Pkcs11Callback;
-import ru.rutoken.Pkcs11Caller.Token;
-import ru.rutoken.Pkcs11Caller.exception.Pkcs11CallerException;
-import ru.rutoken.Pkcs11Caller.exception.Pkcs11Exception;
+import ru.rutoken.pkcs11caller.Pkcs11Callback;
+import ru.rutoken.pkcs11caller.Token;
+import ru.rutoken.pkcs11caller.exception.Pkcs11CallerException;
+import ru.rutoken.pkcs11caller.exception.Pkcs11Exception;
 
 abstract public class Pkcs11CallerActivity extends ManagedActivity {
     private static Pkcs11Exception pkcs11exceptionFromCallerException(Pkcs11CallerException exception) {
@@ -51,9 +51,9 @@ abstract public class Pkcs11CallerActivity extends ManagedActivity {
         }
     }
 
-    LoginCallback mLoginCallback = new LoginCallback();
-    SignCallback mSignCallback = new SignCallback();
-    LogoutCallback mLogoutCallback = new LogoutCallback();
+    final LoginCallback mLoginCallback = new LoginCallback();
+    final SignCallback mSignCallback = new SignCallback();
+    final LogoutCallback mLogoutCallback = new LogoutCallback();
 
     protected void sign(Token token, NativeLong certificate, byte[] signData) {
         token.sign(certificate, signData, mSignCallback);

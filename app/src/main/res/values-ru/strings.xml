@@ -14,4 +14,9 @@
     <string name="need_pin_message">Для отправки потребуется ввод PIN.</string>
     <string name="batch_sign_message" formatted="false">Количество платежных поручений: %d.</string>
     <string name="batch_require_proceed">Пожалуйста, подтвердите отправку.</string>
+    <string name="rutoken">Рутокен</string>
+    <string name="payment">Платежное поручение №</string>
+    <string name="recipient">Получатель</string>
+    <string name="price">Сумма</string>
+    <string name="fromDate">от</string>
 </resources>

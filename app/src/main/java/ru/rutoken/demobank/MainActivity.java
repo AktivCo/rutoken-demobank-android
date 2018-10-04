@@ -5,7 +5,6 @@
 
 package ru.rutoken.demobank;
 
-import android.app.ActionBar;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -13,6 +12,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
+import androidx.appcompat.app.ActionBar;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,9 +25,9 @@ import org.spongycastle.asn1.x500.X500Name;
 import org.spongycastle.asn1.x500.style.BCStyle;
 import org.spongycastle.asn1.x500.style.IETFUtils;
 
-import ru.rutoken.Pkcs11Caller.Certificate;
-import ru.rutoken.Pkcs11Caller.Token;
-import ru.rutoken.utils.Pkcs11ErrorTranslator;
+import java.util.Objects;
+
+import ru.rutoken.pkcs11caller.Token;
 import ru.rutoken.utils.TokenModelRecognizer;
 
 public class MainActivity extends ManagedActivity {
@@ -42,12 +42,10 @@ public class MainActivity extends ManagedActivity {
         return ACTIVITY_CLASS_IDENTIFIER;
     }
 
-    private final BroadcastReceiver mBluetoothStateReciever = new BroadcastReceiver() {
+    private final BroadcastReceiver mBluetoothStateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            final String action = intent.getAction();
-
-            if (action.equals(BluetoothAdapter.ACTION_STATE_CHANGED)) {
+            if (Objects.equals(intent.getAction(), BluetoothAdapter.ACTION_STATE_CHANGED)) {
                 final int state = intent.getIntExtra(
                         BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);
 
@@ -73,11 +71,8 @@ public class MainActivity extends ManagedActivity {
         setupActionBar();
         setupUI();
         IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
-        this.registerReceiver(mBluetoothStateReciever, filter);
+        this.registerReceiver(mBluetoothStateReceiver, filter);
         TokenManagerListener.getInstance().init(getApplicationContext());
-        TokenModelRecognizer.getInstance().init(getApplicationContext());
-        Pkcs11ErrorTranslator.getInstance().init(getApplicationContext());
-
     }
 
     @Override
@@ -93,24 +88,19 @@ public class MainActivity extends ManagedActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unregisterReceiver(mBluetoothStateReciever);
+        unregisterReceiver(mBluetoothStateReceiver);
         if (isFinishing()) {
             TokenManagerListener.getInstance().destroy();
         }
     }
 
     private void setupUI() {
-        mInfoTextView = (TextView) findViewById(R.id.infoTV);
-        mTWBAProgressBar = (ProgressBar) findViewById(R.id.twbaPB);
+        mInfoTextView = findViewById(R.id.infoTV);
+        mTWBAProgressBar = findViewById(R.id.twbaPB);
 
         mTWBAProgressBar.setVisibility(View.INVISIBLE);
 
-        mInfoTextView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                MainActivity.this.startPINActivity();
-            }
-        });
+        mInfoTextView.setOnClickListener(view -> MainActivity.this.startPINActivity());
     }
 
     public void startPINActivity() {
@@ -129,13 +119,12 @@ public class MainActivity extends ManagedActivity {
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.CENTER);
 
         /* Custom actionbar */
-        ActionBar actionBar = getActionBar();
+        ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
             actionBar.setDisplayHomeAsUpEnabled(false);
             actionBar.setDisplayShowTitleEnabled(false);
-            actionBar.setBackgroundDrawable(
-                    this.getResources().getDrawable(R.drawable.ab_bg));
+            actionBar.setBackgroundDrawable(getDrawable(R.drawable.ab_bg));
             actionBar.setCustomView(v, params);
         }
     }
@@ -168,7 +157,7 @@ public class MainActivity extends ManagedActivity {
 
         if (token != null) {
             certificateData = "";
-            certificateData += TokenModelRecognizer.getInstance().marketingNameForPkcs11Name(token.getModel());
+            certificateData += TokenModelRecognizer.getInstance(this).marketingNameForPkcs11Name(token.getModel());
             certificateData += " ";
             certificateData += token.getShortDecSerialNumber();
             certificateData += "\n";
@@ -178,12 +167,12 @@ public class MainActivity extends ManagedActivity {
             mInfoTextView.setText(certificateData);
             mInfoTextView.setEnabled(true);
         } else if (token != null) {
-            certificateData += getResources().getString(R.string.no_certificate);
+            certificateData += getString(R.string.no_certificate);
             mInfoTextView.setText(certificateData);
             mInfoTextView.setEnabled(false);
         } else if (TokenManagerListener.getInstance().shallWaitForToken()) {
-            certificateData = String.format(getResources().getString(R.string.wait_token),
-                    TokenModelRecognizer.getInstance().marketingNameForPkcs11Name(TokenManagerListener.getInstance().getWaitToken().getModel())
+            certificateData = String.format(getString(R.string.wait_token),
+                    TokenModelRecognizer.getInstance(this).marketingNameForPkcs11Name(TokenManagerListener.getInstance().getWaitToken().getModel())
                             + " " + TokenManagerListener.getInstance().getWaitToken().getShortDecSerialNumber());
             mInfoTextView.setText(certificateData);
             mInfoTextView.setEnabled(false);

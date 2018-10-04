@@ -1,4 +1,4 @@
-<RelativeLayout
+<RelativeLayout xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     xmlns:android="http://schemas.android.com/apk/res/android"
@@ -30,7 +30,7 @@
                     android:text="12345"
                     android:id="@+id/tokenIdTV"
                     android:textColor="@android:color/black"
-                    android:textSize="20dp"
+                    android:textSize="20sp"
                     android:paddingLeft="20dp"
                     android:paddingRight="20dp"
                     android:gravity="center"
@@ -47,30 +47,27 @@
                     android:paddingLeft="20dp"
                     android:textColor="@android:color/black"
                     android:gravity="center"
-                    android:textSize="20dp"
+                    android:textSize="20sp"
                     android:layout_centerVertical="true"
-                    android:layout_toLeftOf="@+id/batteryIV"
                     android:layout_toStartOf="@+id/batteryIV" />
 
                 <ImageView
                     android:layout_width="50dp"
                     android:layout_height="30dp"
                     android:id="@+id/batteryIV"
-                    android:src="@drawable/battery_4_sec"
+                    app:srcCompat="@drawable/battery_4_sec"
                     android:layout_centerVertical="true"
-                    android:layout_alignParentRight="true"
                     android:layout_alignParentEnd="true" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="Рутокен ЭЦП Bluetooth"
+                    android:text="@string/token_model"
                     android:id="@+id/modelTV"
                     android:layout_centerVertical="true"
-                    android:layout_alignParentLeft="true"
                     android:layout_alignParentStart="true"
-                    android:textSize="20dp"
+                    android:textSize="20sp"
                     android:textColor="@android:color/black"
                     android:gravity="center" />
             </RelativeLayout>
@@ -85,8 +82,8 @@
             <LinearLayout
                 android:orientation="vertical"
                 android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:id="@+id/paymentsLayout"></LinearLayout>
+                android:layout_height="wrap_content"
+                android:id="@+id/paymentsLayout" />
         </ScrollView>
     </LinearLayout>
 

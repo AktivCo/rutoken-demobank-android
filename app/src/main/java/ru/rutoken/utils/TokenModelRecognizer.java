@@ -14,37 +14,35 @@ import java.util.Map;
 import ru.rutoken.demobank.R;
 
 public class TokenModelRecognizer {
-    private static TokenModelRecognizer mInstance = null;
-    private Context mContext;
-    private Map<String, String> mModelNames = new HashMap<String, String>();
+    private static volatile TokenModelRecognizer mInstance = null;
+    private final Context mContext;
+    private final Map<String, String> mModelNames = new HashMap<>();
 
-    public synchronized void init(Context context) {
-        if (mContext != null)
-            return;
-        mContext = context;
+    private TokenModelRecognizer(Context context) {
+        mContext = context.getApplicationContext();
         fillInModelNames();
     }
 
-    protected void fillInModelNames() {
+    private void fillInModelNames() {
         Resources res = mContext.getResources();
         if (res == null) {
             return;
         }
         String pkcs11Models[] = res.getStringArray(R.array.pkcs11_names);
         String marketingModels[] = res.getStringArray(R.array.marketing_names);
-        assert (pkcs11Models.length == marketingModels.length);
+        Assert.assertTrue("incompatible length", pkcs11Models.length == marketingModels.length);
         for (int i = 0; i < pkcs11Models.length; ++i) {
             mModelNames.put(pkcs11Models[i], marketingModels[i]);
         }
     }
 
-    public static synchronized TokenModelRecognizer getInstance() {
+    public static synchronized TokenModelRecognizer getInstance(Context context) {
         TokenModelRecognizer localInstance = mInstance;
         if (localInstance == null) {
             synchronized (TokenModelRecognizer.class) {
                 localInstance = mInstance;
                 if (localInstance == null) {
-                    mInstance = localInstance = new TokenModelRecognizer();
+                    mInstance = localInstance = new TokenModelRecognizer(context);
                 }
             }
         }

@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="payment">Платежное поручение №</string>
-    <string name="recepient">Получатель</string>
-    <string name="price">Сумма</string>
-    <string name="fromDate">от</string>
+    <string name="payment">Payment №</string>
     <string-array name="payments_titles">
         <item>Плательщик</item>
         <item>ИНН</item>

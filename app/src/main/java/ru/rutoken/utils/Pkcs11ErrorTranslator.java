@@ -16,35 +16,33 @@ import java.util.Map;
 import ru.rutoken.demobank.R;
 
 public class Pkcs11ErrorTranslator {
-    private static Pkcs11ErrorTranslator mInstance = null;
-    private Context mContext;
-    private Map<NativeLong, String> mErrorMessages = new HashMap<NativeLong, String>();
+    private static volatile Pkcs11ErrorTranslator mInstance = null;
+    private final Context mContext;
+    private final Map<NativeLong, String> mErrorMessages = new HashMap<>();
     private String mGenericMessage;
 
-    public static synchronized Pkcs11ErrorTranslator getInstance() {
+    public static synchronized Pkcs11ErrorTranslator getInstance(Context context) {
         Pkcs11ErrorTranslator localInstance = mInstance;
         if (localInstance == null) {
             synchronized (Pkcs11ErrorTranslator.class) {
                 localInstance = mInstance;
                 if (localInstance == null) {
-                    mInstance = localInstance = new Pkcs11ErrorTranslator();
+                    mInstance = localInstance = new Pkcs11ErrorTranslator(context);
                 }
             }
         }
         return localInstance;
     }
 
-    public synchronized void init(Context context) {
-        if (mContext != null)
-            return;
-        mContext = context;
+    private Pkcs11ErrorTranslator(Context context) {
+        mContext = context.getApplicationContext();
         Resources res = mContext.getResources();
         if (res == null) {
             return;
         }
         int intRV[] = res.getIntArray(R.array.rv);
         String messages[] = res.getStringArray(R.array.rvMessages);
-        assert (intRV.length == messages.length);
+        Assert.assertTrue("incompatible length", intRV.length == messages.length);
         for (int i = 0; i < intRV.length; ++i) {
             mErrorMessages.put(new NativeLong(intRV[i]), messages[i]);
         }

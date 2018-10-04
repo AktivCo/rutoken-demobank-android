@@ -5,13 +5,16 @@
 
 package ru.rutoken.demobank;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.support.v4.content.LocalBroadcastManager;
+
+import java.util.Objects;
+
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.appcompat.app.AppCompatActivity;
 
 /**
  * Activity calls onChildCreated method when child activity is started. Beware to use startActivity
@@ -19,12 +22,12 @@ import android.support.v4.content.LocalBroadcastManager;
  * needed.
  */
 
-public class GuaranteedChildStartActivity extends Activity {
-    private static IntentFilter mFilter;
+abstract class GuaranteedChildStartActivity extends AppCompatActivity {
+    private static final IntentFilter mFilter;
     private int mHashCode;
     private boolean mPendingActivityStart = false;
     private Integer mParentHashCode = null;
-    public static final String CHILD_ACTIVITY_CREATED = GuaranteedChildStartActivity.class.getName() + ".CHILD_ACTIVITY_CREATED";
+    private static final String CHILD_ACTIVITY_CREATED = GuaranteedChildStartActivity.class.getName() + ".CHILD_ACTIVITY_CREATED";
 
     static {
         mFilter = new IntentFilter();
@@ -34,9 +37,7 @@ public class GuaranteedChildStartActivity extends Activity {
     private final BroadcastReceiver mChildActivityCreatedReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            final String action = intent.getAction();
-
-            if (action.equals(CHILD_ACTIVITY_CREATED)) {
+            if (Objects.equals(intent.getAction(), CHILD_ACTIVITY_CREATED)) {
                 int hashCode = intent.getIntExtra("hashCode", 0);
                 if (mHashCode == hashCode) {
                     synchronized (GuaranteedChildStartActivity.this) {

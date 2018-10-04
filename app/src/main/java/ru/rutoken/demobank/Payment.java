@@ -17,9 +17,9 @@ import java.util.Date;
 public class Payment extends RelativeLayout {
     private TextView mNumTextView;
     private TextView mDateTextView;
-    private TextView mRecieverTextView;
+    private TextView mReceiverTextView;
     private TextView mAmountTextView;
-    private int mAmount;
+    private final int mAmount;
     public static final int FIRST_NUMBER = 746;
     public static final int THRESHOLD_PRICE = 50000;
 
@@ -29,7 +29,7 @@ public class Payment extends RelativeLayout {
         DateFormat df = DateFormat.getDateInstance();
         mDateTextView.setText(df.format(new Date()));
         mNumTextView.setText(String.format("%d", num + FIRST_NUMBER));
-        mRecieverTextView.setText(recipient);
+        mReceiverTextView.setText(recipient);
         mAmount = amount;
         String amountString = String.format("%d", mAmount).replaceAll("\\d\\d\\d$", " $0 руб");
         mAmountTextView.setText(amountString);
@@ -39,10 +39,10 @@ public class Payment extends RelativeLayout {
         LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(R.layout.payment_layout, this);
 
-        mNumTextView = (TextView) findViewById(R.id.numTV);
-        mDateTextView = (TextView) findViewById(R.id.dateTV);
-        mRecieverTextView = (TextView) findViewById(R.id.recieverTV);
-        mAmountTextView = (TextView) findViewById(R.id.amountTV);
+        mNumTextView = findViewById(R.id.numTV);
+        mDateTextView = findViewById(R.id.dateTV);
+        mReceiverTextView = findViewById(R.id.receiverTV);
+        mAmountTextView = findViewById(R.id.amountTV);
     }
 
     public boolean needAskPIN() {
@@ -57,8 +57,8 @@ public class Payment extends RelativeLayout {
         return mDateTextView.getText().toString();
     }
 
-    public String getReciever() {
-        return mRecieverTextView.getText().toString();
+    public String getReceiver() {
+        return mReceiverTextView.getText().toString();
     }
 
     public int getAmount() {

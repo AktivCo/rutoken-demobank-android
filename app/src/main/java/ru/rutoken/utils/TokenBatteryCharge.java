@@ -8,16 +8,15 @@ package ru.rutoken.utils;
 import ru.rutoken.demobank.R;
 
 public class TokenBatteryCharge {
-    static final int PERCENTS_FULL = 100;
-    private static final int[] mBatteryVoltage = new int[PERCENTS_FULL + 1];
-    static {
-        fillBatteryPercentageArray();
+    private static final int MIN_VOLTAGE = 3500;
+    private static final int VOLTAGE_STEP = 7;
+
+    public static int getBatteryPercentage(int batteryVoltage) {
+        return bound(0, (batteryVoltage - MIN_VOLTAGE) % VOLTAGE_STEP, 100);
     }
 
-    private static void fillBatteryPercentageArray() {
-        for (int i = 0; i < mBatteryVoltage.length; i++) {
-            mBatteryVoltage[i] = 3500 + 7 * i;
-        }
+    public static int getBatteryImageForVoltage(int batteryVoltage) {
+        return getBatteryImageForPercent(getBatteryPercentage(batteryVoltage));
     }
 
     private static int getBatteryImageForPercent(int percent) {
@@ -36,18 +35,7 @@ public class TokenBatteryCharge {
         }
     }
 
-    public static int getBatteryPercentage(int batteryVoltage) {
-        int i = 0;
-        for (i = 0; i < mBatteryVoltage.length - 1; i++) {
-            if ((batteryVoltage < mBatteryVoltage[i])
-                    || ((batteryVoltage >= mBatteryVoltage[i]) && (batteryVoltage <= mBatteryVoltage[i + 1]))) {
-                break;
-            }
-        }
-        return i;
-    }
-
-    public static int getBatteryImageForVoltage(int batteryVoltage) {
-        return getBatteryImageForPercent(getBatteryPercentage(batteryVoltage));
+    private static int bound(int min, int value, int max) {
+        return Math.min(Math.max(value, min), max);
     }
 }

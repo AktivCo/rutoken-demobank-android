@@ -2,41 +2,39 @@
 
 ## Description
 
-Rutoken DemoBank is a demostrational application which shows a typical usage of the electronic identifier [Rutoken ECP Bluetooth](http://www.rutoken.ru/products/all/rutoken-ecp-bluetooth/) and also contains some useful classes for developers to significantly ease developing for complicated device which combines both typical Bluetooth accessory and SmartCard with reader logics.
+Rutoken DemoBank is a demonstrational application which shows a typical usage of the electronic identifier [Rutoken ECP Bluetooth] (https://www.rutoken.ru/products/all/rutoken-ecp-bluetooth/) and also contains some useful classes for developers to significantly ease developing for complicated device which combines both typical Bluetooth accessory and SmartCard with reader logics.
 
 ## Requirements
 
 Rutoken DemoBank should be built using:
-* [Gradle](https://gradle.org/) 2.2.1 or newer;
-* Android Studio 1.0.2 or newer;
-* Android SDK Build-tools 20 or newer;
-* Android SDK Platform 19 or newer.
+* Android Studio 3.2 or newer;
+* Android SDK Platform 28 or newer.
 
-External dependencies are located in [Rutoken SDK](http://www.rutoken.ru/developers/sdk/)
+External dependencies are located in [Rutoken SDK](https://www.rutoken.ru/developers/sdk/)
 
 Required libraries:
 * librtpkcs11ecp.so (Rutoken SDK).
 
 ## How to build
 
-Copy librtpkcs11ecp.so library to app/libs/ before building the project.
+Copy librtpkcs11ecp.so library to app/src/main/jniLibs/ before building the project.
 
 To build from console:
 * run:
-    ~/demobank-android$> gradle build
+    ~/demobank-android$> ./gradlew build
 
 To build with Android Studio:
-* open Android Studio;
-* select "File">"Import Project...": "~/demobank-android/build.gradle";
+* open Android Studio
+* select "File">"Open...": "~/demobank-android";
 * select "Build">"Make project".
 
 ## Preliminary actions
 
 To create a key pair and certificate on Rutoken ECP Bluetooth follow these steps:
 
-* Download and install [Rutoken plugin](http://www.rutoken.ru/products/all/rutoken-plugin/) on your desktop computer;
+* Download and install [Rutoken plugin](https://www.rutoken.ru/products/all/rutoken-plugin/) on your desktop computer;
 * Restart your browser to complete plugin installation;
-* Go to a [Rutoken DemoBank](http://demobank.rutoken.ru) website;
+* Go to a [Rutoken DemoBank](https://demobank.rutoken.ru) website;
 * Connect Rutoken ECP Bluetooth to your desktop via USB cable;
 * Make sure that only red LED is active (without blue). If not, press and hold the button on device until blue light turns off;
 * Make sure that Rutoken ECP is found by the website;

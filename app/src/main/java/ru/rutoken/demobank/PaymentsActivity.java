@@ -5,10 +5,7 @@
 
 package ru.rutoken.demobank;
 
-import android.app.ActionBar;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Resources;
@@ -24,7 +21,6 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -36,48 +32,45 @@ import com.sun.jna.NativeLong;
 
 import java.text.DateFormat;
 import java.util.Date;
+import java.util.Objects;
 
-import ru.rutoken.Pkcs11Caller.Token;
-import ru.rutoken.Pkcs11Caller.TokenManager;
-import ru.rutoken.Pkcs11Caller.exception.Pkcs11Exception;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
+import ru.rutoken.pkcs11caller.Token;
+import ru.rutoken.pkcs11caller.TokenManager;
+import ru.rutoken.pkcs11caller.exception.Pkcs11Exception;
 import ru.rutoken.utils.Pkcs11ErrorTranslator;
 import ru.rutoken.utils.TokenBatteryCharge;
 import ru.rutoken.utils.TokenModelRecognizer;
 
 public class PaymentsActivity extends Pkcs11CallerActivity {
     private class InfoDialog {
-        AlertDialog mDialog;
-        Button mConfirmButton;
-        TextView mPaymentTextView;
+        final AlertDialog mDialog;
+        final Button mConfirmButton;
+        final TextView mPaymentTextView;
 
         InfoDialog() {
             AlertDialog.Builder builder = new AlertDialog.Builder(PaymentsActivity.this);
             builder.setCancelable(true);
             mDialog = builder.create();
-            View view = (LinearLayout) getLayoutInflater().inflate(R.layout.payment_info_layout, null);
+            View view = getLayoutInflater().inflate(R.layout.payment_info_layout, null);
             mDialog.setView(view);
-            mConfirmButton = (Button) view.findViewById(R.id.sendB);
-            mPaymentTextView = (TextView) view.findViewById(R.id.dataTV);
+            mConfirmButton = view.findViewById(R.id.sendB);
+            mPaymentTextView = view.findViewById(R.id.dataTV);
         }
 
         void show(Spanned text, boolean bNeedAskPIN) {
             mPaymentTextView.setText(text);
 
             if (bNeedAskPIN) {
-                mConfirmButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        mDialog.dismiss();
-                        mLoginDialog.show(null);
-                    }
+                mConfirmButton.setOnClickListener(view -> {
+                    mDialog.dismiss();
+                    mLoginDialog.show(null);
                 });
             } else {
-                mConfirmButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        mDialog.dismiss();
-                        signAction();
-                    }
+                mConfirmButton.setOnClickListener(view -> {
+                    mDialog.dismiss();
+                    signAction();
                 });
             }
             mDialog.show();
@@ -85,9 +78,9 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
     }
 
     private class LoginDialog {
-        AlertDialog mDialog;
-        EditText mPinEditText;
-        TextView mErrorTextView;
+        final AlertDialog mDialog;
+        final EditText mPinEditText;
+        final TextView mErrorTextView;
         String mPin;
         boolean mLogonBeingPerformed = false;
 
@@ -96,23 +89,18 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
             builder.setCancelable(true);
 
             mDialog = builder.create();
-            View view = (LinearLayout) getLayoutInflater().inflate(R.layout.login_dialog, null);
-            Button loginButton = (Button) view.findViewById(R.id.signB);
-            mPinEditText = (EditText) view.findViewById(R.id.signET);
-            mErrorTextView = (TextView) view.findViewById(R.id.errorTV);
+            View view = getLayoutInflater().inflate(R.layout.login_dialog, null);
+            Button loginButton = view.findViewById(R.id.signB);
+            mPinEditText = view.findViewById(R.id.signET);
+            mErrorTextView = view.findViewById(R.id.errorTV);
             mDialog.setView(view);
-            loginButton.setOnClickListener(
-                    new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            mPin = mPinEditText.getText().toString();
-                            mPinEditText.setText("");
-                            mDialog.dismiss();
-                            mLogonBeingPerformed = true;
-                            startLoginAndSignAction();
-                        }
-                    }
-                    );
+            loginButton.setOnClickListener(view1 -> {
+                mPin = mPinEditText.getText().toString();
+                mPinEditText.setText("");
+                mDialog.dismiss();
+                mLogonBeingPerformed = true;
+                startLoginAndSignAction();
+            });
         }
 
         String pin() {
@@ -121,36 +109,28 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
 
         void show(String errorText) {
             if (mLogonBeingPerformed) {
-                mDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
-                    @Override
-                    public void onCancel(DialogInterface dialogInterface) {
-                        mLogonBeingPerformed = false;
-                        onBackPressed();
-                    }
+                mDialog.setOnCancelListener(dialogInterface -> {
+                    mLogonBeingPerformed = false;
+                    onBackPressed();
                 });
             } else {
-                mDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
-                    @Override
-                    public void onCancel(DialogInterface dialogInterface) {
-                        mDialog.cancel();
-                    }
-                });
+                mDialog.setOnCancelListener(dialogInterface -> mDialog.cancel());
             }
             if (null != errorText) {
                 mErrorTextView.setText(errorText);
             } else {
                 mErrorTextView.setText("");
             }
-            mDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+            Objects.requireNonNull(mDialog.getWindow()).setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
             mDialog.show();
 
         }
 
-        public boolean isLogonBeingPerformed() {
+        boolean isLogonBeingPerformed() {
             return mLogonBeingPerformed;
         }
 
-        public void setLogonFinished() {
+        void setLogonFinished() {
             mLogonBeingPerformed = false;
         }
     }
@@ -171,7 +151,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
     private String[][] mPaymentArray = null;
     //
 
-    private static byte mSignData[] = new byte[] {
+    private static final byte[] mSignData = new byte[]{
             0, 0, 0
     };
 
@@ -185,11 +165,8 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
     private int mChecksCount = 0;
     //
 
-    // Support ExternallyDismissableActivity's abstract String getActivityClassIdentifier() method
-    private static final String ACTIVITY_CLASS_IDENTIFIER = PaymentsActivity.class.getName();
-
     public String getActivityClassIdentifier() {
-        return ACTIVITY_CLASS_IDENTIFIER;
+        return getClass().getName();
     }
 
     //
@@ -221,25 +198,24 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.CENTER);
 
         /* Custom actionbar */
-        ActionBar actionBar = getActionBar();
+        ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
             actionBar.setDisplayHomeAsUpEnabled(false);
             actionBar.setDisplayShowTitleEnabled(false);
-            actionBar.setBackgroundDrawable(
-                    this.getResources().getDrawable(R.drawable.ab_bg));
+            actionBar.setBackgroundDrawable(getDrawable(R.drawable.ab_bg));
             actionBar.setCustomView(v, params);
         }
     }
 
     private void setupUI() {
-        mPaymentsLayout = (LinearLayout) findViewById(R.id.paymentsLayout);
-        mTokenBatteryTextView = (TextView) findViewById(R.id.percentageTV);
-        mTokenIDTextView = (TextView) findViewById(R.id.tokenIdTV);
-        mTokenModelTextView = (TextView) findViewById(R.id.modelTV);
-        mTokenBatteryImageView = (ImageView) findViewById(R.id.batteryIV);
+        mPaymentsLayout = findViewById(R.id.paymentsLayout);
+        mTokenBatteryTextView = findViewById(R.id.percentageTV);
+        mTokenIDTextView = findViewById(R.id.tokenIdTV);
+        mTokenModelTextView = findViewById(R.id.modelTV);
+        mTokenBatteryImageView = findViewById(R.id.batteryIV);
 
-        mTokenModelTextView.setText(TokenModelRecognizer.getInstance().marketingNameForPkcs11Name(mToken.getModel())
+        mTokenModelTextView.setText(TokenModelRecognizer.getInstance(this).marketingNameForPkcs11Name(mToken.getModel())
                 + " " + mToken.getShortDecSerialNumber());
         mTokenIDTextView.setText("");
 
@@ -256,25 +232,22 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
         View popupView = inflater.inflate(R.layout.popup_layout, null);
         mPopupWindow = new PopupWindow(popupView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 
-        Button popupButton = (Button) popupView.findViewById(R.id.popupB);
-        popupButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                boolean bNeedAskPIN = false;
-                int paymentsCount = 0;
-                for (int i = 0; i < mPaymentsLayout.getChildCount(); ++i) {
-                    View childView = mPaymentsLayout.getChildAt(i);
-                    if (Payment.class.isInstance(childView)) {
-                        Payment payment = (Payment) childView;
-                        CheckBox checkBox = (CheckBox) payment.findViewById(R.id.checkBox);
-                        if (checkBox.isChecked()) {
-                            bNeedAskPIN = bNeedAskPIN || payment.needAskPIN();
-                            ++paymentsCount;
-                        }
+        Button popupButton = popupView.findViewById(R.id.popupB);
+        popupButton.setOnClickListener(view -> {
+            boolean bNeedAskPIN = false;
+            int paymentsCount = 0;
+            for (int i = 0; i < mPaymentsLayout.getChildCount(); ++i) {
+                View childView = mPaymentsLayout.getChildAt(i);
+                if (Payment.class.isInstance(childView)) {
+                    Payment payment = (Payment) childView;
+                    CheckBox checkBox = payment.findViewById(R.id.checkBox);
+                    if (checkBox.isChecked()) {
+                        bNeedAskPIN = bNeedAskPIN || payment.needAskPIN();
+                        ++paymentsCount;
                     }
                 }
-                showBatchPaymentInfo(paymentsCount, bNeedAskPIN);
             }
+            showBatchPaymentInfo(paymentsCount, bNeedAskPIN);
         });
 
         createSucceedDialog();
@@ -290,7 +263,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
             View childView = mPaymentsLayout.getChildAt(i);
             if (Payment.class.isInstance(childView)) {
                 Payment payment = (Payment) childView;
-                CheckBox checkBox = (CheckBox) payment.findViewById(R.id.checkBox);
+                CheckBox checkBox = payment.findViewById(R.id.checkBox);
                 checkBox.setChecked(false);
             }
         }
@@ -318,7 +291,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
         mProgressDialog.dismiss();
         String message = null;
         if (exception != null) {
-            message = Pkcs11ErrorTranslator.getInstance().messageForRV(exception.getErrorCode());
+            message = Pkcs11ErrorTranslator.getInstance(this).messageForRV(exception.getErrorCode());
         }
         mLoginDialog.show(message);
     }
@@ -333,9 +306,9 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
     protected void manageSignError(Pkcs11Exception exception) {
         uncheckAllPayments();
         mProgressDialog.dismiss();
-        String message = getResources().getString(R.string.error);
+        String message = getString(R.string.error);
         if (exception != null) {
-            message = Pkcs11ErrorTranslator.getInstance().messageForRV(exception.getErrorCode());
+            message = Pkcs11ErrorTranslator.getInstance(this).messageForRV(exception.getErrorCode());
         }
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
@@ -380,7 +353,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
         int nRecipient = 0;
         int nPrice = 0;
         for (int i = 0; i < mPaymentTitles.length; ++i) {
-            if (mPaymentTitles[i].equals(res.getString(R.string.recepient))) {
+            if (mPaymentTitles[i].equals(res.getString(R.string.recipient))) {
                 nRecipient = i;
             }
             if (mPaymentTitles[i].equals(res.getString(R.string.price))) {
@@ -391,25 +364,19 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
         for (int i = 0; i < mPaymentArray.length; ++i) {
             int price = Integer.valueOf(mPaymentArray[i][nPrice]);
             Payment payment = new Payment(this, null, i, mPaymentArray[i][nRecipient], price);
-            payment.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (!Payment.class.isInstance(view)) return;
-                    showOnePaymentInfo((Payment) view);
-                }
+            payment.setOnClickListener(view -> {
+                if (!Payment.class.isInstance(view)) return;
+                showOnePaymentInfo((Payment) view);
             });
-            CheckBox checkBox = (CheckBox) payment.findViewById(R.id.checkBox);
-            checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                    if (b) {
-                        ++mChecksCount;
-                        mPopupWindow.showAtLocation(mPaymentsLayout, Gravity.BOTTOM, 0, 0);
-                    } else {
-                        --mChecksCount;
-                        if (mChecksCount == 0) {
-                            mPopupWindow.dismiss();
-                        }
+            CheckBox checkBox = payment.findViewById(R.id.checkBox);
+            checkBox.setOnCheckedChangeListener((compoundButton, b) -> {
+                if (b) {
+                    ++mChecksCount;
+                    mPopupWindow.showAtLocation(mPaymentsLayout, Gravity.BOTTOM, 0, 0);
+                } else {
+                    --mChecksCount;
+                    if (mChecksCount == 0) {
+                        mPopupWindow.dismiss();
                     }
                 }
             });
@@ -428,25 +395,25 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
     }
 
     protected String createFullPaymentHtml(int num) {
-        String result = "";
+        StringBuilder result = new StringBuilder();
         DateFormat df = DateFormat.getDateInstance();
         String date = df.format(new Date());
-        result += "<h3>" + getResources().getString(R.string.payment) + String.format("%d", num + Payment.FIRST_NUMBER) + "</h3>";
-        result += "<font color=#CCCCCC>" + getResources().getString(R.string.fromDate) + " " + date + "</font>";
-        result += "<br/><br/>";
+        result.append("<h3>").append(getString(R.string.payment)).append(String.format("%d", num + Payment.FIRST_NUMBER)).append("</h3>");
+        result.append("<font color=#CCCCCC>").append(getString(R.string.fromDate)).append(" ").append(date).append("</font>");
+        result.append("<br/><br/>");
         for (int i = 0; i < mPaymentTitles.length; ++i) {
-            result += "<font color=#CCCCCC size=-1>" + mPaymentTitles[i] + "</font><br/>";
-            result += "<font color=#000000 size=-1>" + mPaymentArray[num][i] + "</font><br/>";
+            result.append("<font color=#CCCCCC size=-1>").append(mPaymentTitles[i]).append("</font><br/>");
+            result.append("<font color=#000000 size=-1>").append(mPaymentArray[num][i]).append("</font><br/>");
         }
-        return result;
+        return result.toString();
     }
 
     private void showBatchPaymentInfo(int count, boolean bNeedAskPIN) {
-        String message = String.format(getResources().getString(R.string.batch_sign_message), count);
+        String message = String.format(getString(R.string.batch_sign_message), count);
         if (bNeedAskPIN) {
-            message += "<br />" + getResources().getString(R.string.need_pin_message);
+            message += "<br />" + getString(R.string.need_pin_message);
         } else {
-            message += "<br />" + getResources().getString(R.string.batch_require_proceed);
+            message += "<br />" + getString(R.string.batch_require_proceed);
         }
         mInfoDialog.show(Html.fromHtml(message), bNeedAskPIN);
     }
@@ -462,7 +429,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(PaymentsActivity.this);
         builder.setCancelable(false);
         mProgressDialog = builder.create();
-        View view = (LinearLayout) getLayoutInflater().inflate(R.layout.progress_dialog, null);
+        View view = getLayoutInflater().inflate(R.layout.progress_dialog, null);
         mProgressDialog.setView(view);
     }
 
@@ -470,13 +437,8 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(PaymentsActivity.this);
         builder.setCancelable(true);
         mSucceedDialog = builder.create();
-        View successView = (LinearLayout) getLayoutInflater().inflate(R.layout.result_dialog_layout, null);
-        successView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mSucceedDialog.dismiss();
-            }
-        });
+        View successView = getLayoutInflater().inflate(R.layout.result_dialog_layout, null);
+        successView.setOnClickListener(view -> mSucceedDialog.dismiss());
         mSucceedDialog.setView(successView);
     }
 }

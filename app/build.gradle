@@ -1,24 +1,29 @@
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath "com.android.tools.build:gradle:1.0.0+"
-    }
-}
-
-apply plugin: "android"
-
-repositories {
-    mavenCentral()
-}
+apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 22
-    buildToolsVersion "22.0.1"
+    compileSdkVersion 28
+    defaultConfig {
+        minSdkVersion 21
+        ndk {
+            abiFilters "armeabi-v7a"
+        }
+    }
     lintOptions {
         abortOnError false
     }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: "libs", include: "*.jar")
+    implementation 'com.madgag.spongycastle:pkix:1.52.0.0'
+    implementation 'androidx.appcompat:appcompat:1.0.0'
+    implementation 'net.java.dev.jna:jna:4.5.1@aar'
+    //TODO download pkcs11jna.jar dependency
+    //TODO download librtpkcs11ecp.so dependency
 }
 
 def requireFileInDirectory(String directory, String file) {
@@ -27,98 +32,20 @@ def requireFileInDirectory(String directory, String file) {
     }
 }
 
-def sdkCopyPkcs11() {
-    if (fileTree(dir: 'libs', include: '**/' + 'librtpkcs11ecp.so').isEmpty() && !fileTree(dir: '../../../../../Libs/android/native/pkcs11/', include: 'librtpkcs11ecp.so').isEmpty()) {
+def copyFile(String file, String sourcePath, String destinationPath) {
+    try {
         copy {
-            from fileTree(dir: '../../../../../Libs/android/native/pkcs11/', include: 'librtpkcs11ecp.so')
-            into 'libs/'
+            from sourcePath + '/' + file
+            into destinationPath
         }
+    } catch (ignored) {
+        System.println("Could not copy file: " + file)
     }
 }
 
-task extractJniDispatchFromJar {
-    requireFileInDirectory('deps', 'android-arm.jar')
-    FileTree tree = zipTree('deps/android-arm.jar')
-    FileTree filtered = tree.matching {
-        include 'libjnidispatch.so'
-    }
-    copy {
-        from filtered
-        into buildDir.getPath() + "/native-libs/"
-    }
+task copyNativeLibs() {
+    copyFile('librtpkcs11ecp.so', '../../../lib', 'src/main/jniLibs/armeabi-v7a')
 
-}
-
-task prepareNativeLibs() {
-    sdkCopyPkcs11()
-    requireFileInDirectory('libs', 'librtpkcs11ecp.so')
-    copy {
-        from fileTree(dir: 'libs', include: '**/*.so')
-        into buildDir.getPath() + '/native-libs/'
-    }
-}
-
-task nativeLibsToJar(type: Zip, description: 'create a jar archive of the native libs', dependsOn: ['prepareNativeLibs', 'extractJniDispatchFromJar']) {
-    requireFileInDirectory(buildDir.getPath() + "/native-libs", 'libjnidispatch.so')
-    requireFileInDirectory(buildDir.getPath() + "/native-libs", 'librtpkcs11ecp.so')
-    destinationDir file(buildDir.getPath() + "/native-libs")
-    baseName 'native-libs'
-    extension 'jar'
-    from fileTree(dir: buildDir.getPath() + '/native-libs', include: '**/*.so')
-    into 'lib/armeabi/'
-}
-
-task prepareEclipse(dependsOn: ['prepareNativeLibs', 'extractJniDispatchFromJar']) {
-    doLast {
-        requireFileInDirectory(buildDir.getPath() + "/native-libs", 'libjnidispatch.so')
-        requireFileInDirectory(buildDir.getPath() + "/native-libs", 'librtpkcs11ecp.so')
-        if ((new File('../eclipse-project/')).isDirectory()) {
-            throw new GradleException('Directory \"eclipse-project\" already exists. Remove directory or run \"gradle clean\" before to create eclipse project once more')
-        }
-        copy {
-            from fileTree(dir: buildDir.getPath() + '/native-libs/', include: '**/*.so')
-            into '../eclipse-project/libs/armeabi/'
-        }
-        copy {
-            from fileTree(dir: 'libs', include: '*.jar')
-            into '../eclipse-project/libs/'
-        }
-        copy {
-            from fileTree(dir: 'src/main/java', include: '**/*')
-            into '../eclipse-project/src/'
-        }
-        copy {
-            from fileTree(dir: 'src/main/res', include: '**/*')
-            into '../eclipse-project/res/'
-        }
-        copy {
-            from fileTree(dir: 'src/main', include: 'AndroidManifest.xml')
-            into '../eclipse-project/'
-        }
-    }
-}
-
-clean {
-    delete "../eclipse-project"
-}
-
-tasks.withType(JavaCompile) {
-    compileTask -> compileTask.dependsOn(nativeLibsToJar)
-}
-
-dependencies {
-    compile fileTree(dir: "libs", include: "*.jar")
-    compile 'com.madgag.spongycastle:core:1.52.0.0'
-    compile 'com.madgag.spongycastle:prov:1.52.0.0'
-    compile 'com.madgag.spongycastle:pkix:1.52.0.0'
-}
-
-dependencies {
-    compile files("$buildDir/native-libs/native-libs.jar") {
-        builtBy 'nativeLibsToJar'
-    }
-    compile "com.android.support:support-v4:22.2.1"
-}
-dependencies {
-    compile 'com.android.support:appcompat-v7:22.2.1'
+    requireFileInDirectory('src/main/jniLibs/armeabi-v7a', 'librtpkcs11ecp.so')
+    requireFileInDirectory('libs', 'pkcs11jna.jar')
 }

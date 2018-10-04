@@ -5,7 +5,6 @@
 
 package ru.rutoken.demobank;
 
-import android.app.ActionBar;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
@@ -13,6 +12,7 @@ import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
+import androidx.appcompat.app.ActionBar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.DisplayMetrics;
@@ -27,9 +27,9 @@ import android.widget.TextView;
 
 import com.sun.jna.NativeLong;
 
-import ru.rutoken.Pkcs11Caller.Token;
-import ru.rutoken.Pkcs11Caller.TokenManager;
-import ru.rutoken.Pkcs11Caller.exception.Pkcs11Exception;
+import ru.rutoken.pkcs11caller.Token;
+import ru.rutoken.pkcs11caller.TokenManager;
+import ru.rutoken.pkcs11caller.exception.Pkcs11Exception;
 import ru.rutoken.utils.Pkcs11ErrorTranslator;
 
 public class LoginActivity extends Pkcs11CallerActivity {
@@ -43,14 +43,11 @@ public class LoginActivity extends Pkcs11CallerActivity {
     protected NativeLong mCertificate = TokenManagerListener.NO_CERTIFICATE;
     protected Token mToken = null;
 
-    private static final byte mSignData[] = new byte[] {
-            0, 0, 0
-    };
-    private static final String ACTIVITY_CLASS_IDENTIFIER = LoginActivity.class.getName();
+    private static final byte mSignData[] = new byte[] {0, 0, 0};
     private Dialog mOverlayDialog;
 
     public String getActivityClassIdentifier() {
-        return ACTIVITY_CLASS_IDENTIFIER;
+        return getClass().getName();
     }
 
     protected void showLogonStarted() {
@@ -68,7 +65,7 @@ public class LoginActivity extends Pkcs11CallerActivity {
     @Override
     protected void manageLoginError(Pkcs11Exception exception) {
         if (exception != null) {
-            mAlertTextView.setText(Pkcs11ErrorTranslator.getInstance().messageForRV(exception.getErrorCode()));
+            mAlertTextView.setText(Pkcs11ErrorTranslator.getInstance(this).messageForRV(exception.getErrorCode()));
         }
         showLogonFinished();
     }
@@ -105,7 +102,7 @@ public class LoginActivity extends Pkcs11CallerActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        DisplayMetrics displayMetrics = this.getResources().getDisplayMetrics();
+        DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
         if ((displayMetrics.density > 1.0) && ((getResources().getConfiguration().screenLayout &
                 Configuration.SCREENLAYOUT_SIZE_MASK) ==
                 Configuration.SCREENLAYOUT_SIZE_XLARGE)) {
@@ -138,22 +135,21 @@ public class LoginActivity extends Pkcs11CallerActivity {
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.CENTER);
 
         /* Custom actionbar */
-        ActionBar actionBar = getActionBar();
+        ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
             actionBar.setDisplayHomeAsUpEnabled(false);
             actionBar.setDisplayShowTitleEnabled(false);
-            actionBar.setBackgroundDrawable(
-                    this.getResources().getDrawable(R.drawable.ab_bg));
+            actionBar.setBackgroundDrawable(getDrawable(R.drawable.ab_bg));
             actionBar.setCustomView(v, params);
         }
     }
 
     private void setupUI() {
-        mLoginButton = (Button) findViewById(R.id.loginB);
-        mPinEditText = (EditText) findViewById(R.id.pinET);
-        mAlertTextView = (TextView) findViewById(R.id.alertTV);
-        mLoginProgressBar = (ProgressBar) findViewById(R.id.loginPB);
+        mLoginButton = findViewById(R.id.loginB);
+        mPinEditText = findViewById(R.id.pinET);
+        mAlertTextView = findViewById(R.id.alertTV);
+        mLoginProgressBar = findViewById(R.id.loginPB);
 
         mLoginProgressBar.setVisibility(View.GONE);
 
@@ -183,14 +179,11 @@ public class LoginActivity extends Pkcs11CallerActivity {
             }
         });
 
-        mLoginButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                TokenManagerListener.getInstance().resetWaitForToken();
-                showLogonStarted();
-                login(mToken, mPinEditText.getText().toString());
+        mLoginButton.setOnClickListener(view -> {
+            TokenManagerListener.getInstance().resetWaitForToken();
+            showLogonStarted();
+            login(mToken, mPinEditText.getText().toString());
 
-            }
         });
     }
 }

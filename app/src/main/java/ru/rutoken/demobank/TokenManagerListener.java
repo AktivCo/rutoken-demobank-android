@@ -9,42 +9,43 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.support.v4.content.LocalBroadcastManager;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.sun.jna.NativeLong;
 
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
-import ru.rutoken.Pkcs11Caller.Token;
-import ru.rutoken.Pkcs11Caller.TokenManager;
+import ru.rutoken.pkcs11caller.Token;
+import ru.rutoken.pkcs11caller.TokenManager;
 
 public class TokenManagerListener {
-    private static TokenManagerListener mInstance = null;
+    private static volatile TokenManagerListener mInstance = null;
 
     private Context mContext;
     public static final String MAIN_ACTIVITY_IDENTIFIER = TokenManagerListener.class.getName() + "MAIN_ACTIVITY";
     private MainActivity mMainActivity = null;
-    private List<ManagedActivity> mActivities = Collections.synchronizedList(new LinkedList<ManagedActivity>());
+    private final List<ManagedActivity> mActivities = Collections.synchronizedList(new LinkedList<>());
 
     private final BroadcastReceiver mTokenReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
 
-            if (action.equals(TokenManager.ENUMERATION_FINISHED)) {
+            if (Objects.equals(action, TokenManager.ENUMERATION_FINISHED)) {
                 onEnumerationFinished();
-            } else if (action.equals(TokenManager.TOKEN_WILL_BE_ADDED)) {
+            } else if (Objects.equals(action, TokenManager.TOKEN_WILL_BE_ADDED)) {
                 onTokenWillBeAdded(intent);
-            } else if (action.equals(TokenManager.TOKEN_ADDING_FAILED)) {
+            } else if (Objects.equals(action, TokenManager.TOKEN_ADDING_FAILED)) {
                 onTokenAddingFailed(intent);
-            } else if (action.equals(TokenManager.TOKEN_WAS_ADDED)) {
+            } else if (Objects.equals(action, TokenManager.TOKEN_WAS_ADDED)) {
                 onTokenAdded(intent);
-            } else if (action.equals(TokenManager.TOKEN_WAS_REMOVED)) {
+            } else if (Objects.equals(action, TokenManager.TOKEN_WAS_REMOVED)) {
                 onTokenRemoved(intent);
-            } else if (action.equals(TokenManager.INTERNAL_ERROR)) {
+            } else if (Objects.equals(action, TokenManager.INTERNAL_ERROR)) {
                 onInternalError();
             }
         }
@@ -106,8 +107,8 @@ public class TokenManagerListener {
         mInstance = null;
     }
 
+    @SuppressWarnings("EmptyMethod")
     protected void onEnumerationFinished() {
-        // Do nothing
     }
 
     protected void onTokenWillBeAdded(Intent intent) {
@@ -167,8 +168,8 @@ public class TokenManagerListener {
         }
     }
 
+    @SuppressWarnings("EmptyMethod")
     protected void onInternalError() {
-        // Do nothing
     }
 
     protected void resetSlotInfo() {
@@ -193,17 +194,17 @@ public class TokenManagerListener {
             do {
                 if (certificates == null) break;
                 if (!serial.equals(mWaitToken.getSerialNumber())) break;
-                NativeLong foundCerificate = null;
+                NativeLong foundCertificate = null;
                 for (NativeLong certificate : certificates) {
                     if (token.getCertificate(certificate).getSubject().equals(mWaitToken.getCertificate(mWaitCertificate).getSubject())) {
-                        foundCerificate = certificate;
+                        foundCertificate = certificate;
                         break;
                     }
                 }
-                if (foundCerificate != null) {
+                if (foundCertificate != null) {
                     mSlotId = slotId;
                     mToken = token;
-                    mCertificate = foundCerificate;
+                    mCertificate = foundCertificate;
                     if (mMainActivity != null) mMainActivity.startPINActivity();
                     break;
                 }
