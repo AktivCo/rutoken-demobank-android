@@ -49,5 +49,4 @@ To create a key pair and certificate on Rutoken ECP Bluetooth follow these steps
 ## License
 
 Project source code is distributed under [New BSD license](LICENSE) if the opposite is not mentioned in the source code entity itself,
-app/src/main/java/ru/rutoken/demobank directory contains objects of copyright and distributed under commercial license of CJSC “Aktiv-Soft”, [License Agreement] (https://download.rutoken.ru/License_Agreement.pdf) (only in Russian).
-This product includes software developed by IAIK of Graz University of Technology.
+app/src/main/java/ru/rutoken/demobank directory contains objects of copyright and distributed under commercial license of JSC “Aktiv-Soft”, [License Agreement] (https://download.rutoken.ru/License_Agreement.pdf) (only in Russian).
