@@ -47,5 +47,5 @@ task copyNativeLibs() {
     copyFile('librtpkcs11ecp.so', '../../../lib', 'src/main/jniLibs/armeabi-v7a')
 
     requireFileInDirectory('src/main/jniLibs/armeabi-v7a', 'librtpkcs11ecp.so')
-    requireFileInDirectory('libs', 'pkcs11jna.jar')
+    requireFileInDirectory('libs', 'pkcs11jna*.jar')
 }
