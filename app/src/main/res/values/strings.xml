@@ -14,9 +14,13 @@
     <string name="need_pin_message">You need to input PIN to proceed.</string>
     <string name="batch_sign_message" formatted="false">%d payments will be sent.</string>
     <string name="batch_require_proceed">Please, confirm operation.</string>
-    <string name="token_model" translatable="false">Token model</string>
     <string name="rutoken">Rutoken</string>
+    <string name="token_model" translatable="false">Token model</string>
     <string name="recipient">Recipient</string>
     <string name="price">Price</string>
     <string name="fromDate">from</string>
+    <string name="no_pcsc_message">This application requires Rutoken Control Panel being installed</string>
+    <string name="no_pcsc_title">Rutoken Panel not found</string>
+    <string name="exit">Exit</string>
+    <string name="install_control_panel">Install</string>
 </resources>

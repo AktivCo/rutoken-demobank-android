@@ -13,6 +13,7 @@ import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import androidx.appcompat.app.ActionBar;
+
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,20 +29,14 @@ import org.spongycastle.asn1.x500.style.IETFUtils;
 import java.util.Objects;
 
 import ru.rutoken.pkcs11caller.Token;
+import ru.rutoken.utils.PcscChecker;
 import ru.rutoken.utils.TokenModelRecognizer;
 
 public class MainActivity extends ManagedActivity {
-    // GUI
-    private TextView mInfoTextView;
-    private ProgressBar mTWBAProgressBar;
-
     // Vars
     private static final String ACTIVITY_CLASS_IDENTIFIER = TokenManagerListener.MAIN_ACTIVITY_IDENTIFIER;
-
-    public String getActivityClassIdentifier() {
-        return ACTIVITY_CLASS_IDENTIFIER;
-    }
-
+    // GUI
+    private TextView mInfoTextView;
     private final BroadcastReceiver mBluetoothStateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -60,6 +55,20 @@ public class MainActivity extends ManagedActivity {
             }
         }
     };
+    private ProgressBar mTWBAProgressBar;
+
+    private static String commonNameFromX500Name(X500Name name) {
+        String commonName = "";
+        RDN[] rdns = name.getRDNs(BCStyle.CN);
+        if (rdns == null || rdns.length == 0)
+            return commonName;
+        commonName = IETFUtils.valueToString(rdns[0].getFirst().getValue());
+        return commonName;
+    }
+
+    public String getActivityClassIdentifier() {
+        return ACTIVITY_CLASS_IDENTIFIER;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +82,12 @@ public class MainActivity extends ManagedActivity {
         IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
         this.registerReceiver(mBluetoothStateReceiver, filter);
         TokenManagerListener.getInstance().init(getApplicationContext());
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        PcscChecker.checkPcscInstallation(this);
     }
 
     @Override
@@ -127,15 +142,6 @@ public class MainActivity extends ManagedActivity {
             actionBar.setBackgroundDrawable(getDrawable(R.drawable.ab_bg));
             actionBar.setCustomView(v, params);
         }
-    }
-
-    private static String commonNameFromX500Name(X500Name name) {
-        String commonName = "";
-        RDN[] rdns = name.getRDNs(BCStyle.CN);
-        if (rdns == null || rdns.length == 0)
-            return commonName;
-        commonName = IETFUtils.valueToString(rdns[0].getFirst().getValue());
-        return commonName;
     }
 
     public void updateScreen() {

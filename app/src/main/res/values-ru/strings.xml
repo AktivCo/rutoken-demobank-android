@@ -19,4 +19,8 @@
     <string name="recipient">Получатель</string>
     <string name="price">Сумма</string>
     <string name="fromDate">от</string>
+    <string name="no_pcsc_message">Для работы приложения необходимо установить Панель управления Рутокен</string>
+    <string name="exit">Выход</string>
+    <string name="no_pcsc_title">Панель управления Рутокен не установлена</string>
+    <string name="install_control_panel">Установить</string>
 </resources>
