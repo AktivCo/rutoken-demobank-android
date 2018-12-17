@@ -17,7 +17,9 @@ Required libraries:
 
 ## How to build
 
-Copy librtpkcs11ecp.so library to app/src/main/jniLibs/ before building the project.
+Before building the project:
+* Copy librtpkcs11ecp.so library to app/src/main/jniLibs/armeabi-v7a/;
+* Copy pkcs11jna*.jar library to app/libs/.
 
 To build from console:
 * run:

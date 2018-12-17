@@ -4,12 +4,34 @@ android {
     compileSdkVersion 28
     defaultConfig {
         minSdkVersion 21
+        targetSdkVersion 28
+        versionName "1.0.5"
+        versionCode 5
         ndk {
             abiFilters "armeabi-v7a"
         }
     }
     lintOptions {
         abortOnError false
+    }
+    signingConfigs {
+        release {
+            storeFile project.hasProperty("keystorePath") ? file(project.property("keystorePath")) : null
+            storePassword project.findProperty("keystorePass")
+            keyAlias project.findProperty("keyAlias")
+            keyPassword project.findProperty("keyPass")
+        }
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt')
+            def hasSigningParameters = project.hasProperty("keystorePath") && project.property("keystorePath") != "" &&
+                    project.hasProperty("keyAlias") && project.property("keyAlias") != "" &&
+                    project.hasProperty("keystorePass") &&
+                    project.hasProperty("keyPass")
+            signingConfig hasSigningParameters ? signingConfigs.release : null
+        }
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -20,7 +42,7 @@ android {
 dependencies {
     implementation fileTree(dir: "libs", include: "*.jar")
     implementation 'com.madgag.spongycastle:pkix:1.52.0.0'
-    implementation 'androidx.appcompat:appcompat:1.0.0'
+    implementation 'androidx.appcompat:appcompat:1.0.2'
     implementation 'net.java.dev.jna:jna:4.5.1@aar'
     //TODO download pkcs11jna.jar dependency
     //TODO download librtpkcs11ecp.so dependency
@@ -35,7 +57,8 @@ def requireFileInDirectory(String directory, String file) {
 def copyFile(String file, String sourcePath, String destinationPath) {
     try {
         copy {
-            from sourcePath + '/' + file
+            include file
+            from sourcePath
             into destinationPath
         }
     } catch (ignored) {
@@ -44,8 +67,11 @@ def copyFile(String file, String sourcePath, String destinationPath) {
 }
 
 task copyNativeLibs() {
-    copyFile('librtpkcs11ecp.so', '../../../lib', 'src/main/jniLibs/armeabi-v7a')
+    doLast {
+        copyFile('librtpkcs11ecp.so', '../../../lib', 'src/main/jniLibs/armeabi-v7a')
 
-    requireFileInDirectory('src/main/jniLibs/armeabi-v7a', 'librtpkcs11ecp.so')
-    requireFileInDirectory('libs', 'pkcs11jna*.jar')
+        requireFileInDirectory('src/main/jniLibs/armeabi-v7a', 'librtpkcs11ecp.so')
+        requireFileInDirectory('libs', 'pkcs11jna*.jar')
+    }
 }
+preBuild.dependsOn copyNativeLibs
