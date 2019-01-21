@@ -204,7 +204,7 @@ public class Token {
         mLabel = Utils.removeTrailingSpaces(tokenInfo.label);
         mModel = Utils.removeTrailingSpaces(tokenInfo.model);
         mSerialNumber = Utils.removeTrailingSpaces(tokenInfo.serialNumber);
-        int decSerial = Integer.parseInt(mSerialNumber, 16);
+        long decSerial = Long.parseLong(mSerialNumber, 16);
         String decSerialString = String.valueOf(decSerial);
         mShortDecSerialNumber = String.valueOf(decSerial % 100000);
         mHardwareVersion = String.format("%d.%d.%d.%d",
