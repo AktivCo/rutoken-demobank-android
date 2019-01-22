@@ -38,7 +38,7 @@ public class TokenManager {
             try {
                 token = new Token(mSlotId);
             } catch (Pkcs11CallerException e) {
-                Log.e(getClass().getName(), e.getMessage());
+                e.printStackTrace();
                 event = EventType.TIF;
             }
 

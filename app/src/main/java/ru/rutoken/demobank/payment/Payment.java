@@ -3,7 +3,7 @@
  * All Rights Reserved.
  */
 
-package ru.rutoken.demobank;
+package ru.rutoken.demobank.payment;
 
 import android.content.Context;
 import android.util.AttributeSet;
@@ -13,6 +13,8 @@ import android.widget.TextView;
 
 import java.text.DateFormat;
 import java.util.Date;
+
+import ru.rutoken.demobank.R;
 
 public class Payment extends RelativeLayout {
     private TextView mNumTextView;

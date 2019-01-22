@@ -23,7 +23,7 @@ public class Pkcs11Exception extends Pkcs11CallerException {
         else if (code.longValue() == Pkcs11Constants.CKR_PIN_LEN_RANGE) return "Wrong PIN length";
         else if (code.longValue() == Pkcs11Constants.CKR_PIN_LOCKED) return "PIN locked";
         else if (code.longValue() == Pkcs11Constants.CKR_USER_PIN_NOT_INITIALIZED) return "PIN not initialized";
-        else return String.format("Unknown PKCS11 error %08x", code.intValue());
+        else return String.format("PKCS11 error, code: 0x%08x", code.longValue());
     }
 
     public NativeLong getErrorCode() {

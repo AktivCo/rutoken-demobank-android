@@ -3,7 +3,7 @@
  * All Rights Reserved.
  */
 
-package ru.rutoken.demobank;
+package ru.rutoken.demobank.payment;
 
 import android.content.Context;
 import android.content.Intent;
@@ -36,6 +36,9 @@ import java.util.Objects;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
+import ru.rutoken.demobank.Pkcs11CallerActivity;
+import ru.rutoken.demobank.R;
+import ru.rutoken.demobank.TokenManagerListener;
 import ru.rutoken.pkcs11caller.Token;
 import ru.rutoken.pkcs11caller.TokenManager;
 import ru.rutoken.pkcs11caller.exception.Pkcs11Exception;
@@ -151,9 +154,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
     private String[][] mPaymentValuesArray = null;
     //
 
-    private static final byte[] mSignData = new byte[]{
-            0, 0, 0
-    };
+    private static final byte[] mSignData = new byte[] {0, 0, 0};
 
     // Activity input
     protected NativeLong mSlotId = TokenManagerListener.NO_SLOT;
@@ -165,6 +166,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
     private int mChecksCount = 0;
     //
 
+    @Override
     public String getActivityClassIdentifier() {
         return getClass().getName();
     }

@@ -28,7 +28,7 @@
                 android:value="ru.rutoken.demobank.MainActivity" />
         </activity>
         <activity
-            android:name=".PaymentsActivity"
+            android:name=".payment.PaymentsActivity"
             android:parentActivityName=".LoginActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

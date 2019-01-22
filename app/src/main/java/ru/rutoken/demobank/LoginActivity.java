@@ -24,9 +24,11 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.sun.jna.NativeLong;
 
+import ru.rutoken.demobank.payment.PaymentsActivity;
 import ru.rutoken.pkcs11caller.Token;
 import ru.rutoken.pkcs11caller.TokenManager;
 import ru.rutoken.pkcs11caller.exception.Pkcs11Exception;
@@ -46,6 +48,7 @@ public class LoginActivity extends Pkcs11CallerActivity {
     private static final byte mSignData[] = new byte[] {0, 0, 0};
     private Dialog mOverlayDialog;
 
+    @Override
     public String getActivityClassIdentifier() {
         return getClass().getName();
     }
@@ -77,6 +80,7 @@ public class LoginActivity extends Pkcs11CallerActivity {
 
     @Override
     protected void manageSignError(Pkcs11Exception exception) {
+        Toast.makeText(this, exception.getLocalizedMessage(), Toast.LENGTH_LONG).show();
         logout(mToken);
     }
 

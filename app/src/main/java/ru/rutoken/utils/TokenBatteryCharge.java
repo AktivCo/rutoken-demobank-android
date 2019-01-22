@@ -12,7 +12,7 @@ public class TokenBatteryCharge {
     private static final int VOLTAGE_STEP = 7;
 
     public static int getBatteryPercentage(int batteryVoltage) {
-        return bound(0, (batteryVoltage - MIN_VOLTAGE) % VOLTAGE_STEP, 100);
+        return bound(0, (batteryVoltage - MIN_VOLTAGE) / VOLTAGE_STEP, 100);
     }
 
     public static int getBatteryImageForVoltage(int batteryVoltage) {

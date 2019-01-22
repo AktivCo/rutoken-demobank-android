@@ -66,6 +66,7 @@ public class MainActivity extends ManagedActivity {
         return commonName;
     }
 
+    @Override
     public String getActivityClassIdentifier() {
         return ACTIVITY_CLASS_IDENTIFIER;
     }

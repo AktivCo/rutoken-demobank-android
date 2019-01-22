@@ -6,7 +6,7 @@
 package ru.rutoken.demobank;
 
 abstract public class ManagedActivity extends ExternallyDismissableActivity {
-    abstract String getActivityClassIdentifier();
+    public abstract String getActivityClassIdentifier();
 
     @Override
     protected void onResume() {

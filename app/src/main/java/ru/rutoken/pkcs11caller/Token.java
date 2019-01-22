@@ -5,19 +5,17 @@
 
 package ru.rutoken.pkcs11caller;
 
-import com.sun.jna.Native;
 import com.sun.jna.NativeLong;
 import com.sun.jna.ptr.NativeLongByReference;
 
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import ru.rutoken.pkcs11caller.signature.Signature;
 import ru.rutoken.pkcs11jna.CK_ATTRIBUTE;
-import ru.rutoken.pkcs11jna.CK_MECHANISM;
 import ru.rutoken.pkcs11jna.CK_TOKEN_INFO;
 import ru.rutoken.pkcs11jna.CK_TOKEN_INFO_EXTENDED;
 import ru.rutoken.pkcs11jna.Pkcs11Constants;
@@ -269,8 +267,7 @@ public class Token {
         }.execute();
     }
 
-    public void sign(final NativeLong certificate, final byte[] data,
-            Pkcs11Callback callback) {
+    public void sign(final NativeLong certificate, final byte[] data, Pkcs11Callback callback) {
         new Pkcs11AsyncTask(callback) {
             @Override
             protected Pkcs11Result doWork() throws Pkcs11CallerException {
@@ -280,29 +277,10 @@ public class Token {
                 NativeLong keyHandle = cert.getPrivateKeyHandle(mPkcs11, mSession);
                 if (keyHandle == null) throw new KeyNotFoundException();
 
-                NativeLongByReference count =
-                        new NativeLongByReference(new NativeLong());
+                final Signature signature = Signature.getInstance(cert.getKeyType(), mSession.longValue());
+                signature.signInit(keyHandle.longValue());
 
-                final byte[] oid = {
-                        0x06, 0x07, 0x2a, (byte) 0x85, 0x03, 0x02, 0x02, 0x1e, 0x01
-                };
-                ByteBuffer oidBuffer = ByteBuffer.allocateDirect(oid.length);
-                oidBuffer.put(oid);
-                CK_MECHANISM mechanism =
-                        new CK_MECHANISM(new NativeLong(RtPkcs11Constants.CKM_GOSTR3410_WITH_GOSTR3411),
-                                Native.getDirectBufferPointer(oidBuffer),
-                                new NativeLong(oid.length));
-                NativeLong rv = mPkcs11.C_SignInit(mSession, mechanism, keyHandle);
-                Pkcs11Exception.throwIfNotOk(rv);
-
-                rv = mPkcs11.C_Sign(mSession, data, new NativeLong(data.length), null, count);
-                Pkcs11Exception.throwIfNotOk(rv);
-
-                byte signature[] = new byte[count.getValue().intValue()];
-                rv = mPkcs11.C_Sign(mSession, data, new NativeLong(data.length), signature, count);
-                Pkcs11Exception.throwIfNotOk(rv);
-
-                return new Pkcs11Result(signature);
+                return new Pkcs11Result(signature.sign(data));
             }
         }.execute();
     }
