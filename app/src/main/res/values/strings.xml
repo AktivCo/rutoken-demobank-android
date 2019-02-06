@@ -5,6 +5,7 @@
     <string name="no_token">Connect the token please</string>
     <string name="wait_token" formatted="false">Please connect\n%s </string>
     <string name="no_certificate">Certificate is missing</string>
+    <string name="more_than_one_certificate">The application cannot work with a token with more than one certificate</string>
     <string name="pin_hint">Input PIN</string>
     <string name="ok">OK</string>
     <string name="pin_alert">PIN incorrect, try again</string>

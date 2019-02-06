@@ -168,14 +168,18 @@ public class MainActivity extends ManagedActivity {
             certificateData += token.getShortDecSerialNumber();
             certificateData += "\n";
         }
-        if (token != null && !TokenManagerListener.getInstance().getCertificate().equals(TokenManagerListener.NO_CERTIFICATE)) {
-            certificateData += commonNameFromX500Name(token.getCertificate(TokenManagerListener.getInstance().getCertificate()).getSubject());
-            mInfoTextView.setText(certificateData);
-            mInfoTextView.setEnabled(true);
-        } else if (token != null) {
+        if (token != null && TokenManagerListener.getInstance().getCertificate().equals(TokenManagerListener.NO_CERTIFICATE)) {
             certificateData += getString(R.string.no_certificate);
             mInfoTextView.setText(certificateData);
             mInfoTextView.setEnabled(false);
+        } else if (token != null && TokenManagerListener.getInstance().getCertificate().equals(TokenManagerListener.MORE_THAN_ONE_CERTIFICATE)) {
+            certificateData += getString(R.string.more_than_one_certificate);
+            mInfoTextView.setText(certificateData);
+            mInfoTextView.setEnabled(false);
+        } else if (token != null) {
+            certificateData += commonNameFromX500Name(token.getCertificate(TokenManagerListener.getInstance().getCertificate()).getSubject());
+            mInfoTextView.setText(certificateData);
+            mInfoTextView.setEnabled(true);
         } else if (TokenManagerListener.getInstance().shallWaitForToken()) {
             certificateData = String.format(getString(R.string.wait_token),
                     TokenModelRecognizer.getInstance(this).marketingNameForPkcs11Name(TokenManagerListener.getInstance().getWaitToken().getModel())
