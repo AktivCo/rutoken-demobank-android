@@ -35,6 +35,11 @@ import ru.rutoken.pkcs11caller.exception.Pkcs11Exception;
 import ru.rutoken.utils.Pkcs11ErrorTranslator;
 
 public class LoginActivity extends Pkcs11CallerActivity {
+    /**
+     * Data that we have received from the server to do a challenge-response authentication
+     */
+    private static final String SIGN_DATA = "sign me";
+
     // GUI
     private Button mLoginButton;
     private EditText mPinEditText;
@@ -45,7 +50,6 @@ public class LoginActivity extends Pkcs11CallerActivity {
     protected NativeLong mCertificate = TokenManagerListener.NO_CERTIFICATE;
     protected Token mToken = null;
 
-    private static final byte mSignData[] = new byte[] {0, 0, 0};
     private Dialog mOverlayDialog;
 
     @Override
@@ -75,7 +79,8 @@ public class LoginActivity extends Pkcs11CallerActivity {
 
     @Override
     protected void manageLoginSucceed() {
-        sign(mToken, mCertificate, mSignData);
+        // sign is used for a challenge-response authentication
+        sign(mToken, mCertificate, SIGN_DATA.getBytes());
     }
 
     @Override

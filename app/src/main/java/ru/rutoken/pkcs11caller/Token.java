@@ -14,18 +14,18 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import ru.rutoken.pkcs11caller.signature.Signature;
+import ru.rutoken.bcprovider.Pkcs7Signer;
+import ru.rutoken.pkcs11caller.Certificate.CertificateCategory;
+import ru.rutoken.pkcs11caller.exception.CertNotFoundException;
+import ru.rutoken.pkcs11caller.exception.KeyNotFoundException;
+import ru.rutoken.pkcs11caller.exception.Pkcs11CallerException;
+import ru.rutoken.pkcs11caller.exception.Pkcs11Exception;
 import ru.rutoken.pkcs11jna.CK_ATTRIBUTE;
 import ru.rutoken.pkcs11jna.CK_TOKEN_INFO;
 import ru.rutoken.pkcs11jna.CK_TOKEN_INFO_EXTENDED;
 import ru.rutoken.pkcs11jna.Pkcs11Constants;
 import ru.rutoken.pkcs11jna.RtPkcs11;
 import ru.rutoken.pkcs11jna.RtPkcs11Constants;
-import ru.rutoken.pkcs11caller.Certificate.CertificateCategory;
-import ru.rutoken.pkcs11caller.exception.CertNotFoundException;
-import ru.rutoken.pkcs11caller.exception.KeyNotFoundException;
-import ru.rutoken.pkcs11caller.exception.Pkcs11CallerException;
-import ru.rutoken.pkcs11caller.exception.Pkcs11Exception;
 
 public class Token {
     public enum UserChangePolicy {
@@ -277,10 +277,9 @@ public class Token {
                 NativeLong keyHandle = cert.getPrivateKeyHandle(mPkcs11, mSession);
                 if (keyHandle == null) throw new KeyNotFoundException();
 
-                final Signature signature = Signature.getInstance(cert.getKeyType(), mSession.longValue());
-                signature.signInit(keyHandle.longValue());
+                final Pkcs7Signer signer = new Pkcs7Signer(cert.getKeyType(), mSession.longValue());
 
-                return new Pkcs11Result(signature.sign(data));
+                return new Pkcs11Result(signer.sign(data, keyHandle.longValue(), cert.getCertificateHolder()));
             }
         }.execute();
     }

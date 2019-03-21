@@ -1,5 +1,6 @@
 package ru.rutoken.pkcs11caller.signature;
 
+import ru.rutoken.pkcs11caller.digest.Digest;
 import ru.rutoken.pkcs11caller.exception.Pkcs11Exception;
 import ru.rutoken.pkcs11jna.Pkcs11;
 import ru.rutoken.pkcs11jna.RtPkcs11Constants;
@@ -11,7 +12,17 @@ class GostR3410_2012_512Signature extends AbstractSignature {
     }
 
     @Override
-    public byte[] sign(byte[] data) throws Pkcs11Exception {
-        return innerSign(makeMechanism(RtPkcs11Constants.CKM_GOSTR3410_WITH_GOSTR3411_12_512), data);
+    public byte[] sign(final byte[] data) throws Pkcs11Exception {
+        return innerSign(makeMechanism(RtPkcs11Constants.CKM_GOSTR3410_512), data);
+    }
+
+    @Override
+    public Type getType() {
+        return Type.GOSTR3410_2012_512;
+    }
+
+    @Override
+    public Digest.Type getDigestType() {
+        return Digest.Type.GOSTR3411_2012_512;
     }
 }

@@ -29,17 +29,17 @@ abstract class AbstractSignature implements Signature {
         return new CK_MECHANISM(new NativeLong(type), Pointer.NULL, new NativeLong(0));
     }
 
-    byte[] innerSign(CK_MECHANISM mechanism, byte[] data) throws Pkcs11Exception {
-        NativeLong r = mPkcs11.C_SignInit(new NativeLong(mSessionHandle), mechanism, new NativeLong(mPrivateKeyHandle));
-        Pkcs11Exception.throwIfNotOk(r);
+    byte[] innerSign(final CK_MECHANISM mechanism, final byte[] data) throws Pkcs11Exception {
+        NativeLong rv = mPkcs11.C_SignInit(new NativeLong(mSessionHandle), mechanism, new NativeLong(mPrivateKeyHandle));
+        Pkcs11Exception.throwIfNotOk(rv);
 
         final NativeLongByReference count = new NativeLongByReference();
-        r = mPkcs11.C_Sign(new NativeLong(mSessionHandle), data, new NativeLong(data.length), null, count);
-        Pkcs11Exception.throwIfNotOk(r);
+        rv = mPkcs11.C_Sign(new NativeLong(mSessionHandle), data, new NativeLong(data.length), null, count);
+        Pkcs11Exception.throwIfNotOk(rv);
 
-        final byte signature[] = new byte[count.getValue().intValue()];
-        r = mPkcs11.C_Sign(new NativeLong(mSessionHandle), data, new NativeLong(data.length), signature, count);
-        Pkcs11Exception.throwIfNotOk(r);
+        final byte[] signature = new byte[count.getValue().intValue()];
+        rv = mPkcs11.C_Sign(new NativeLong(mSessionHandle), data, new NativeLong(data.length), signature, count);
+        Pkcs11Exception.throwIfNotOk(rv);
 
         return signature;
     }

@@ -154,7 +154,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
     private String[][] mPaymentValuesArray = null;
     //
 
-    private static final byte[] mSignData = new byte[] {0, 0, 0};
+    private String mSignData;
 
     // Activity input
     protected NativeLong mSlotId = TokenManagerListener.NO_SLOT;
@@ -238,6 +238,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
         popupButton.setOnClickListener(view -> {
             boolean bNeedAskPIN = false;
             int paymentsCount = 0;
+            StringBuilder builder = new StringBuilder();
             for (int i = 0; i < mPaymentsLayout.getChildCount(); ++i) {
                 View childView = mPaymentsLayout.getChildAt(i);
                 if (Payment.class.isInstance(childView)) {
@@ -245,10 +246,12 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
                     CheckBox checkBox = payment.findViewById(R.id.checkBox);
                     if (checkBox.isChecked()) {
                         bNeedAskPIN = bNeedAskPIN || payment.needAskPIN();
+                        builder.append(getSignData(payment));
                         ++paymentsCount;
                     }
                 }
             }
+            mSignData = builder.toString();
             showBatchPaymentInfo(paymentsCount, bNeedAskPIN);
         });
 
@@ -301,7 +304,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
     @Override
     protected void manageLoginSucceed() {
         mLoginDialog.setLogonFinished();
-        sign(mToken, mCertificate, mSignData);
+        sign(mToken, mCertificate, Objects.requireNonNull(mSignData).getBytes());
     }
 
     @Override
@@ -393,7 +396,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
 
     protected void signAction() {
         mProgressDialog.show();
-        sign(mToken, mCertificate, mSignData);
+        sign(mToken, mCertificate, Objects.requireNonNull(mSignData).getBytes());
     }
 
     protected String createFullPaymentHtml(int num) {
@@ -423,6 +426,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
     private void showOnePaymentInfo(Payment payment) {
         if (null == payment) return;
         int number = payment.getNum();
+        mSignData = getSignData(payment);
 
         mInfoDialog.show(Html.fromHtml(createFullPaymentHtml(number)), payment.needAskPIN());
     }
@@ -442,5 +446,15 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
         View successView = getLayoutInflater().inflate(R.layout.result_dialog_layout, null);
         successView.setOnClickListener(view -> mSucceedDialog.dismiss());
         mSucceedDialog.setView(successView);
+    }
+
+    private String getSignData(Payment payment) {
+        StringBuilder result = new StringBuilder();
+        result.append(payment.getAmount())
+              .append(payment.getReceiver())
+              .append(payment.getDate());
+        for (String s : mPaymentValuesArray[payment.getNum()])
+            result.append(s);
+        return result.toString();
     }
 }

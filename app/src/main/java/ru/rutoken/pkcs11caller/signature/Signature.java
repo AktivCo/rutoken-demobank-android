@@ -3,6 +3,7 @@ package ru.rutoken.pkcs11caller.signature;
 import java.security.InvalidParameterException;
 
 import ru.rutoken.pkcs11caller.RtPkcs11Library;
+import ru.rutoken.pkcs11caller.digest.Digest;
 import ru.rutoken.pkcs11caller.exception.Pkcs11Exception;
 
 public interface Signature {
@@ -27,5 +28,9 @@ public interface Signature {
 
     void signInit(long privateKeyHandle) throws Pkcs11Exception;
 
-    byte[] sign(byte[] data) throws Pkcs11Exception;
+    byte[] sign(final byte[] data) throws Pkcs11Exception;
+
+    Type getType();
+
+    Digest.Type getDigestType();
 }

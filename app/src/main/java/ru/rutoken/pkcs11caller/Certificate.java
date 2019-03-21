@@ -19,22 +19,21 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
-import ru.rutoken.pkcs11caller.signature.Signature;
+import ru.rutoken.pkcs11caller.exception.CertParsingException;
+import ru.rutoken.pkcs11caller.exception.KeyNotFoundException;
 import ru.rutoken.pkcs11caller.exception.KeyTypeNotSupported;
+import ru.rutoken.pkcs11caller.exception.Pkcs11CallerException;
+import ru.rutoken.pkcs11caller.exception.Pkcs11Exception;
+import ru.rutoken.pkcs11caller.signature.Signature;
 import ru.rutoken.pkcs11jna.CK_ATTRIBUTE;
 import ru.rutoken.pkcs11jna.Pkcs11Constants;
 import ru.rutoken.pkcs11jna.RtPkcs11;
-import ru.rutoken.pkcs11caller.exception.CertNotFoundException;
-import ru.rutoken.pkcs11caller.exception.CertParsingException;
-import ru.rutoken.pkcs11caller.exception.KeyNotFoundException;
-import ru.rutoken.pkcs11caller.exception.Pkcs11CallerException;
-import ru.rutoken.pkcs11caller.exception.Pkcs11Exception;
 
 import static ru.rutoken.pkcs11jna.RtPkcs11Constants.CKA_GOSTR3411_PARAMS;
 
 public class Certificate {
     private final Signature.Type mKeyType;
-    private X500Name mSubject;
+    private final X509CertificateHolder mCertificateHolder;
     private byte[] mKeyPairId;
 
     public Certificate(RtPkcs11 pkcs11, NativeLong session, NativeLong object)
@@ -56,16 +55,11 @@ public class Certificate {
                 attributes, new NativeLong(attributes.length));
         Pkcs11Exception.throwIfNotOk(rv);
 
-        byte[] subjectValue =
-                attributes[0].pValue.getByteArray(0, attributes[0].ulValueLen.intValue());
-        mSubject = X500Name.getInstance(subjectValue);
-        if (mSubject == null) throw new CertNotFoundException();
-
         byte[] keyValue;
         try {
-            X509CertificateHolder certificateHolder = new X509CertificateHolder(
+            mCertificateHolder = new X509CertificateHolder(
                     attributes[1].pValue.getByteArray(0, attributes[1].ulValueLen.intValue()));
-            SubjectPublicKeyInfo publicKeyInfo = certificateHolder.getSubjectPublicKeyInfo();
+            SubjectPublicKeyInfo publicKeyInfo = mCertificateHolder.getSubjectPublicKeyInfo();
             keyValue = publicKeyInfo.parsePublicKey().getEncoded();
         } catch (IOException exception) {
             throw new CertParsingException();
@@ -116,7 +110,11 @@ public class Certificate {
     }
 
     public X500Name getSubject() {
-        return mSubject;
+        return mCertificateHolder.getSubject();
+    }
+
+    X509CertificateHolder getCertificateHolder() {
+        return mCertificateHolder;
     }
 
     Signature.Type getKeyType() {
@@ -161,9 +159,9 @@ public class Certificate {
 
         byte[] parametersGostR3411 = pubKeyMechTemplate[0].pValue.getByteArray(0, pubKeyMechTemplate[0].ulValueLen.intValue() );
 
-        if (Arrays.equals(parametersGostR3411, Digest.OID_3411_1994)) return Signature.Type.GOSTR3410_2001;
-        else if (Arrays.equals(parametersGostR3411, Digest.OID_3411_2012_256)) return Signature.Type.GOSTR3410_2012_256;
-        else if (Arrays.equals(parametersGostR3411, Digest.OID_3411_2012_512)) return Signature.Type.GOSTR3410_2012_512;
+        if (Arrays.equals(parametersGostR3411, GostOids.OID_3411_1994)) return Signature.Type.GOSTR3410_2001;
+        else if (Arrays.equals(parametersGostR3411, GostOids.OID_3411_2012_256)) return Signature.Type.GOSTR3410_2012_256;
+        else if (Arrays.equals(parametersGostR3411, GostOids.OID_3411_2012_512)) return Signature.Type.GOSTR3410_2012_512;
         else throw new KeyTypeNotSupported();
     }
 
