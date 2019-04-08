@@ -14,13 +14,15 @@ External dependencies are located in [Rutoken SDK](https://www.rutoken.ru/develo
 
 Required libraries:
 * librtpkcs11ecp.so;
+* librtpcsc.so;
+* rtserviceconnection\*.aar, where \* is library version (current version is '-1.0.0');
 * pkcs11jna\*.jar, where \* is library version (current version is '-1.0.0').
 
 ## How to build
 
 Before building the project:
-* copy librtpkcs11ecp.so library to `<project_root>/app/src/main/jniLibs/armeabi-v7a/`;
-* copy pkcs11jna\*.jar library to `<project_root>/app/libs/`.
+* copy librtpkcs11ecp.so and librtpcsc.so libraries to `<project_root>/app/src/main/jniLibs/armeabi-v7a/`;
+* copy pkcs11jna\*.jar and rtserviceconnection\*.aar to `<project_root>/app/libs/`.
 
 To build from console:
 

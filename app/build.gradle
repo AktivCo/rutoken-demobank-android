@@ -40,7 +40,7 @@ android {
 }
 
 dependencies {
-    implementation fileTree(dir: "libs", include: "*.jar")
+    implementation fileTree(dir: "libs", include: ["*.jar", "*.aar"])
     implementation 'com.madgag.spongycastle:pkix:1.52.0.0'
     implementation 'androidx.appcompat:appcompat:1.0.2'
     implementation 'net.java.dev.jna:jna:4.5.1@aar'
@@ -66,12 +66,14 @@ def copyFile(String file, String sourcePath, String destinationPath) {
     }
 }
 
-task copyNativeLibs() {
+task copyDeps() {
     doLast {
         copyFile('librtpkcs11ecp.so', '../../../lib', 'src/main/jniLibs/armeabi-v7a')
 
         requireFileInDirectory('src/main/jniLibs/armeabi-v7a', 'librtpkcs11ecp.so')
+        requireFileInDirectory('src/main/jniLibs/armeabi-v7a', 'librtpcsc.so')
         requireFileInDirectory('libs', 'pkcs11jna*.jar')
+        requireFileInDirectory('libs', 'rtserviceconnection*.aar')
     }
 }
-preBuild.dependsOn copyNativeLibs
+preBuild.dependsOn copyDeps

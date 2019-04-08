@@ -14,13 +14,15 @@
 
 Необходимые библиотеки:
 * librtpkcs11ecp.so;
+* librtpcsc.so;
+* rtserviceconnection\*.aar, где \* — версия библиотеки (текущая версия '-1.0.0');
 * pkcs11jna\*.jar, где \* — версия библиотеки (текущая версия '-1.0.0').
 
 ## Как собрать
 
 Прежде чем собирать проект:
-* положите библиотеку librtpkcs11ecp.so в папку `<project_root>/app/src/main/jniLibs/armeabi-v7a/`;
-* положите библиотеку pkcs11jna\*.jar в папку `<project_root>/app/libs/`.
+* положите библиотеки librtpkcs11ecp.so и librtpcsc.so в папку `<project_root>/app/src/main/jniLibs/armeabi-v7a/`;
+* положите pkcs11jna\*.jar и rtserviceconnection\*.aar в папку `<project_root>/app/libs/`.
 
 Для сборки из консоли:
 
