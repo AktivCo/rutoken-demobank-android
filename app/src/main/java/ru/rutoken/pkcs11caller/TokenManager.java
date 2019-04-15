@@ -38,6 +38,7 @@ public class TokenManager {
             try {
                 token = new Token(mSlotId);
             } catch (Pkcs11CallerException e) {
+                mTokenError = e;
                 e.printStackTrace();
                 event = EventType.TIF;
             }
@@ -65,6 +66,7 @@ public class TokenManager {
     private static volatile TokenManager instance = null;
     private EventHandler mEventHandler;
     private Context mContext;
+    private Pkcs11CallerException mTokenError;
     private final Map<NativeLong, Token> mTokens = Collections.synchronizedMap(new HashMap<>());
     private final Map<NativeLong, AcceptableState> stateMachines = Collections.synchronizedMap(new HashMap<>());
     private final Map<NativeLong, TokenInfoLoader> tilThreads = Collections.synchronizedMap(new HashMap<>());
@@ -76,6 +78,9 @@ public class TokenManager {
     public static final String TOKEN_WAS_ADDED = EventHandler.class.getName() + ".TOKEN_WAS_ADDED";
     public static final String TOKEN_WAS_REMOVED = EventHandler.class.getName() + ".TOKEN_WAS_REMOVED";
     public static final String INTERNAL_ERROR = EventHandler.class.getName() + ".INTERNAL_ERROR";
+
+    public static final String EXTRA_SLOT_ID = TokenManager.class.getName() + ".SLOT_ID";
+    public static final String EXTRA_TOKEN_ERROR = TokenManager.class.getName() + ".TOKEN_ERROR";
 
     private TokenManager() {
         Map<AcceptableState, Method> tmp = new HashMap<>();
@@ -309,7 +314,11 @@ public class TokenManager {
     }
 
     private void sendTAF(NativeLong slotId) {
-        sendIntentWithSlotId(TOKEN_ADDING_FAILED, slotId);
+        String intentType = TOKEN_ADDING_FAILED;
+        Intent intent = new Intent(intentType);
+        intent.putExtra(EXTRA_SLOT_ID, slotId);
+        intent.putExtra(EXTRA_TOKEN_ERROR, mTokenError.getMessage());
+        LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
     }
 
     private void sendTA(NativeLong slotId) {
@@ -322,7 +331,7 @@ public class TokenManager {
 
     private void sendIntentWithSlotId(String intentType, NativeLong slotId) {
         Intent intent = new Intent(intentType);
-        intent.putExtra("slotId", slotId);
+        intent.putExtra(EXTRA_SLOT_ID, slotId);
         LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
     }
 

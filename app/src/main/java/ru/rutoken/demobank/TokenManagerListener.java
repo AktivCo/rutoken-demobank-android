@@ -9,6 +9,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.widget.Toast;
+
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.sun.jna.NativeLong;
@@ -19,8 +21,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+import ru.rutoken.pkcs11caller.RtPkcs11Library;
 import ru.rutoken.pkcs11caller.Token;
 import ru.rutoken.pkcs11caller.TokenManager;
+import ru.rutoken.pkcs11caller.exception.Pkcs11CallerException;
+import ru.rutoken.pkcs11jna.RtPkcs11;
 
 public class TokenManagerListener {
     private static volatile TokenManagerListener mInstance = null;
@@ -62,12 +67,12 @@ public class TokenManagerListener {
     public static final NativeLong NO_CERTIFICATE = new NativeLong(0);
     public static final NativeLong MORE_THAN_ONE_CERTIFICATE = new NativeLong(-2);
 
-    protected NativeLong mSlotId = NO_SLOT;
-    protected Token mToken = null;
-    protected NativeLong mCertificate = NO_CERTIFICATE;
+    private NativeLong mSlotId = NO_SLOT;
+    private Token mToken = null;
+    private NativeLong mCertificate = NO_CERTIFICATE;
 
-    protected Token mWaitToken = null;
-    protected NativeLong mWaitCertificate = NO_CERTIFICATE;
+    private Token mWaitToken = null;
+    private NativeLong mWaitCertificate = NO_CERTIFICATE;
 
     public static synchronized TokenManagerListener getInstance() {
         TokenManagerListener localInstance = mInstance;
@@ -119,23 +124,43 @@ public class TokenManagerListener {
 
     protected void onTokenAddingFailed(Intent intent) {
         --mTwbaCounter;
-        if (mMainActivity != null) mMainActivity.updateScreen();
-
+        if (mMainActivity != null) {
+            mMainActivity.updateScreen();
+            notifyAboutTokenError(intent.getStringExtra(TokenManager.EXTRA_TOKEN_ERROR));
+        }
     }
 
     protected void onTokenAdded(Intent intent) {
         --mTwbaCounter;
         if (mMainActivity != null) mMainActivity.updateScreen();
 
-        NativeLong slotId = (NativeLong) intent.getSerializableExtra("slotId");
+        NativeLong slotId = (NativeLong) intent.getSerializableExtra(TokenManager.EXTRA_SLOT_ID);
         if (slotId == null) return;
 
         Token token = TokenManager.getInstance().tokenForSlot(slotId);
-        processConnectedToken(slotId, token);
+        RtPkcs11 rtPkcs11 = RtPkcs11Library.getInstance();
+
+        try {
+            token.openSession(rtPkcs11);
+            token.initCertificatesList(rtPkcs11);
+
+            processConnectedToken(slotId, token);
+            if (mMainActivity != null) mMainActivity.updateScreen();
+        } catch (Pkcs11CallerException e) {
+            e.printStackTrace();
+            token.closeSession(rtPkcs11);
+
+            if (mMainActivity != null) {
+                if (mToken == null && token.smInitializedStatus() == Token.SmInitializedStatus.NEED_INITIALIZE)
+                    mMainActivity.updateScreen(token);
+                else
+                    notifyAboutTokenError(e.getMessage());
+            }
+        }
     }
 
     protected void onTokenRemoved(Intent intent) {
-        NativeLong slotId = (NativeLong) intent.getSerializableExtra("slotId");
+        NativeLong slotId = (NativeLong) intent.getSerializableExtra(TokenManager.EXTRA_SLOT_ID);
         onTokenRemoved(slotId);
     }
 
@@ -290,4 +315,8 @@ public class TokenManagerListener {
         mPaymentsCreated = false;
     }
 
+    private void notifyAboutTokenError(String errorMsg) {
+        errorMsg = mMainActivity.getString(R.string.failed_to_add_token) + " : " + errorMsg;
+        Toast.makeText(mMainActivity, errorMsg, Toast.LENGTH_SHORT).show();
+    }
 }

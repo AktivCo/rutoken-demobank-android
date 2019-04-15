@@ -24,4 +24,6 @@
     <string name="no_pcsc_title">Rutoken Panel not found</string>
     <string name="exit">Exit</string>
     <string name="install_control_panel">Install</string>
+    <string name="need_sm_activate">Secure messaging activation is required</string>
+    <string name="failed_to_add_token">Failed to add token</string>
 </resources>

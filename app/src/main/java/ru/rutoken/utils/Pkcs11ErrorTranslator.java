@@ -8,8 +8,6 @@ package ru.rutoken.utils;
 import android.content.Context;
 import android.content.res.Resources;
 
-import com.sun.jna.NativeLong;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,7 +16,7 @@ import ru.rutoken.demobank.R;
 public class Pkcs11ErrorTranslator {
     private static volatile Pkcs11ErrorTranslator mInstance = null;
     private final Context mContext;
-    private final Map<NativeLong, String> mErrorMessages = new HashMap<>();
+    private final Map<Long, String> mErrorMessages = new HashMap<>();
     private String mGenericMessage;
 
     public static synchronized Pkcs11ErrorTranslator getInstance(Context context) {
@@ -44,20 +42,15 @@ public class Pkcs11ErrorTranslator {
         String messages[] = res.getStringArray(R.array.rvMessages);
         Assert.assertTrue("incompatible length", intRV.length == messages.length);
         for (int i = 0; i < intRV.length; ++i) {
-            mErrorMessages.put(new NativeLong(intRV[i]), messages[i]);
+            mErrorMessages.put((long) intRV[i], messages[i]);
         }
         mGenericMessage = res.getString(R.string.generic_error);
     }
 
-    public String messageForRV(NativeLong rv) {
+    public String messageForRV(long rv) {
         String message = mErrorMessages.get(rv);
-        if (message == null) {
-            if (rv != null) {
-                message = String.format(mGenericMessage, rv.longValue());
-            } else {
-                message = "Unknown PKCS#11 error";
-            }
-        }
+        if (message == null)
+            message = String.format(mGenericMessage, rv);
         return message;
     }
 }

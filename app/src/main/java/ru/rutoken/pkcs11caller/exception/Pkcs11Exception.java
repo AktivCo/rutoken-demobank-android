@@ -10,23 +10,28 @@ import com.sun.jna.NativeLong;
 import ru.rutoken.pkcs11jna.Pkcs11Constants;
 
 public class Pkcs11Exception extends Pkcs11CallerException {
-    private final NativeLong mCode;
+    private final long mCode;
 
-    private Pkcs11Exception(NativeLong code) {
+    public Pkcs11Exception(long code) {
         super(getLocalizedDescription(code));
         mCode = code;
     }
 
-    private static String getLocalizedDescription(NativeLong code) {
-        if (code.longValue() == Pkcs11Constants.CKR_PIN_INCORRECT) return "PIN incorrect";
-        else if (code.longValue() == Pkcs11Constants.CKR_PIN_INVALID) return "PIN invalid";
-        else if (code.longValue() == Pkcs11Constants.CKR_PIN_LEN_RANGE) return "Wrong PIN length";
-        else if (code.longValue() == Pkcs11Constants.CKR_PIN_LOCKED) return "PIN locked";
-        else if (code.longValue() == Pkcs11Constants.CKR_USER_PIN_NOT_INITIALIZED) return "PIN not initialized";
-        else return String.format("PKCS11 error, code: 0x%08x", code.longValue());
+    public Pkcs11Exception(NativeLong code) {
+        super(getLocalizedDescription(code.longValue()));
+        mCode = code.longValue();
     }
 
-    public NativeLong getErrorCode() {
+    private static String getLocalizedDescription(long code) {
+        if (code == Pkcs11Constants.CKR_PIN_INCORRECT) return "PIN incorrect";
+        else if (code == Pkcs11Constants.CKR_PIN_INVALID) return "PIN invalid";
+        else if (code == Pkcs11Constants.CKR_PIN_LEN_RANGE) return "Wrong PIN length";
+        else if (code == Pkcs11Constants.CKR_PIN_LOCKED) return "PIN locked";
+        else if (code == Pkcs11Constants.CKR_USER_PIN_NOT_INITIALIZED) return "PIN not initialized";
+        else return String.format("PKCS11 error, code: 0x%08x", code);
+    }
+
+    public long getErrorCode() {
         return mCode;
     }
 

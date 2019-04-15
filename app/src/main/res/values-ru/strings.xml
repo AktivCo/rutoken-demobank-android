@@ -24,4 +24,6 @@
     <string name="exit">Выход</string>
     <string name="no_pcsc_title">Панель управления Рутокен не установлена</string>
     <string name="install_control_panel">Установить</string>
+    <string name="need_sm_activate">Необходима активация шифрования канала</string>
+    <string name="failed_to_add_token">Не удалось подключить токен</string>
 </resources>

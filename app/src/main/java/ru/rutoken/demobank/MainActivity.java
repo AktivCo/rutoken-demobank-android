@@ -12,6 +12,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
+
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 
 import android.view.Gravity;
@@ -145,9 +147,13 @@ public class MainActivity extends ManagedActivity {
         }
     }
 
-    public void updateScreen() {
-        updateInfoLabel();
+    public void updateScreen(Token token) {
+        updateInfoLabel(token);
         updateProgressBar();
+    }
+
+    public void updateScreen() {
+        updateScreen(TokenManagerListener.getInstance().getToken());
     }
 
     private void updateProgressBar() {
@@ -158,18 +164,14 @@ public class MainActivity extends ManagedActivity {
         }
     }
 
-    private void updateInfoLabel() {
-        String certificateData = null;
-        Token token = TokenManagerListener.getInstance().getToken();
+    private void updateInfoLabel(Token token) {
+        String certificateData = getCertificateData(token);
 
-        if (token != null) {
-            certificateData = "";
-            certificateData += TokenModelRecognizer.getInstance(this).marketingNameForPkcs11Name(token.getModel());
-            certificateData += " ";
-            certificateData += token.getShortDecSerialNumber();
-            certificateData += "\n";
-        }
-        if (token != null && TokenManagerListener.getInstance().getCertificate().equals(TokenManagerListener.NO_CERTIFICATE)) {
+        if (token != null && token.smInitializedStatus() == Token.SmInitializedStatus.NEED_INITIALIZE) {
+            certificateData += getString(R.string.need_sm_activate);
+            mInfoTextView.setText(certificateData);
+            mInfoTextView.setEnabled(false);
+        } else if (token != null && TokenManagerListener.getInstance().getCertificate().equals(TokenManagerListener.NO_CERTIFICATE)) {
             certificateData += getString(R.string.no_certificate);
             mInfoTextView.setText(certificateData);
             mInfoTextView.setEnabled(false);
@@ -194,5 +196,16 @@ public class MainActivity extends ManagedActivity {
             mInfoTextView.setText(R.string.no_token);
             mInfoTextView.setEnabled(false);
         }
+    }
+
+    private String getCertificateData(@Nullable Token token) {
+        StringBuilder certificateData = new StringBuilder();
+        if (token != null) {
+            certificateData.append(TokenModelRecognizer.getInstance(this).marketingNameForPkcs11Name(token.getModel()));
+            certificateData.append(" ");
+            certificateData.append(token.getShortDecSerialNumber());
+            certificateData.append("\n");
+        }
+        return certificateData.toString();
     }
 }

@@ -23,6 +23,7 @@ import ru.rutoken.pkcs11caller.exception.Pkcs11Exception;
 import ru.rutoken.pkcs11jna.CK_ATTRIBUTE;
 import ru.rutoken.pkcs11jna.CK_TOKEN_INFO;
 import ru.rutoken.pkcs11jna.CK_TOKEN_INFO_EXTENDED;
+import ru.rutoken.pkcs11jna.Pkcs11;
 import ru.rutoken.pkcs11jna.Pkcs11Constants;
 import ru.rutoken.pkcs11jna.RtPkcs11;
 import ru.rutoken.pkcs11jna.RtPkcs11Constants;
@@ -36,7 +37,7 @@ public class Token {
         WHITE, BLACK, UNKNOWN
     }
 
-    private enum SmInitializedStatus {
+    public enum SmInitializedStatus {
         UNKNOWN, NEED_INITIALIZE, INITIALIZED
     }
 
@@ -112,35 +113,13 @@ public class Token {
         return mSupportsSM;
     }
 
-    Token(NativeLong slotId) throws Pkcs11CallerException {
-        RtPkcs11 pkcs11 = RtPkcs11Library.getInstance();
-        //noinspection SynchronizationOnLocalVariableOrMethodParameter
-        synchronized (pkcs11) {
-            mId = slotId;
-            initTokenInfo();
-
-            NativeLongByReference session = new NativeLongByReference();
-            NativeLong rv = RtPkcs11Library.getInstance().C_OpenSession(mId,
-                    new NativeLong(Pkcs11Constants.CKF_SERIAL_SESSION), null, null, session);
-            Pkcs11Exception.throwIfNotOk(rv);
-            mSession = session.getValue();
-
-            try {
-                initCertificatesList(pkcs11);
-            } catch (Pkcs11CallerException exception) {
-                try {
-                    close();
-                } catch (Pkcs11CallerException exception2) {
-                    exception2.printStackTrace();
-                }
-                throw exception;
-            }
-        }
+    public SmInitializedStatus smInitializedStatus() {
+        return mSmInitializedStatus;
     }
 
-    void close() throws Pkcs11Exception {
-        NativeLong rv = RtPkcs11Library.getInstance().C_CloseSession(mSession);
-        Pkcs11Exception.throwIfNotOk(rv);
+    Token(NativeLong slotId) throws Pkcs11CallerException {
+        mId = slotId;
+        initTokenInfo();
     }
 
     private Map<NativeLong, Certificate> getCertificatesWithCategory(RtPkcs11 pkcs11, CertificateCategory category) throws Pkcs11CallerException {
@@ -179,13 +158,6 @@ public class Token {
         }
 
         return certificateMap;
-    }
-
-    private void initCertificatesList(RtPkcs11 pkcs11) throws Pkcs11CallerException {
-        CertificateCategory supportedCategories[] = {CertificateCategory.UNSPECIFIED, CertificateCategory.USER};
-        for (CertificateCategory category: supportedCategories) {
-            mCertificateMap.putAll(getCertificatesWithCategory(pkcs11, category));
-        }
     }
 
     private void initTokenInfo() throws Pkcs11CallerException {
@@ -232,6 +204,36 @@ public class Token {
         }
 
         mSupportsSM = ((tokenInfoEx.flags.longValue() & RtPkcs11Constants.TOKEN_FLAGS_SUPPORT_SM) != 0);
+    }
+
+    public void openSession(Pkcs11 pkcs11) throws Pkcs11CallerException {
+        NativeLongByReference session = new NativeLongByReference();
+        long rv = pkcs11.C_OpenSession(mId,
+                new NativeLong(Pkcs11Constants.CKF_SERIAL_SESSION), null, null, session).longValue();
+
+        if (rv != 0) {
+            if (rv == Pkcs11Constants.CKR_FUNCTION_NOT_SUPPORTED)
+                mSmInitializedStatus = SmInitializedStatus.NEED_INITIALIZE;
+
+            throw new Pkcs11Exception(rv);
+        }
+        mSession = session.getValue();
+    }
+
+    public void closeSession(Pkcs11 pkcs11) {
+        try {
+            NativeLong rv = pkcs11.C_CloseSession(mSession);
+            Pkcs11Exception.throwIfNotOk(rv);
+        } catch (Pkcs11CallerException exception2) {
+            exception2.printStackTrace();
+        }
+    }
+
+    public void initCertificatesList(RtPkcs11 pkcs11) throws Pkcs11CallerException {
+        CertificateCategory supportedCategories[] = {CertificateCategory.UNSPECIFIED, CertificateCategory.USER};
+        for (CertificateCategory category: supportedCategories) {
+            mCertificateMap.putAll(getCertificatesWithCategory(pkcs11, category));
+        }
     }
 
     public Set<NativeLong> enumerateCertificates() {
