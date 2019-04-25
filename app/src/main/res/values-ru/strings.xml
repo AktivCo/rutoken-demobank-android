@@ -5,7 +5,6 @@
     <string name="no_token">Пожалуйста, подключите токен</string>
     <string name="wait_token" formatted="false">Пожалуйста, подключите\n%s</string>
     <string name="no_certificate">Отсутствует сертификат на токене</string>
-    <string name="more_than_one_certificate">Приложение не может работать с токеном, на котором имеется более одного сертификата</string>
     <string name="pin_hint">Введите PIN-код</string>
     <string name="ok">OK</string>
     <string name="pin_alert">Неправильный PIN, попробуйте ещё раз</string>

@@ -175,11 +175,8 @@ public class MainActivity extends ManagedActivity {
             certificateData += getString(R.string.no_certificate);
             mInfoTextView.setText(certificateData);
             mInfoTextView.setEnabled(false);
-        } else if (token != null && TokenManagerListener.getInstance().getCertificate().equals(TokenManagerListener.MORE_THAN_ONE_CERTIFICATE)) {
-            certificateData += getString(R.string.more_than_one_certificate);
-            mInfoTextView.setText(certificateData);
-            mInfoTextView.setEnabled(false);
         } else if (token != null) {
+
             certificateData += commonNameFromX500Name(token.getCertificate(TokenManagerListener.getInstance().getCertificate()).getSubject());
             mInfoTextView.setText(certificateData);
             mInfoTextView.setEnabled(true);

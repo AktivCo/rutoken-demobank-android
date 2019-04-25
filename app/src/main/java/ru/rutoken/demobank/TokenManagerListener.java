@@ -65,7 +65,6 @@ public class TokenManagerListener {
 
     public static final NativeLong NO_SLOT = new NativeLong(-1);
     public static final NativeLong NO_CERTIFICATE = new NativeLong(0);
-    public static final NativeLong MORE_THAN_ONE_CERTIFICATE = new NativeLong(-2);
 
     private NativeLong mSlotId = NO_SLOT;
     private Token mToken = null;
@@ -241,8 +240,7 @@ public class TokenManagerListener {
             mSlotId = slotId;
             mToken = token;
             if (certificates != null && certificates.iterator().hasNext()) {
-                if (certificates.size() > 1) mCertificate = MORE_THAN_ONE_CERTIFICATE;
-                else mCertificate = certificates.iterator().next();
+                mCertificate = certificates.iterator().next();
             } else {
                 mCertificate = NO_CERTIFICATE;
             }
