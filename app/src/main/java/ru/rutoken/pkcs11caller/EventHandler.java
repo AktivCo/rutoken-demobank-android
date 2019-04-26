@@ -75,8 +75,8 @@ class EventHandler extends Thread {
     }
 
     private static EventType oppositeEvent(EventType event) {
-        if (event == EventType.SD) return EventType.SR;
-        return EventType.SD;
+        if (event == EventType.SLOT_ADDED) return EventType.SLOT_REMOVED;
+        return EventType.SLOT_ADDED;
     }
 
     private void slotEventHappened(NativeLong id) throws Pkcs11Exception {
@@ -87,9 +87,9 @@ class EventHandler extends Thread {
 
         EventType event;
         if ((Pkcs11Constants.CKF_TOKEN_PRESENT & slotInfo.flags.longValue()) != 0x00) {
-            event = EventType.SD;
+            event = EventType.SLOT_ADDED;
         } else {
-            event = EventType.SR;
+            event = EventType.SLOT_REMOVED;
         }
 
         if (lastSlotEvent.get(id) == event) {

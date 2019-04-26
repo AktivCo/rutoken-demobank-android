@@ -32,7 +32,7 @@ public class TokenManager {
         }
 
         public void run() {
-            EventType event = EventType.TIL;
+            EventType event = EventType.TOKEN_INFO_LOADED;
             Token token = null;
 
             try {
@@ -40,7 +40,7 @@ public class TokenManager {
             } catch (Pkcs11CallerException e) {
                 mTokenError = e;
                 e.printStackTrace();
-                event = EventType.TIF;
+                event = EventType.TOKEN_INFO_FAILED;
             }
 
             mHandler.post(new EventRunnable(event, mSlotId, token));
@@ -106,14 +106,14 @@ public class TokenManager {
     AcceptableState processCurrentStateR0W0SD(EventType event, NativeLong slotId, Token token) throws TokenManagerException {
         AcceptableState newState;
         switch (event) {
-            case SD:
+            case SLOT_ADDED:
                 throw new TokenManagerException("Input not accepted by state");
-            case SR:
+            case SLOT_REMOVED:
                 newState = AcceptableState.R0W0SR;
                 sendTAF(slotId);
                 break;
-            case TIL:
-            case TIF:
+            case TOKEN_INFO_LOADED:
+            case TOKEN_INFO_FAILED:
                 newState = AcceptableState.R0W1SD;
                 startTilThread(slotId);
                 break;
@@ -126,18 +126,18 @@ public class TokenManager {
     AcceptableState processCurrentStateR0W1SD(EventType event, NativeLong slotId, Token token) throws TokenManagerException {
         AcceptableState newState;
         switch (event) {
-            case SD:
+            case SLOT_ADDED:
                 throw new TokenManagerException("Input not accepted by state");
-            case SR:
+            case SLOT_REMOVED:
                 newState = AcceptableState.R0W0SR;
                 sendTAF(slotId);
                 break;
-            case TIL:
+            case TOKEN_INFO_LOADED:
                 newState = AcceptableState.R1W0TIL;
                 mTokens.put(slotId, token);
                 sendTA(slotId);
                 break;
-            case TIF:
+            case TOKEN_INFO_FAILED:
                 newState = AcceptableState.R1W0TIF;
                 sendTAF(slotId);
                 break;
@@ -150,16 +150,16 @@ public class TokenManager {
     AcceptableState processCurrentStateR0W0SR(EventType event, NativeLong slotId, Token token) throws TokenManagerException {
         AcceptableState newState;
         switch (event) {
-            case SD:
+            case SLOT_ADDED:
                 newState = AcceptableState.R0W0SD;
                 sendTWBA(slotId);
                 break;
-            case SR:
+            case SLOT_REMOVED:
                 throw new TokenManagerException("Input not accepted by state");
-            case TIL:
+            case TOKEN_INFO_LOADED:
                 newState = AcceptableState.R1W0TIL;
                 break;
-            case TIF:
+            case TOKEN_INFO_FAILED:
                 newState = AcceptableState.R1W0TIF;
                 break;
             default:
@@ -171,14 +171,14 @@ public class TokenManager {
     AcceptableState processCurrentStateR1W0SR(EventType event, NativeLong slotId, Token token) throws TokenManagerException {
         AcceptableState newState;
         switch (event) {
-            case SD:
+            case SLOT_ADDED:
                 newState = AcceptableState.R0W1SD;
                 sendTWBA(slotId);
                 startTilThread(slotId);
                 break;
-            case SR:
-            case TIL:
-            case TIF:
+            case SLOT_REMOVED:
+            case TOKEN_INFO_LOADED:
+            case TOKEN_INFO_FAILED:
                 throw new TokenManagerException("Input not accepted by state");
             default:
                 throw new TokenManagerException("Unexpected unfiltered incoming event");
@@ -189,18 +189,18 @@ public class TokenManager {
     AcceptableState processCurrentStateR1W0TIL(EventType event, NativeLong slotId, Token token) throws TokenManagerException {
         AcceptableState newState;
         switch (event) {
-            case SD:
+            case SLOT_ADDED:
                 newState = AcceptableState.R0W1SD;
                 sendTWBA(slotId);
                 startTilThread(slotId);
                 break;
-            case SR:
+            case SLOT_REMOVED:
                 newState = AcceptableState.R1W0SR;
                 mTokens.remove(slotId);
                 sendTR(slotId);
                 break;
-            case TIL:
-            case TIF:
+            case TOKEN_INFO_LOADED:
+            case TOKEN_INFO_FAILED:
                 throw new TokenManagerException("Input not accepted by state");
             default:
                 throw new TokenManagerException("Unexpected unfiltered incoming event");
@@ -211,16 +211,16 @@ public class TokenManager {
     AcceptableState processCurrentStateR1W0TIF(EventType event, NativeLong slotId, Token token) throws TokenManagerException {
         AcceptableState newState;
         switch (event) {
-            case SD:
+            case SLOT_ADDED:
                 newState = AcceptableState.R0W1SD;
                 sendTWBA(slotId);
                 startTilThread(slotId);
                 break;
-            case SR:
+            case SLOT_REMOVED:
                 newState = AcceptableState.R1W0SR;
                 break;
-            case TIL:
-            case TIF:
+            case TOKEN_INFO_LOADED:
+            case TOKEN_INFO_FAILED:
                 throw new TokenManagerException("Input not accepted by state");
             default:
                 throw new TokenManagerException("Unexpected unfiltered incoming event");

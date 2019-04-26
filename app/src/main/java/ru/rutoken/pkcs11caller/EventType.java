@@ -6,10 +6,10 @@
 package ru.rutoken.pkcs11caller;
 
 public enum EventType {
-    SD,
-    SR,
-    TIL,
-    TIF,
+    SLOT_ADDED,
+    SLOT_REMOVED,
+    TOKEN_INFO_LOADED,
+    TOKEN_INFO_FAILED,
     ENUMERATION_FINISHED,
     EVENT_HANDLER_FAILED
 }
