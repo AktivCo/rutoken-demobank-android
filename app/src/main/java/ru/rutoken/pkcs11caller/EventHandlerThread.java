@@ -20,11 +20,12 @@ import ru.rutoken.pkcs11jna.CK_SLOT_INFO;
 import ru.rutoken.pkcs11jna.Pkcs11Constants;
 import ru.rutoken.pkcs11caller.exception.Pkcs11Exception;
 
-class EventHandler extends Thread {
-    EventHandler() {
+class EventHandlerThread extends Thread {
+    EventHandlerThread() {
+        setName(getClass().getName());
     }
 
-    private final Map<NativeLong, EventType> lastSlotEvent = new HashMap<>();
+    private final Map<NativeLong, EventType> mLastSlotEvent = new HashMap<>();
     private final Handler mHandler = new Handler(Looper.getMainLooper());
 
     @Override
@@ -54,14 +55,14 @@ class EventHandler extends Thread {
             mHandler.post(new EventRunnable(EventType.EVENT_HANDLER_FAILED, new NativeLong(-1)));
         }
 
-        while (true) {
+        while (!isInterrupted()) {
             NativeLongByReference id = new NativeLongByReference();
             NativeLong rv;
 
             rv = RtPkcs11Library.getInstance().C_WaitForSlotEvent(new NativeLong(0), id, null);
 
             if (rv.longValue() == Pkcs11Constants.CKR_CRYPTOKI_NOT_INITIALIZED) {
-                Log.d(getClass().getName(), "Exit EH");
+                Log.d(getClass().getName(), "Exit " + getClass().getSimpleName());
                 return;
             }
 
@@ -92,11 +93,11 @@ class EventHandler extends Thread {
             event = EventType.SLOT_REMOVED;
         }
 
-        if (lastSlotEvent.get(id) == event) {
+        if (mLastSlotEvent.get(id) == event) {
             mHandler.post(new EventRunnable(oppositeEvent(event), id));
-            lastSlotEvent.put(id, oppositeEvent(event));
+            mLastSlotEvent.put(id, oppositeEvent(event));
         }
         mHandler.post(new EventRunnable(event, id));
-        lastSlotEvent.put(id, event);
+        mLastSlotEvent.put(id, event);
     }
 }

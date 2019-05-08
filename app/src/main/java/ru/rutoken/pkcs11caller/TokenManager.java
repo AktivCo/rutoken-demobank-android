@@ -64,20 +64,20 @@ public class TokenManager {
     }
 
     private static volatile TokenManager instance = null;
-    private EventHandler mEventHandler;
+    private EventHandlerThread mEventHandlerThread;
     private Context mContext;
     private Pkcs11CallerException mTokenError;
     private final Map<NativeLong, Token> mTokens = Collections.synchronizedMap(new HashMap<>());
-    private final Map<NativeLong, AcceptableState> stateMachines = Collections.synchronizedMap(new HashMap<>());
-    private final Map<NativeLong, TokenInfoLoader> tilThreads = Collections.synchronizedMap(new HashMap<>());
+    private final Map<NativeLong, AcceptableState> mStateMachines = Collections.synchronizedMap(new HashMap<>());
+    private final Map<NativeLong, TokenInfoLoader> mTilThreads = Collections.synchronizedMap(new HashMap<>());
     private final Map<AcceptableState, Method> mCurrentStateProcessors;
 
     public static final String ENUMERATION_FINISHED = TokenManager.class.getName() + ".ENUMERATION_FINISHED";
-    public static final String TOKEN_WILL_BE_ADDED = EventHandler.class.getName() + ".TOKEN_WILL_BE_ADDED";
-    public static final String TOKEN_ADDING_FAILED = EventHandler.class.getName() + ".TOKEN_ADDING_FAILED";
-    public static final String TOKEN_WAS_ADDED = EventHandler.class.getName() + ".TOKEN_WAS_ADDED";
-    public static final String TOKEN_WAS_REMOVED = EventHandler.class.getName() + ".TOKEN_WAS_REMOVED";
-    public static final String INTERNAL_ERROR = EventHandler.class.getName() + ".INTERNAL_ERROR";
+    public static final String TOKEN_WILL_BE_ADDED = EventHandlerThread.class.getName() + ".TOKEN_WILL_BE_ADDED";
+    public static final String TOKEN_ADDING_FAILED = EventHandlerThread.class.getName() + ".TOKEN_ADDING_FAILED";
+    public static final String TOKEN_WAS_ADDED = EventHandlerThread.class.getName() + ".TOKEN_WAS_ADDED";
+    public static final String TOKEN_WAS_REMOVED = EventHandlerThread.class.getName() + ".TOKEN_WAS_REMOVED";
+    public static final String INTERNAL_ERROR = EventHandlerThread.class.getName() + ".INTERNAL_ERROR";
 
     public static final String EXTRA_SLOT_ID = TokenManager.class.getName() + ".SLOT_ID";
     public static final String EXTRA_TOKEN_ERROR = TokenManager.class.getName() + ".TOKEN_ERROR";
@@ -100,7 +100,7 @@ public class TokenManager {
     synchronized void startTilThread(NativeLong slotId) {
         TokenInfoLoader til = new TokenInfoLoader(slotId);
         til.start();
-        tilThreads.put(slotId, til);
+        mTilThreads.put(slotId, til);
     }
 
     AcceptableState processCurrentStateR0W0SD(EventType event, NativeLong slotId, Token token) throws TokenManagerException {
@@ -239,15 +239,15 @@ public class TokenManager {
             return;
         }
 
-        AcceptableState state = stateMachines.get(slotId);
+        AcceptableState state = mStateMachines.get(slotId);
         if (state == null) {
             state = AcceptableState.R1W0SR;
-            stateMachines.put(slotId, state);
+            mStateMachines.put(slotId, state);
         }
 
         try {
             state = (AcceptableState) mCurrentStateProcessors.get(state).invoke(this, event, slotId, token);
-            stateMachines.put(slotId, state);
+            mStateMachines.put(slotId, state);
         } catch (InvocationTargetException e) {
             Log.e(getClass().getName(), "InvocationTargetException");
             if (e.getCause() instanceof TokenManagerException) {
@@ -276,28 +276,19 @@ public class TokenManager {
             return;
         mContext = context;
 
-        mEventHandler = new EventHandler();
-        mEventHandler.start();
+        mEventHandlerThread = new EventHandlerThread();
+        mEventHandlerThread.start();
     }
 
     public synchronized void destroy() {
         if (mContext == null)
             return;
+
+        mEventHandlerThread.interrupt();
+        for (TokenInfoLoader loader : mTilThreads.values()) {
+            loader.interrupt();
+        }
         RtPkcs11Library.getInstance().C_Finalize(null);
-
-        try {
-            mEventHandler.join();
-        } catch (InterruptedException e) {
-            Log.e(getClass().getName(), "Interrupted exception");
-        }
-
-        for (TokenInfoLoader loader : tilThreads.values()) {
-            try {
-                loader.join();
-            } catch (InterruptedException e) {
-                Log.e(getClass().getName(), "Interrupted exception");
-            }
-        }
 
         for (NativeLong slotId : mTokens.keySet()) {
             sendTR(slotId);
