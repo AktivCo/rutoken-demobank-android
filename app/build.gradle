@@ -8,7 +8,7 @@ android {
         versionName "1.1.1"
         versionCode 11
         ndk {
-            abiFilters "armeabi-v7a"
+            abiFilters "armeabi-v7a", "arm64-v8a"
         }
     }
     lintOptions {
@@ -64,14 +64,23 @@ def copyFile(String file, String sourcePath, String destinationPath) {
     }
 }
 
-task copyDeps() {
-    doLast {
-        copyFile('librtpkcs11ecp.so', '../../../lib', 'src/main/jniLibs/armeabi-v7a')
+def copyJniLibs(String arch, String jniArch) {
+    def jniLibs =  "./src/main/jniLibs/$jniArch"
 
-        requireFileInDirectory('src/main/jniLibs/armeabi-v7a', 'librtpkcs11ecp.so')
-        requireFileInDirectory('src/main/jniLibs/armeabi-v7a', 'librtpcsc.so')
-        requireFileInDirectory('libs', 'pkcs11jna*.jar')
-        requireFileInDirectory('libs', 'rtserviceconnection*.aar')
-    }
+    copyFile('librtpcsc.so', "../../../../pcsc/android-$arch/lib", jniLibs)
+    copyFile('librtpkcs11ecp.so', "../../../android-$arch/lib", jniLibs)
+
+    requireFileInDirectory(jniLibs, 'librtpcsc.so')
+    requireFileInDirectory(jniLibs, 'librtpkcs11ecp.so')
 }
-preBuild.dependsOn copyDeps
+
+preBuild.doLast {
+    copyJniLibs('armv7a', 'armeabi-v7a')
+    copyJniLibs('arm64', 'arm64-v8a')
+
+    copyFile('pkcs11jna*.jar', "../../../../../../java/samples/lib", "libs")
+    copyFile('rtserviceconnection*.aar', "../../../../libs", "libs")
+
+    requireFileInDirectory('libs', 'pkcs11jna*.jar')
+    requireFileInDirectory('libs', 'rtserviceconnection*.aar')
+}
