@@ -1,8 +1,8 @@
 package ru.rutoken.bcprovider;
 
-import org.spongycastle.asn1.x509.AlgorithmIdentifier;
-import org.spongycastle.operator.DigestCalculator;
-import org.spongycastle.operator.DigestCalculatorProvider;
+import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
+import org.bouncycastle.operator.DigestCalculator;
+import org.bouncycastle.operator.DigestCalculatorProvider;
 
 import java.util.Objects;
 

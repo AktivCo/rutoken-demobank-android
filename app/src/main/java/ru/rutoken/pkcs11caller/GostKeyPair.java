@@ -6,8 +6,8 @@ import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.NativeLongByReference;
 
-import org.spongycastle.asn1.x509.SubjectPublicKeyInfo;
-import org.spongycastle.cert.X509CertificateHolder;
+import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
+import org.bouncycastle.cert.X509CertificateHolder;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;

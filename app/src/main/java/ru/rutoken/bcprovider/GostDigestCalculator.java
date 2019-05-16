@@ -1,9 +1,9 @@
 package ru.rutoken.bcprovider;
 
-import org.spongycastle.asn1.ASN1ObjectIdentifier;
-import org.spongycastle.asn1.cryptopro.CryptoProObjectIdentifiers;
-import org.spongycastle.asn1.x509.AlgorithmIdentifier;
-import org.spongycastle.operator.DigestCalculator;
+import org.bouncycastle.asn1.ASN1ObjectIdentifier;
+import org.bouncycastle.asn1.cryptopro.CryptoProObjectIdentifiers;
+import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
+import org.bouncycastle.operator.DigestCalculator;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;

@@ -8,8 +8,8 @@ package ru.rutoken.pkcs11caller;
 import com.sun.jna.Memory;
 import com.sun.jna.NativeLong;
 
-import org.spongycastle.asn1.x500.X500Name;
-import org.spongycastle.cert.X509CertificateHolder;
+import org.bouncycastle.asn1.x500.X500Name;
+import org.bouncycastle.cert.X509CertificateHolder;
 
 import java.io.IOException;
 

@@ -1,10 +1,10 @@
 package ru.rutoken.bcprovider;
 
-import org.spongycastle.cert.X509CertificateHolder;
-import org.spongycastle.cms.CMSProcessableByteArray;
-import org.spongycastle.cms.CMSSignedDataGenerator;
-import org.spongycastle.cms.CMSTypedData;
-import org.spongycastle.cms.SignerInfoGeneratorBuilder;
+import org.bouncycastle.cert.X509CertificateHolder;
+import org.bouncycastle.cms.CMSProcessableByteArray;
+import org.bouncycastle.cms.CMSSignedDataGenerator;
+import org.bouncycastle.cms.CMSTypedData;
+import org.bouncycastle.cms.SignerInfoGeneratorBuilder;
 
 import ru.rutoken.pkcs11caller.signature.Signature;
 
