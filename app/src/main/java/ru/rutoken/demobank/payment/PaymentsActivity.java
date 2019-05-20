@@ -34,6 +34,7 @@ import java.text.DateFormat;
 import java.util.Date;
 import java.util.Objects;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import ru.rutoken.demobank.Pkcs11CallerActivity;
@@ -292,7 +293,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
     }
 
     @Override
-    protected void manageLoginError(Pkcs11Exception exception) {
+    protected void manageLoginError(@Nullable Pkcs11Exception exception) {
         mProgressDialog.dismiss();
         String message = null;
         if (exception != null) {
@@ -308,7 +309,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
     }
 
     @Override
-    protected void manageSignError(Pkcs11Exception exception) {
+    protected void manageSignError(@Nullable Pkcs11Exception exception) {
         uncheckAllPayments();
         mProgressDialog.dismiss();
         String message = getString(R.string.error);
@@ -326,7 +327,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
     }
 
     @Override
-    protected void manageLogoutError(Pkcs11Exception exception) {
+    protected void manageLogoutError(@Nullable Pkcs11Exception exception) {
         if (mLoginDialog.isLogonBeingPerformed()) {
             login(mToken, mLoginDialog.pin());
         }

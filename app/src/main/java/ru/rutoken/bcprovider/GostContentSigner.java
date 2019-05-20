@@ -48,7 +48,7 @@ public class GostContentSigner implements ContentSigner {
             return mSignature.sign(mDigest.digest(data));
         } catch(Pkcs11Exception e) {
             e.printStackTrace();
-            return null;
+            throw new RuntimeException(e);
         }
     }
 

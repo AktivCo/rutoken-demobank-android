@@ -12,6 +12,8 @@ import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
+
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -70,7 +72,7 @@ public class LoginActivity extends Pkcs11CallerActivity {
     }
 
     @Override
-    protected void manageLoginError(Pkcs11Exception exception) {
+    protected void manageLoginError(@Nullable Pkcs11Exception exception) {
         if (exception != null) {
             mAlertTextView.setText(Pkcs11ErrorTranslator.getInstance(this).messageForRV(exception.getErrorCode()));
         }
@@ -84,8 +86,12 @@ public class LoginActivity extends Pkcs11CallerActivity {
     }
 
     @Override
-    protected void manageSignError(Pkcs11Exception exception) {
-        Toast.makeText(this, exception.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+    protected void manageSignError(@Nullable Pkcs11Exception exception) {
+        String message = getString(R.string.error);
+        if (exception != null) {
+            message = Pkcs11ErrorTranslator.getInstance(this).messageForRV(exception.getErrorCode());
+        }
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
         logout(mToken);
     }
 
@@ -99,7 +105,7 @@ public class LoginActivity extends Pkcs11CallerActivity {
     }
 
     @Override
-    protected void manageLogoutError(Pkcs11Exception exception) {
+    protected void manageLogoutError(@Nullable Pkcs11Exception exception) {
         showLogonFinished();
     }
 

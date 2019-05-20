@@ -41,7 +41,7 @@ public class GostDigestCalculator implements DigestCalculator {
             return mDigest.digest(data);
         } catch(Pkcs11Exception e) {
             e.printStackTrace();
-            return null;
+            throw new RuntimeException(e);
         }
     }
 

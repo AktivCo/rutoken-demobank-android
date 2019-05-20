@@ -7,6 +7,9 @@ package ru.rutoken.pkcs11caller;
 
 import android.os.AsyncTask;
 
+import org.bouncycastle.crypto.ExtendedDigest;
+
+import ru.rutoken.pkcs11caller.exception.GeneralErrorException;
 import ru.rutoken.pkcs11jna.RtPkcs11;
 import ru.rutoken.pkcs11caller.exception.Pkcs11CallerException;
 
@@ -28,6 +31,8 @@ abstract class Pkcs11AsyncTask extends AsyncTask<Void, Void, Pkcs11Result> {
             }
         } catch (Pkcs11CallerException exception) {
             return new Pkcs11Result(exception);
+        } catch (Exception exception) {
+            return new Pkcs11Result(new GeneralErrorException(exception.getMessage()));
         }
     }
 

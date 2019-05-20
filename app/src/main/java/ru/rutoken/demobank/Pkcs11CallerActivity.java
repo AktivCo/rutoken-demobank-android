@@ -5,6 +5,8 @@
 
 package ru.rutoken.demobank;
 
+import androidx.annotation.Nullable;
+
 import com.sun.jna.NativeLong;
 
 import ru.rutoken.pkcs11caller.Pkcs11Callback;
@@ -13,6 +15,7 @@ import ru.rutoken.pkcs11caller.exception.Pkcs11CallerException;
 import ru.rutoken.pkcs11caller.exception.Pkcs11Exception;
 
 abstract public class Pkcs11CallerActivity extends ManagedActivity {
+    @Nullable
     private static Pkcs11Exception pkcs11exceptionFromCallerException(Pkcs11CallerException exception) {
         Pkcs11Exception exception1 = null;
         if (Pkcs11Exception.class.isInstance(exception)) {
@@ -67,15 +70,15 @@ abstract public class Pkcs11CallerActivity extends ManagedActivity {
         token.logout(mLogoutCallback);
     }
 
-    abstract protected void manageLoginError(Pkcs11Exception exception);
+    abstract protected void manageLoginError(@Nullable Pkcs11Exception exception);
 
     abstract protected void manageLoginSucceed();
 
-    abstract protected void manageLogoutError(Pkcs11Exception exception);
+    abstract protected void manageLogoutError(@Nullable Pkcs11Exception exception);
 
     abstract protected void manageLogoutSucceed();
 
-    abstract protected void manageSignError(Pkcs11Exception exception);
+    abstract protected void manageSignError(@Nullable Pkcs11Exception exception);
 
     abstract protected void manageSignSucceed(byte[] data);
 }
