@@ -191,6 +191,7 @@ public class LoginActivity extends Pkcs11CallerActivity {
                 }
             }
         });
+        mPinEditText.requestFocus();
 
         mLoginButton.setOnClickListener(view -> {
             TokenManagerListener.getInstance().resetWaitForToken();

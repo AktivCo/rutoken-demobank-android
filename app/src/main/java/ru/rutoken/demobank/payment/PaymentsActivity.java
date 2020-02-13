@@ -63,79 +63,13 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
             mPaymentTextView = view.findViewById(R.id.dataTV);
         }
 
-        void show(Spanned text, boolean bNeedAskPIN) {
+        void show(Spanned text) {
             mPaymentTextView.setText(text);
-
-            if (bNeedAskPIN) {
-                mConfirmButton.setOnClickListener(view -> {
-                    mDialog.dismiss();
-                    mLoginDialog.show(null);
-                });
-            } else {
-                mConfirmButton.setOnClickListener(view -> {
-                    mDialog.dismiss();
-                    signAction();
-                });
-            }
-            mDialog.show();
-        }
-    }
-
-    private class LoginDialog {
-        final AlertDialog mDialog;
-        final EditText mPinEditText;
-        final TextView mErrorTextView;
-        String mPin;
-        boolean mLogonBeingPerformed = false;
-
-        LoginDialog() {
-            AlertDialog.Builder builder = new AlertDialog.Builder(PaymentsActivity.this);
-            builder.setCancelable(true);
-
-            mDialog = builder.create();
-            View view = getLayoutInflater().inflate(R.layout.login_dialog, null);
-            Button loginButton = view.findViewById(R.id.signB);
-            mPinEditText = view.findViewById(R.id.signET);
-            mErrorTextView = view.findViewById(R.id.errorTV);
-            mDialog.setView(view);
-            loginButton.setOnClickListener(view1 -> {
-                mPin = mPinEditText.getText().toString();
-                mPinEditText.setText("");
+            mConfirmButton.setOnClickListener(view -> {
                 mDialog.dismiss();
-                mLogonBeingPerformed = true;
-                startLoginAndSignAction();
+                signAction();
             });
-        }
-
-        String pin() {
-            return mPin;
-        }
-
-        void show(String errorText) {
-            if (mLogonBeingPerformed) {
-                mDialog.setOnCancelListener(dialogInterface -> {
-                    mLogonBeingPerformed = false;
-                    onBackPressed();
-                });
-            } else {
-                mDialog.setOnCancelListener(dialogInterface -> mDialog.cancel());
-            }
-            if (null != errorText) {
-                mErrorTextView.setText(errorText);
-            } else {
-                mErrorTextView.setText("");
-            }
-            Objects.requireNonNull(mDialog.getWindow()).setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
             mDialog.show();
-
-        }
-
-        boolean isLogonBeingPerformed() {
-            return mLogonBeingPerformed;
-        }
-
-        void setLogonFinished() {
-            mLogonBeingPerformed = false;
         }
     }
 
@@ -147,7 +81,6 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
     private ImageView mTokenBatteryImageView;
     private PopupWindow mPopupWindow;
     private InfoDialog mInfoDialog;
-    private LoginDialog mLoginDialog;
     private AlertDialog mSucceedDialog;
     private AlertDialog mProgressDialog;
 
@@ -236,7 +169,6 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
 
         Button popupButton = popupView.findViewById(R.id.popupB);
         popupButton.setOnClickListener(view -> {
-            boolean bNeedAskPIN = false;
             int paymentsCount = 0;
             StringBuilder builder = new StringBuilder();
             for (int i = 0; i < mPaymentsLayout.getChildCount(); ++i) {
@@ -245,19 +177,17 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
                     Payment payment = (Payment) childView;
                     CheckBox checkBox = payment.findViewById(R.id.checkBox);
                     if (checkBox.isChecked()) {
-                        bNeedAskPIN = bNeedAskPIN || payment.needAskPIN();
                         builder.append(getSignData(payment));
                         ++paymentsCount;
                     }
                 }
             }
             mSignData = builder.toString();
-            showBatchPaymentInfo(paymentsCount, bNeedAskPIN);
+            showBatchPaymentInfo(paymentsCount);
         });
 
         createSucceedDialog();
         mInfoDialog = new InfoDialog();
-        mLoginDialog = new LoginDialog();
         createProgressDialog();
 
         createPayments();
@@ -293,18 +223,10 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
 
     @Override
     protected void manageLoginError(@Nullable Pkcs11Exception exception) {
-        mProgressDialog.dismiss();
-        String message = null;
-        if (exception != null) {
-            message = Pkcs11ErrorTranslator.getInstance(this).messageForRV(exception.getErrorCode());
-        }
-        mLoginDialog.show(message);
     }
 
     @Override
     protected void manageLoginSucceed() {
-        mLoginDialog.setLogonFinished();
-        sign(mToken, mCertificate, Objects.requireNonNull(mSignData).getBytes());
     }
 
     @Override
@@ -327,16 +249,10 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
 
     @Override
     protected void manageLogoutError(@Nullable Pkcs11Exception exception) {
-        if (mLoginDialog.isLogonBeingPerformed()) {
-            login(mToken, mLoginDialog.pin());
-        }
     }
 
     @Override
     protected void manageLogoutSucceed() {
-        if (mLoginDialog.isLogonBeingPerformed()) {
-            login(mToken, mLoginDialog.pin());
-        }
     }
 
     private void createPayments() {
@@ -389,11 +305,6 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
         }
     }
 
-    protected void startLoginAndSignAction() {
-        mProgressDialog.show();
-        logout(mToken);
-    }
-
     protected void signAction() {
         mProgressDialog.show();
         sign(mToken, mCertificate, Objects.requireNonNull(mSignData).getBytes());
@@ -413,14 +324,9 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
         return result.toString();
     }
 
-    private void showBatchPaymentInfo(int count, boolean bNeedAskPIN) {
-        String message = String.format(getString(R.string.batch_sign_message), count);
-        if (bNeedAskPIN) {
-            message += "<br />" + getString(R.string.need_pin_message);
-        } else {
-            message += "<br />" + getString(R.string.batch_require_proceed);
-        }
-        mInfoDialog.show(Html.fromHtml(message), bNeedAskPIN);
+    private void showBatchPaymentInfo(int count) {
+        String message = String.format(getString(R.string.batch_sign_message), count) + "<br />" + getString(R.string.batch_require_proceed);
+        mInfoDialog.show(Html.fromHtml(message));
     }
 
     private void showOnePaymentInfo(Payment payment) {
@@ -428,7 +334,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
         int number = payment.getNum();
         mSignData = getSignData(payment);
 
-        mInfoDialog.show(Html.fromHtml(createFullPaymentHtml(number)), payment.needAskPIN());
+        mInfoDialog.show(Html.fromHtml(createFullPaymentHtml(number)));
     }
 
     private void createProgressDialog() {

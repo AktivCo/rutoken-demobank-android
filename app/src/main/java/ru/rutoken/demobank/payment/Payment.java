@@ -23,7 +23,6 @@ public class Payment extends RelativeLayout {
     private TextView mAmountTextView;
     private final int mAmount;
     public static final int FIRST_NUMBER = 746;
-    public static final int THRESHOLD_PRICE = 50000;
 
     public Payment(Context context, AttributeSet attrs, int num, String recipient, int amount) {
         super(context, attrs);
@@ -45,10 +44,6 @@ public class Payment extends RelativeLayout {
         mDateTextView = findViewById(R.id.dateTV);
         mReceiverTextView = findViewById(R.id.receiverTV);
         mAmountTextView = findViewById(R.id.amountTV);
-    }
-
-    public boolean needAskPIN() {
-        return mAmount >= Payment.THRESHOLD_PRICE;
     }
 
     public int getNum() {
