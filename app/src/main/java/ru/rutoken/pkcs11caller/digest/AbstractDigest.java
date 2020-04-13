@@ -1,7 +1,7 @@
 package ru.rutoken.pkcs11caller.digest;
 
+import com.sun.jna.Memory;
 import com.sun.jna.NativeLong;
-import com.sun.jna.Pointer;
 import com.sun.jna.ptr.NativeLongByReference;
 
 import java.util.Objects;
@@ -19,8 +19,10 @@ abstract class AbstractDigest implements Digest {
         mSessionHandle = sessionHandle;
     }
 
-    CK_MECHANISM makeMechanism(long type) {
-        return new CK_MECHANISM(new NativeLong(type), Pointer.NULL, new NativeLong(0));
+    CK_MECHANISM makeMechanism(long type, byte[] parameter) {
+        Memory memory = new Memory(parameter.length);
+        memory.write(0, parameter, 0, parameter.length);
+        return new CK_MECHANISM(new NativeLong(type), memory, new NativeLong(memory.size()));
     }
 
     byte[] innerDigest(final CK_MECHANISM mechanism, final byte[] data) throws Pkcs11Exception {
