@@ -155,7 +155,6 @@ public class LoginActivity extends Pkcs11CallerActivity {
             actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
             actionBar.setDisplayHomeAsUpEnabled(false);
             actionBar.setDisplayShowTitleEnabled(false);
-            actionBar.setBackgroundDrawable(getDrawable(R.drawable.ab_bg));
             actionBar.setCustomView(v, params);
         }
     }

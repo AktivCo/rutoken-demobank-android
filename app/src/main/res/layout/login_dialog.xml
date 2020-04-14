@@ -27,9 +27,9 @@
         android:textSize="10sp" />
 
     <Button
+        android:id="@+id/signB"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/signB"
-        android:background="@drawable/ab_bg"
+        android:background="@android:color/transparent"
         android:text="@string/ok" />
 </LinearLayout>

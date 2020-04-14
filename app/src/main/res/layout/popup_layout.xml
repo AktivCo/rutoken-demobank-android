@@ -5,9 +5,9 @@
     android:layout_height="match_parent">
 
     <Button
+        android:id="@+id/popupB"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/sign"
-        android:id="@+id/popupB"
-        android:background="@drawable/ab_bg" />
+        android:background="@color/rutokenRed"
+        android:text="@string/sign" />
 </LinearLayout>
