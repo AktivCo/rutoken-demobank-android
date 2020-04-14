@@ -19,12 +19,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 
 import ru.rutoken.bcprovider.Pkcs7Signer;
 import ru.rutoken.demobank.Pkcs11CallerActivity;
 import ru.rutoken.demobank.nfc.NfcDetectCardFragment;
 import ru.rutoken.pkcs11caller.Certificate.CertificateCategory;
 import ru.rutoken.pkcs11caller.exception.CertNotFoundException;
+import ru.rutoken.pkcs11caller.exception.GeneralErrorException;
 import ru.rutoken.pkcs11caller.exception.Pkcs11CallerException;
 import ru.rutoken.pkcs11caller.exception.Pkcs11Exception;
 import ru.rutoken.pkcs11jna.CK_ATTRIBUTE;
@@ -47,9 +49,7 @@ public class Token {
         UNKNOWN, NEED_INITIALIZE, INITIALIZED
     }
 
-    private final NativeLong mId;
     private String mPin = "";
-
     private String mLabel;
     private String mModel;
     private String mSerialNumber;
@@ -130,10 +130,9 @@ public class Token {
         mPin = "";
     }
 
-    Token(RtPkcs11 rtPkcs11, NativeLong slotId) throws Pkcs11CallerException {
-        mRtPkcs11 = Objects.requireNonNull(rtPkcs11);
-        mId = slotId;
-        initTokenInfo();
+    Token(NativeLong slotId, CK_TOKEN_INFO tokenInfo, RtPkcs11 pkcs11) throws Pkcs11CallerException {
+        mRtPkcs11 = Objects.requireNonNull(pkcs11);
+        initTokenInfo(slotId, tokenInfo, pkcs11);
     }
 
     private Map<String, CertificateAndGostKeyPair> getCertificatesWithCategory(CertificateCategory category,
@@ -180,15 +179,11 @@ public class Token {
         return certificateMap;
     }
 
-    private void initTokenInfo() throws Pkcs11CallerException {
-        CK_TOKEN_INFO tokenInfo = new CK_TOKEN_INFO();
+    private void initTokenInfo(NativeLong slotId, CK_TOKEN_INFO tokenInfo, RtPkcs11 pkcs11) throws Pkcs11CallerException {
         CK_TOKEN_INFO_EXTENDED tokenInfoEx = new CK_TOKEN_INFO_EXTENDED();
         tokenInfoEx.ulSizeofThisStructure = new NativeLong(tokenInfoEx.size());
 
-        NativeLong rv = mRtPkcs11.C_GetTokenInfo(mId, tokenInfo);
-        Pkcs11Exception.throwIfNotOk(rv);
-
-        rv = mRtPkcs11.C_EX_GetTokenInfoExtended(mId, tokenInfoEx);
+        NativeLong rv = pkcs11.C_EX_GetTokenInfoExtended(slotId, tokenInfoEx);
         Pkcs11Exception.throwIfNotOk(rv);
 
         mLabel = Utils.removeTrailingSpaces(tokenInfo.label);
@@ -230,7 +225,7 @@ public class Token {
     }
 
     public void readCertificates(Runnable onResult) {
-        TokenExecutors.getInstance().get(mId).execute(() -> {
+        TokenExecutors.getInstance().get(new NativeLong(1)).execute(() -> {
             try (Session session = new Session()) {
                 CertificateCategory[] supportedCategories = {CertificateCategory.UNSPECIFIED, CertificateCategory.USER};
                 for (CertificateCategory category : supportedCategories) {
@@ -300,16 +295,27 @@ public class Token {
         private NativeLong mSession;
 
         Session() throws Pkcs11CallerException {
-            NativeLongByReference session = new NativeLongByReference();
-            long rv = mRtPkcs11.C_OpenSession(mId,
-                    new NativeLong(Pkcs11Constants.CKF_SERIAL_SESSION), null, null, session).longValue();
+            final NativeLongByReference session = new NativeLongByReference();
 
-            if (rv != 0) {
-                if (rv == Pkcs11Constants.CKR_FUNCTION_NOT_SUPPORTED)
+            final NativeLong slotId;
+            try {
+                slotId = TokenManager.getInstance().getSlotIdByTokenSerial(getSerialNumber()).get();
+            } catch (ExecutionException e) {
+                throw new GeneralErrorException("Cannot get slot id", e);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new GeneralErrorException("Thread was interrupted", e);
+            }
+
+            final NativeLong rv = mRtPkcs11.C_OpenSession(
+                    slotId, new NativeLong(Pkcs11Constants.CKF_SERIAL_SESSION), null, null, session);
+            if (rv.longValue() != Pkcs11Constants.CKR_OK) {
+                if (rv.longValue() == Pkcs11Constants.CKR_FUNCTION_NOT_SUPPORTED)
                     mSmInitializedStatus = SmInitializedStatus.NEED_INITIALIZE;
 
                 throw new Pkcs11Exception(rv);
             }
+
             mSession = session.getValue();
         }
 

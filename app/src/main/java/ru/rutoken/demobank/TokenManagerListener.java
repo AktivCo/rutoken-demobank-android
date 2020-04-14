@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import java.util.Collections;
@@ -28,7 +29,7 @@ public class TokenManagerListener {
     public static final String NO_TOKEN = "";
     public static final String NO_FINGERPRINT = "";
 
-    private static volatile TokenManagerListener mInstance = null;
+    private static final TokenManagerListener INSTANCE = new TokenManagerListener();
 
     private Context mContext;
     private MainActivity mMainActivity = null;
@@ -41,13 +42,13 @@ public class TokenManagerListener {
 
             if (Objects.equals(action, TokenManager.ENUMERATION_FINISHED)) {
                 onEnumerationFinished();
-            } else if (Objects.equals(action, TokenManager.TOKEN_WILL_BE_ADDED)) {
-                onTokenWillBeAdded(intent);
+            } else if (Objects.equals(action, TokenManager.TOKEN_ADDING)) {
+                onTokenAdding(intent);
             } else if (Objects.equals(action, TokenManager.TOKEN_ADDING_FAILED)) {
                 onTokenAddingFailed(intent);
-            } else if (Objects.equals(action, TokenManager.TOKEN_WAS_ADDED)) {
+            } else if (Objects.equals(action, TokenManager.TOKEN_ADDED)) {
                 onTokenAdded(intent);
-            } else if (Objects.equals(action, TokenManager.TOKEN_WAS_REMOVED)) {
+            } else if (Objects.equals(action, TokenManager.TOKEN_REMOVED)) {
                 onTokenRemoved(intent);
             } else if (Objects.equals(action, TokenManager.INTERNAL_ERROR)) {
                 onInternalError();
@@ -59,9 +60,7 @@ public class TokenManagerListener {
     private boolean mWaitingForMainActivity = false;
     private boolean mPaymentsCreated = false;
     private boolean mDoWait = false;
-
     private int mTwbaCounter = 0;
-
     private String mTokenSerial = NO_TOKEN;
     private Token mToken = null;
     private String mCertificateFingerprint = NO_FINGERPRINT;
@@ -69,17 +68,8 @@ public class TokenManagerListener {
     private Token mWaitToken = null;
     private String mWaitCertificateFingerprint = NO_FINGERPRINT;
 
-    public static synchronized TokenManagerListener getInstance() {
-        TokenManagerListener localInstance = mInstance;
-        if (localInstance == null) {
-            synchronized (TokenManager.class) {
-                localInstance = mInstance;
-                if (localInstance == null) {
-                    mInstance = localInstance = new TokenManagerListener();
-                }
-            }
-        }
-        return localInstance;
+    public static TokenManagerListener getInstance() {
+        return INSTANCE;
     }
 
     public synchronized void init(Context context) {
@@ -91,10 +81,10 @@ public class TokenManagerListener {
 
         IntentFilter tmFilter = new IntentFilter();
         tmFilter.addAction(TokenManager.ENUMERATION_FINISHED);
-        tmFilter.addAction(TokenManager.TOKEN_WILL_BE_ADDED);
+        tmFilter.addAction(TokenManager.TOKEN_ADDING);
         tmFilter.addAction(TokenManager.TOKEN_ADDING_FAILED);
-        tmFilter.addAction(TokenManager.TOKEN_WAS_ADDED);
-        tmFilter.addAction(TokenManager.TOKEN_WAS_REMOVED);
+        tmFilter.addAction(TokenManager.TOKEN_ADDED);
+        tmFilter.addAction(TokenManager.TOKEN_REMOVED);
         tmFilter.addAction(TokenManager.INTERNAL_ERROR);
         LocalBroadcastManager.getInstance(mContext).registerReceiver(mTokenReceiver, tmFilter);
     }
@@ -105,14 +95,13 @@ public class TokenManagerListener {
 
         TokenManager.getInstance().destroy();
         LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mTokenReceiver);
-        mInstance = null;
     }
 
     @SuppressWarnings("EmptyMethod")
     protected void onEnumerationFinished() {
     }
 
-    protected void onTokenWillBeAdded(Intent intent) {
+    protected void onTokenAdding(Intent intent) {
         ++mTwbaCounter;
         if (mMainActivity != null) mMainActivity.updateScreen();
     }
@@ -131,7 +120,7 @@ public class TokenManagerListener {
         String tokenSerial = intent.getStringExtra(TokenManager.EXTRA_TOKEN_SERIAL);
         if (tokenSerial == null) return;
 
-        Token token = TokenManager.getInstance().tokenForId(tokenSerial);
+        Token token = Objects.requireNonNull(TokenManager.getInstance().getTokenBySerial(tokenSerial));
         token.readCertificates(() -> onTokenCertificateLoaded(token));
     }
 
@@ -155,10 +144,10 @@ public class TokenManagerListener {
 
             if (mMainActivity != null) mMainActivity.updateScreen();
 
-            for (String id : TokenManager.getInstance().tokenSerials()) {
+            for (String serial : TokenManager.getInstance().getTokenSerials()) {
                 if (!mTokenSerial.equals(NO_TOKEN))
                     break;
-                processConnectedToken(TokenManager.getInstance().tokenForId(id));
+                processConnectedToken(TokenManager.getInstance().getTokenBySerial(serial));
             }
 
             if (mMainActivity == null) {
@@ -191,8 +180,9 @@ public class TokenManagerListener {
         mWaitCertificateFingerprint = NO_FINGERPRINT;
     }
 
-    protected void processConnectedToken(Token token) {
-        if (token == null) return;
+    protected void processConnectedToken(@Nullable Token token) {
+        if (token == null)
+            return;
         String tokenSerial = token.getSerialNumber();
         Set<String> certificateFingerprints = token.enumerateCertificates();
 

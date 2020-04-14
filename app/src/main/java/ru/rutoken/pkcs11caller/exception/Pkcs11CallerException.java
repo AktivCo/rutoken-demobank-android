@@ -9,4 +9,8 @@ public abstract class Pkcs11CallerException extends Exception {
     public Pkcs11CallerException(String message) {
         super(message);
     }
+
+    public Pkcs11CallerException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

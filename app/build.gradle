@@ -45,6 +45,7 @@ dependencies {
     implementation 'org.bouncycastle:bcpkix-jdk15on:1.61'
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.0.0'
+    implementation 'com.google.guava:guava:28.0-android'
     implementation 'net.java.dev.jna:jna:5.4.0@aar'
     implementation 'com.google.android.material:material:1.1.0'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'

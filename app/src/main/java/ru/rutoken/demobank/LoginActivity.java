@@ -115,17 +115,16 @@ public class LoginActivity extends Pkcs11CallerActivity {
 
         Intent intent = getIntent();
         mTokenSerial = intent.getStringExtra(MainActivity.EXTRA_TOKEN_SERIAL);
+        mCertificateFingerprint = intent.getStringExtra(MainActivity.EXTRA_CERTIFICATE_FINGERPRINT);
+        mToken = TokenManager.getInstance().getTokenBySerial(mTokenSerial);
+        if (mToken == null)
+            finish();
+
+        mOverlayDialog = new Dialog(this, android.R.style.Theme_Panel);
+        mOverlayDialog.setCancelable(false);
 
         setupActionBar();
         setupUI();
-
-        mCertificateFingerprint = intent.getStringExtra(MainActivity.EXTRA_CERTIFICATE_FINGERPRINT);
-        mToken = TokenManager.getInstance().tokenForId(mTokenSerial);
-        if (null == mToken) {
-            finish();
-        }
-        mOverlayDialog = new Dialog(this, android.R.style.Theme_Panel);
-        mOverlayDialog.setCancelable(false);
     }
 
     private void setupActionBar() {

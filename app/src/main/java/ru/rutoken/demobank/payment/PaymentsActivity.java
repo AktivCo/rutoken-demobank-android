@@ -123,7 +123,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
         Intent intent = getIntent();
         mTokenSerial = intent.getStringExtra(MainActivity.EXTRA_TOKEN_SERIAL);
         mCertificateFingerprint = intent.getStringExtra(MainActivity.EXTRA_CERTIFICATE_FINGERPRINT);
-        mToken = TokenManager.getInstance().tokenForId(mTokenSerial);
+        mToken = TokenManager.getInstance().getTokenBySerial(mTokenSerial);
         if (null == mToken) {
             finish();
         }

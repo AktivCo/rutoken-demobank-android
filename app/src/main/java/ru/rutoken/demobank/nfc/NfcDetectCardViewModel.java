@@ -15,7 +15,6 @@ class NfcDetectCardViewModel extends ViewModel {
     private MutableLiveData<Command> mCommand = new MutableLiveData<>();
 
     NfcDetectCardViewModel(String tokenSerial) {
-        TokenManager.getInstance().getSlotIdByTokenSerial(tokenSerial);
         //TODO: use normal key for TokenExecutors
         TokenExecutors.getInstance().get(new NativeLong(1)).execute(() -> {
             try {
