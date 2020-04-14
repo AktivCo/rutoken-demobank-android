@@ -2,4 +2,5 @@
 <resources>
     <color name="nfcText">#444444</color>
     <color name="rutokenRed">#DD2233</color>
+    <color name="background">#FAFAFA</color>>
 </resources>
