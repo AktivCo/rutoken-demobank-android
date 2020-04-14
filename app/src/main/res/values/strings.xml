@@ -25,4 +25,5 @@
     <string name="install_control_panel">Install</string>
     <string name="need_sm_activate">Secure messaging activation is required</string>
     <string name="failed_to_add_token">Failed to add token</string>
+    <string name="please_attach_nfc_card">Attach a NFC card</string>
 </resources>
