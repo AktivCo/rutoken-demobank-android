@@ -48,7 +48,7 @@ public class LoginActivity extends Pkcs11CallerActivity {
     private TextView mAlertTextView;
     private ProgressBar mLoginProgressBar;
 
-    protected NativeLong mSlotId = TokenManagerListener.NO_SLOT;
+    protected String mTokenSerial = TokenManagerListener.NO_TOKEN;
     protected NativeLong mCertificate = TokenManagerListener.NO_CERTIFICATE;
     protected Token mToken = null;
 
@@ -99,8 +99,8 @@ public class LoginActivity extends Pkcs11CallerActivity {
     protected void manageSignSucceed(byte[] data) {
         showLogonFinished();
         Intent intent = new Intent(LoginActivity.this, PaymentsActivity.class);
-        intent.putExtra("slotId", mSlotId);
-        intent.putExtra("certificate", mCertificate);
+        intent.putExtra(MainActivity.EXTRA_TOKEN_SERIAL, mTokenSerial);
+        intent.putExtra(MainActivity.EXTRA_CERTIFICATE, mCertificate);
         startActivity(intent);
     }
 
@@ -132,9 +132,9 @@ public class LoginActivity extends Pkcs11CallerActivity {
         setupUI();
 
         Intent intent = getIntent();
-        mSlotId = (NativeLong) intent.getSerializableExtra("slotId");
-        mCertificate = (NativeLong) intent.getSerializableExtra("certificate");
-        mToken = TokenManager.getInstance().tokenForSlot(mSlotId);
+        mTokenSerial = intent.getStringExtra(MainActivity.EXTRA_TOKEN_SERIAL);
+        mCertificate = (NativeLong) intent.getSerializableExtra(MainActivity.EXTRA_CERTIFICATE);
+        mToken = TokenManager.getInstance().tokenForId(mTokenSerial);
         if (null == mToken) {
             finish();
         }

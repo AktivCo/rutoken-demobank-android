@@ -28,10 +28,14 @@ import ru.rutoken.pkcs11caller.exception.Pkcs11CallerException;
 import ru.rutoken.pkcs11jna.RtPkcs11;
 
 public class TokenManagerListener {
+    public static final String MAIN_ACTIVITY_IDENTIFIER = TokenManagerListener.class.getName() + "MAIN_ACTIVITY";
+
+    public static final String NO_TOKEN = "";
+    public static final NativeLong NO_CERTIFICATE = new NativeLong(0);
+
     private static volatile TokenManagerListener mInstance = null;
 
     private Context mContext;
-    public static final String MAIN_ACTIVITY_IDENTIFIER = TokenManagerListener.class.getName() + "MAIN_ACTIVITY";
     private MainActivity mMainActivity = null;
     private final List<ManagedActivity> mActivities = Collections.synchronizedList(new LinkedList<>());
 
@@ -63,10 +67,7 @@ public class TokenManagerListener {
 
     private int mTwbaCounter = 0;
 
-    public static final NativeLong NO_SLOT = new NativeLong(-1);
-    public static final NativeLong NO_CERTIFICATE = new NativeLong(0);
-
-    private NativeLong mSlotId = NO_SLOT;
+    private String mTokenSerial = NO_TOKEN;
     private Token mToken = null;
     private NativeLong mCertificate = NO_CERTIFICATE;
 
@@ -133,17 +134,17 @@ public class TokenManagerListener {
         --mTwbaCounter;
         if (mMainActivity != null) mMainActivity.updateScreen();
 
-        NativeLong slotId = (NativeLong) intent.getSerializableExtra(TokenManager.EXTRA_SLOT_ID);
-        if (slotId == null) return;
+        String tokenSerial = intent.getStringExtra(TokenManager.EXTRA_TOKEN_SERIAL);
+        if (tokenSerial == null) return;
 
-        Token token = TokenManager.getInstance().tokenForSlot(slotId);
+        Token token = TokenManager.getInstance().tokenForId(tokenSerial);
         RtPkcs11 rtPkcs11 = RtPkcs11Library.getInstance();
 
         try {
             token.openSession(rtPkcs11);
             token.initCertificatesList(rtPkcs11);
 
-            processConnectedToken(slotId, token);
+            processConnectedToken(token);
             if (mMainActivity != null) mMainActivity.updateScreen();
         } catch (Pkcs11CallerException e) {
             e.printStackTrace();
@@ -159,14 +160,14 @@ public class TokenManagerListener {
     }
 
     protected void onTokenRemoved(Intent intent) {
-        NativeLong slotId = (NativeLong) intent.getSerializableExtra(TokenManager.EXTRA_SLOT_ID);
-        onTokenRemoved(slotId);
+        String tokenSerial = intent.getStringExtra(TokenManager.EXTRA_TOKEN_SERIAL);
+        onTokenRemoved(tokenSerial);
     }
 
-    protected void onTokenRemoved(NativeLong slotId) {
-        if (slotId == null) return;
+    protected void onTokenRemoved(String tokenSerial) {
+        if (tokenSerial == null) return;
 
-        if (slotId.equals(mSlotId)) {
+        if (tokenSerial.equals(mTokenSerial)) {
             if (mPaymentsCreated) {
                 mPaymentsCreated = false;
                 mDoWait = true;
@@ -174,14 +175,14 @@ public class TokenManagerListener {
                 mWaitToken = mToken;
             }
 
-            resetSlotInfo();
+            resetTokenInfo();
 
             if (mMainActivity != null) mMainActivity.updateScreen();
 
-            for (NativeLong slot : TokenManager.getInstance().slots()) {
-                if (!mSlotId.equals(NO_SLOT))
+            for (String id : TokenManager.getInstance().tokenSerials()) {
+                if (!mTokenSerial.equals(NO_TOKEN))
                     break;
-                processConnectedToken(slot, TokenManager.getInstance().tokenForSlot(slot));
+                processConnectedToken(TokenManager.getInstance().tokenForId(id));
             }
 
             if (mMainActivity == null) {
@@ -197,28 +198,27 @@ public class TokenManagerListener {
     protected void onInternalError() {
     }
 
-    protected void resetSlotInfo() {
-        mSlotId = NO_SLOT;
+    protected void resetTokenInfo() {
+        mTokenSerial = NO_TOKEN;
         mToken = null;
         mCertificate = NO_CERTIFICATE;
     }
 
-    protected void resetWaitSlotState() {
+    protected void resetWaitTokenState() {
         mDoWait = false;
         mWaitToken = null;
         mWaitCertificate = NO_CERTIFICATE;
     }
 
-    protected void processConnectedToken(NativeLong slotId, Token token) {
+    protected void processConnectedToken(Token token) {
         if (token == null) return;
-
-        String serial = token.getSerialNumber();
+        String tokenSerial = token.getSerialNumber();
         Set<NativeLong> certificates = token.enumerateCertificates();
 
         if (mDoWait) { // process wait token once
             do {
                 if (certificates == null) break;
-                if (!serial.equals(mWaitToken.getSerialNumber())) break;
+                if (!tokenSerial.equals(mWaitToken.getSerialNumber())) break;
                 NativeLong foundCertificate = null;
                 for (NativeLong certificate : certificates) {
                     if (token.getCertificate(certificate).getSubject().equals(mWaitToken.getCertificate(mWaitCertificate).getSubject())) {
@@ -227,7 +227,7 @@ public class TokenManagerListener {
                     }
                 }
                 if (foundCertificate != null) {
-                    mSlotId = slotId;
+                    mTokenSerial = tokenSerial;
                     mToken = token;
                     mCertificate = foundCertificate;
                     if (mMainActivity != null) mMainActivity.startPINActivity();
@@ -236,8 +236,8 @@ public class TokenManagerListener {
             } while (false);
         }
         // Process new token, if need
-        if (mSlotId.equals(NO_SLOT)) {
-            mSlotId = slotId;
+        if (mTokenSerial.equals(NO_TOKEN)) {
+            mTokenSerial = tokenSerial;
             mToken = token;
             if (certificates != null && certificates.iterator().hasNext()) {
                 mCertificate = certificates.iterator().next();
@@ -280,13 +280,13 @@ public class TokenManagerListener {
     }
 
     public void resetWaitForToken() {
-        resetWaitSlotState();
+        resetWaitTokenState();
         if (mMainActivity != null) mMainActivity.updateScreen();
-        onTokenRemoved(NO_SLOT);
+        onTokenRemoved(NO_TOKEN);
     }
 
-    public NativeLong getSlotId() {
-        return mSlotId;
+    public String getTokenSerial() {
+        return mTokenSerial;
     }
 
     public Token getToken() {

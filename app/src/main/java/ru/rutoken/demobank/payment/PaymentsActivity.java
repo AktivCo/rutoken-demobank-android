@@ -37,6 +37,8 @@ import java.util.Objects;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
+
+import ru.rutoken.demobank.MainActivity;
 import ru.rutoken.demobank.Pkcs11CallerActivity;
 import ru.rutoken.demobank.R;
 import ru.rutoken.demobank.TokenManagerListener;
@@ -91,7 +93,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
     private String mSignData;
 
     // Activity input
-    protected NativeLong mSlotId = TokenManagerListener.NO_SLOT;
+    protected String mTokenSerial = TokenManagerListener.NO_TOKEN;
     protected NativeLong mCertificate = TokenManagerListener.NO_CERTIFICATE;
     protected Token mToken = null;
     //
@@ -116,9 +118,9 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
 
         setupActionBar();
         Intent intent = getIntent();
-        mSlotId = (NativeLong) intent.getSerializableExtra("slotId");
-        mCertificate = (NativeLong) intent.getSerializableExtra("certificate");
-        mToken = TokenManager.getInstance().tokenForSlot(mSlotId);
+        mTokenSerial = intent.getStringExtra(MainActivity.EXTRA_TOKEN_SERIAL);
+        mCertificate = (NativeLong) intent.getSerializableExtra(MainActivity.EXTRA_CERTIFICATE);
+        mToken = TokenManager.getInstance().tokenForId(mTokenSerial);
         if (null == mToken) {
             finish();
         }

@@ -67,7 +67,8 @@ public class TokenManager {
     private EventHandlerThread mEventHandlerThread;
     private Context mContext;
     private Pkcs11CallerException mTokenError;
-    private final Map<NativeLong, Token> mTokens = Collections.synchronizedMap(new HashMap<>());
+    private final Map<NativeLong, String> mTokenSerials = Collections.synchronizedMap(new HashMap<>());
+    private final Map<String, Token> mTokens = Collections.synchronizedMap(new HashMap<>());
     private final Map<NativeLong, AcceptableState> mStateMachines = Collections.synchronizedMap(new HashMap<>());
     private final Map<NativeLong, TokenInfoLoader> mTilThreads = Collections.synchronizedMap(new HashMap<>());
     private final Map<AcceptableState, Method> mCurrentStateProcessors;
@@ -79,7 +80,7 @@ public class TokenManager {
     public static final String TOKEN_WAS_REMOVED = EventHandlerThread.class.getName() + ".TOKEN_WAS_REMOVED";
     public static final String INTERNAL_ERROR = EventHandlerThread.class.getName() + ".INTERNAL_ERROR";
 
-    public static final String EXTRA_SLOT_ID = TokenManager.class.getName() + ".SLOT_ID";
+    public static final String EXTRA_TOKEN_SERIAL = TokenManager.class.getName() + ".TOKEN_ID";
     public static final String EXTRA_TOKEN_ERROR = TokenManager.class.getName() + ".TOKEN_ERROR";
 
     private TokenManager() {
@@ -110,7 +111,7 @@ public class TokenManager {
                 throw new TokenManagerException("Input not accepted by state");
             case SLOT_REMOVED:
                 newState = AcceptableState.R0W0SR;
-                sendTAF(slotId);
+                sendTAF();
                 break;
             case TOKEN_INFO_LOADED:
             case TOKEN_INFO_FAILED:
@@ -130,16 +131,17 @@ public class TokenManager {
                 throw new TokenManagerException("Input not accepted by state");
             case SLOT_REMOVED:
                 newState = AcceptableState.R0W0SR;
-                sendTAF(slotId);
+                sendTAF();
                 break;
             case TOKEN_INFO_LOADED:
                 newState = AcceptableState.R1W0TIL;
-                mTokens.put(slotId, token);
-                sendTA(slotId);
+                mTokens.put(token.getSerialNumber(), token);
+                mTokenSerials.put(slotId, token.getSerialNumber());
+                sendTA(token.getSerialNumber());
                 break;
             case TOKEN_INFO_FAILED:
                 newState = AcceptableState.R1W0TIF;
-                sendTAF(slotId);
+                sendTAF();
                 break;
             default:
                 throw new TokenManagerException("Unexpected unfiltered incoming event");
@@ -152,7 +154,7 @@ public class TokenManager {
         switch (event) {
             case SLOT_ADDED:
                 newState = AcceptableState.R0W0SD;
-                sendTWBA(slotId);
+                sendTWBA();
                 break;
             case SLOT_REMOVED:
                 throw new TokenManagerException("Input not accepted by state");
@@ -173,7 +175,7 @@ public class TokenManager {
         switch (event) {
             case SLOT_ADDED:
                 newState = AcceptableState.R0W1SD;
-                sendTWBA(slotId);
+                sendTWBA();
                 startTilThread(slotId);
                 break;
             case SLOT_REMOVED:
@@ -191,13 +193,14 @@ public class TokenManager {
         switch (event) {
             case SLOT_ADDED:
                 newState = AcceptableState.R0W1SD;
-                sendTWBA(slotId);
+                sendTWBA();
                 startTilThread(slotId);
                 break;
             case SLOT_REMOVED:
                 newState = AcceptableState.R1W0SR;
-                mTokens.remove(slotId);
-                sendTR(slotId);
+                mTokens.remove(mTokenSerials.get(slotId));
+                sendTR(mTokenSerials.get(slotId));
+                mTokenSerials.remove(slotId);
                 break;
             case TOKEN_INFO_LOADED:
             case TOKEN_INFO_FAILED:
@@ -213,7 +216,7 @@ public class TokenManager {
         switch (event) {
             case SLOT_ADDED:
                 newState = AcceptableState.R0W1SD;
-                sendTWBA(slotId);
+                sendTWBA();
                 startTilThread(slotId);
                 break;
             case SLOT_REMOVED:
@@ -290,39 +293,38 @@ public class TokenManager {
         }
         RtPkcs11Library.getInstance().C_Finalize(null);
 
-        for (NativeLong slotId : mTokens.keySet()) {
-            sendTR(slotId);
+        for (String tokenSerial : mTokens.keySet()) {
+            sendTR(tokenSerial);
         }
 
         mTokens.clear();
+        mTokenSerials.clear();
 
         mContext = null;
         instance = null;
     }
 
-    private void sendTWBA(NativeLong slotId) {
-        sendIntentWithSlotId(TOKEN_WILL_BE_ADDED, slotId);
+    private void sendTWBA() {
+        LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(TOKEN_WILL_BE_ADDED));
     }
 
-    private void sendTAF(NativeLong slotId) {
-        String intentType = TOKEN_ADDING_FAILED;
-        Intent intent = new Intent(intentType);
-        intent.putExtra(EXTRA_SLOT_ID, slotId);
+    private void sendTAF() {
+        Intent intent = new Intent(TOKEN_ADDING_FAILED);
         intent.putExtra(EXTRA_TOKEN_ERROR, mTokenError.getMessage());
         LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
     }
 
-    private void sendTA(NativeLong slotId) {
-        sendIntentWithSlotId(TOKEN_WAS_ADDED, slotId);
+    private void sendTA(String tokenSerial) {
+        sendIntentWithTokenSerial(TOKEN_WAS_ADDED, tokenSerial);
     }
 
-    private void sendTR(NativeLong slotId) {
-        sendIntentWithSlotId(TOKEN_WAS_REMOVED, slotId);
+    private void sendTR(String tokenSerial) {
+        sendIntentWithTokenSerial(TOKEN_WAS_REMOVED, tokenSerial);
     }
 
-    private void sendIntentWithSlotId(String intentType, NativeLong slotId) {
+    private void sendIntentWithTokenSerial(String intentType, String tokenSerial) {
         Intent intent = new Intent(intentType);
-        intent.putExtra(EXTRA_SLOT_ID, slotId);
+        intent.putExtra(EXTRA_TOKEN_SERIAL, tokenSerial);
         LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
     }
 
@@ -334,12 +336,12 @@ public class TokenManager {
         LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(INTERNAL_ERROR));
     }
 
-    public synchronized NativeLong[] slots() {
-        NativeLong[] slots = new NativeLong[mTokens.keySet().size()];
-        return mTokens.keySet().toArray(slots);
+    public synchronized String[] tokenSerials() {
+        String[] tokens = new String[mTokens.keySet().size()];
+        return mTokens.keySet().toArray(tokens);
     }
 
-    public Token tokenForSlot(NativeLong slotId) {
-        return mTokens.get(slotId);
+    public Token tokenForId(String tokenSerial) {
+        return mTokens.get(tokenSerial);
     }
 }

@@ -31,7 +31,10 @@ import ru.rutoken.utils.TokenModelRecognizer;
 
 public class MainActivity extends ManagedActivity {
     // Vars
+    public static final String EXTRA_TOKEN_SERIAL = "TOKEN_SERIAL";
+    public static final String EXTRA_CERTIFICATE = "CERTIFICATE";
     private static final String ACTIVITY_CLASS_IDENTIFIER = TokenManagerListener.MAIN_ACTIVITY_IDENTIFIER;
+
     // GUI
     private TextView mInfoTextView;
     private ProgressBar mTWBAProgressBar;
@@ -100,8 +103,8 @@ public class MainActivity extends ManagedActivity {
 
     public void startPINActivity() {
         Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-        intent.putExtra("slotId", TokenManagerListener.getInstance().getSlotId());
-        intent.putExtra("certificate", TokenManagerListener.getInstance().getCertificate());
+        intent.putExtra(EXTRA_TOKEN_SERIAL, TokenManagerListener.getInstance().getTokenSerial());
+        intent.putExtra(EXTRA_CERTIFICATE, TokenManagerListener.getInstance().getCertificate());
         intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
         startActivity(intent);
     }
