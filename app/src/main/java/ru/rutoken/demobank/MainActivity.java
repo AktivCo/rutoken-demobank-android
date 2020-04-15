@@ -5,11 +5,8 @@
 
 package ru.rutoken.demobank;
 
-import android.bluetooth.BluetoothAdapter;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.view.Gravity;
@@ -28,37 +25,15 @@ import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.asn1.x500.style.IETFUtils;
 
-import java.util.Objects;
-
 import ru.rutoken.pkcs11caller.Token;
 import ru.rutoken.utils.PcscChecker;
 import ru.rutoken.utils.TokenModelRecognizer;
-
-import static android.graphics.Typeface.BOLD;
 
 public class MainActivity extends ManagedActivity {
     // Vars
     private static final String ACTIVITY_CLASS_IDENTIFIER = TokenManagerListener.MAIN_ACTIVITY_IDENTIFIER;
     // GUI
     private TextView mInfoTextView;
-    private final BroadcastReceiver mBluetoothStateReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (Objects.equals(intent.getAction(), BluetoothAdapter.ACTION_STATE_CHANGED)) {
-                final int state = intent.getIntExtra(
-                        BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);
-
-                switch (state) {
-                    case BluetoothAdapter.STATE_OFF:
-                        mInfoTextView.setText(R.string.turn_bt_on);
-                        break;
-                    case BluetoothAdapter.STATE_ON:
-                        mInfoTextView.setText(R.string.no_token);
-                        break;
-                }
-            }
-        }
-    };
     private ProgressBar mTWBAProgressBar;
     private Button mSelectButton;
 
@@ -85,8 +60,6 @@ public class MainActivity extends ManagedActivity {
 
         setupActionBar();
         setupUI();
-        IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
-        this.registerReceiver(mBluetoothStateReceiver, filter);
         TokenManagerListener.getInstance().init(getApplicationContext());
     }
 
@@ -109,7 +82,6 @@ public class MainActivity extends ManagedActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unregisterReceiver(mBluetoothStateReceiver);
         if (isFinishing()) {
             TokenManagerListener.getInstance().destroy();
         }
@@ -182,11 +154,7 @@ public class MainActivity extends ManagedActivity {
             shallShowButton = true;
         } else if (TokenManagerListener.getInstance().shallWaitForToken()) {
             textToShow = String.format(getString(R.string.wait_token),
-                    TokenModelRecognizer.getInstance(this).marketingNameForPkcs11Name(
-                            TokenManagerListener.getInstance().getWaitToken().getModel())
-                            + " " + TokenManagerListener.getInstance().getWaitToken().getShortDecSerialNumber());
-        } else if (!BluetoothAdapter.getDefaultAdapter().isEnabled()) {
-            textToShow = getString(R.string.turn_bt_on);
+                    TokenManagerListener.getInstance().getWaitToken().getShortDecSerialNumber());
         } else {
             textToShow = getString(R.string.no_token);
         }

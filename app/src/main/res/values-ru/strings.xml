@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Рутокен Демо</string>
-    <string name="turn_bt_on">Пожалуйста, включите Bluetooth</string>
-    <string name="no_token">Пожалуйста, подключите токен</string>
-    <string name="wait_token" formatted="false">Пожалуйста, подключите\n%s</string>
-    <string name="no_certificate">Отсутствует сертификат на токене</string>
+    <string name="no_token">Включите NFC и поднесите NFC-карту к устройству.\n
+                            \nили\n
+                            \nВключите Bluetooth на этом устройстве и свяжите его с Рутокен Bluetooth.\n
+                            \nили\n
+                            \nПодключите Рутокен в USB-разъем.</string>
+    <string name="wait_token" formatted="false">Потеряна связь с устройством с серийным номером %s
+                                                \n\nПодключите Рутокен или поднесите NFC-карту Рутокен снова</string>
+    <string name="no_certificate">На Рутокене нет сертификата
+                                  \n\nСоздайте ключ и сертификат, например, на настольном компьютере с помощью простого веб-сервиса ra.rutoken.ru</string>
     <string name="pin_hint">Введите PIN-код</string>
     <string name="ok">OK</string>
     <string name="pin_alert">Неправильный PIN, попробуйте ещё раз</string>
@@ -23,7 +28,7 @@
     <string name="exit">Выход</string>
     <string name="no_pcsc_title">Панель управления Рутокен не установлена</string>
     <string name="install_control_panel">Установить</string>
-    <string name="need_sm_activate">Необходима активация шифрования канала</string>
+    <string name="need_sm_activate">Для соединения введите код активации защищенного канала в приложении Панель Управления Рутокен, выбрав Bluetooth-токен.</string>
     <string name="failed_to_add_token">Не удалось подключить токен</string>
     <string name="please_attach_nfc_card">Поднесите NFC-карту</string>
     <string name="select">Выбрать</string>

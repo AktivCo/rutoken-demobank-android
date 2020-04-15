@@ -17,9 +17,11 @@
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
+            android:layout_marginLeft="10sp"
             android:layout_marginTop="237dp"
+            android:layout_marginRight="10sp"
             android:gravity="center"
-            android:textAlignment="gravity"
+            android:textAlignment="center"
             android:textColor="@android:color/black"
             android:textSize="20sp" />
 
