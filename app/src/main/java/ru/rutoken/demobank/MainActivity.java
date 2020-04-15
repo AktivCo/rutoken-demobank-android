@@ -16,6 +16,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -32,6 +33,8 @@ import java.util.Objects;
 import ru.rutoken.pkcs11caller.Token;
 import ru.rutoken.utils.PcscChecker;
 import ru.rutoken.utils.TokenModelRecognizer;
+
+import static android.graphics.Typeface.BOLD;
 
 public class MainActivity extends ManagedActivity {
     // Vars
@@ -57,6 +60,7 @@ public class MainActivity extends ManagedActivity {
         }
     };
     private ProgressBar mTWBAProgressBar;
+    private Button mSelectButton;
 
     private static String commonNameFromX500Name(X500Name name) {
         String commonName = "";
@@ -114,10 +118,12 @@ public class MainActivity extends ManagedActivity {
     private void setupUI() {
         mInfoTextView = findViewById(R.id.infoTV);
         mTWBAProgressBar = findViewById(R.id.twbaPB);
+        mSelectButton = findViewById(R.id.selectButton);
 
         mTWBAProgressBar.setVisibility(View.INVISIBLE);
 
-        mInfoTextView.setOnClickListener(view -> MainActivity.this.startPINActivity());
+        mSelectButton.setVisibility(View.GONE);
+        mSelectButton.setOnClickListener(view -> MainActivity.this.startPINActivity());
     }
 
     public void startPINActivity() {
@@ -146,7 +152,7 @@ public class MainActivity extends ManagedActivity {
     }
 
     public void updateScreen(Token token) {
-        updateInfoLabel(token);
+        updateScreenInfo(token);
         updateProgressBar();
     }
 
@@ -162,35 +168,31 @@ public class MainActivity extends ManagedActivity {
         }
     }
 
-    private void updateInfoLabel(Token token) {
-        String certificateData = getCertificateData(token);
+    private void updateScreenInfo(Token token) {
+        String textToShow = getCertificateData(token);
+        boolean shallShowButton = false;
 
         if (token != null && token.smInitializedStatus() == Token.SmInitializedStatus.NEED_INITIALIZE) {
-            certificateData += getString(R.string.need_sm_activate);
-            mInfoTextView.setText(certificateData);
-            mInfoTextView.setEnabled(false);
+            textToShow += getString(R.string.need_sm_activate);
         } else if (token != null && TokenManagerListener.getInstance().getCertificate().equals(TokenManagerListener.NO_CERTIFICATE)) {
-            certificateData += getString(R.string.no_certificate);
-            mInfoTextView.setText(certificateData);
-            mInfoTextView.setEnabled(false);
+            textToShow += getString(R.string.no_certificate);
         } else if (token != null) {
-
-            certificateData += commonNameFromX500Name(token.getCertificate(TokenManagerListener.getInstance().getCertificate()).getSubject());
-            mInfoTextView.setText(certificateData);
-            mInfoTextView.setEnabled(true);
+            textToShow += commonNameFromX500Name(token.getCertificate(TokenManagerListener.getInstance().getCertificate())
+                                                      .getSubject());
+            shallShowButton = true;
         } else if (TokenManagerListener.getInstance().shallWaitForToken()) {
-            certificateData = String.format(getString(R.string.wait_token),
-                    TokenModelRecognizer.getInstance(this).marketingNameForPkcs11Name(TokenManagerListener.getInstance().getWaitToken().getModel())
+            textToShow = String.format(getString(R.string.wait_token),
+                    TokenModelRecognizer.getInstance(this).marketingNameForPkcs11Name(
+                            TokenManagerListener.getInstance().getWaitToken().getModel())
                             + " " + TokenManagerListener.getInstance().getWaitToken().getShortDecSerialNumber());
-            mInfoTextView.setText(certificateData);
-            mInfoTextView.setEnabled(false);
         } else if (!BluetoothAdapter.getDefaultAdapter().isEnabled()) {
-            mInfoTextView.setText(R.string.turn_bt_on);
-            mInfoTextView.setEnabled(false);
+            textToShow = getString(R.string.turn_bt_on);
         } else {
-            mInfoTextView.setText(R.string.no_token);
-            mInfoTextView.setEnabled(false);
+            textToShow = getString(R.string.no_token);
         }
+
+        mInfoTextView.setText(textToShow);
+        mSelectButton.setVisibility(shallShowButton ? View.VISIBLE : View.GONE);
     }
 
     private String getCertificateData(@Nullable Token token) {

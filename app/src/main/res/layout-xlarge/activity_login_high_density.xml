@@ -46,15 +46,15 @@
         android:textSize="10sp" />
 
     <Button
+        android:id="@+id/loginB"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/ok"
-        android:id="@+id/loginB"
         android:layout_below="@+id/alertTV"
         android:layout_centerHorizontal="true"
-        android:background="@android:color/transparent"
+        android:background="@color/rutokenBlue"
         android:gravity="center"
-        android:textColor="@android:color/black" />
+        android:text="@string/sign_in"
+        android:textColor="@android:color/white" />
 
     <ProgressBar
         style="?android:attr/progressBarStyleLarge"

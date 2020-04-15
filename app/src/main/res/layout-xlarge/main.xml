@@ -23,12 +23,24 @@
             android:textColor="@android:color/black"
             android:textSize="20sp" />
 
+        <Button
+            android:id="@+id/selectButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/infoTV"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="10sp"
+            android:layout_marginBottom="10sp"
+            android:background="@color/rutokenBlue"
+            android:text="@string/select"
+            android:textColor="@android:color/white" />
+
         <ProgressBar
             android:id="@+id/twbaPB"
             style="?android:attr/progressBarStyleLarge"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/infoTV"
+            android:layout_below="@+id/selectButton"
             android:layout_centerHorizontal="true"
             android:layout_gravity="center_horizontal" />
 

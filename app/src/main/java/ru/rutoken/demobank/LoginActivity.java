@@ -167,7 +167,6 @@ public class LoginActivity extends Pkcs11CallerActivity {
 
         mLoginProgressBar.setVisibility(View.GONE);
 
-        mLoginButton.setBackgroundColor(Color.TRANSPARENT);
         mLoginButton.setEnabled(false);
 
         mPinEditText.addTextChangedListener(new TextWatcher() {
