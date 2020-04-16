@@ -9,8 +9,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import android.util.Log;
+
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.sun.jna.NativeLong;
 
@@ -19,6 +20,7 @@ import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Future;
 
 import ru.rutoken.pkcs11caller.exception.Pkcs11CallerException;
 
@@ -53,8 +55,7 @@ public class TokenManager {
         }
     }
 
-    enum AcceptableState
-    {
+    enum AcceptableState {
         R0W0SD,
         R0W1SD,
         R0W0SR,
@@ -343,5 +344,10 @@ public class TokenManager {
 
     public Token tokenForId(String tokenSerial) {
         return mTokens.get(tokenSerial);
+    }
+
+    //TODO: implement
+    public Future<NativeLong> getSlotIdByTokenSerial(String tokenSerial) {
+        return null;
     }
 }

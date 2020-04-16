@@ -33,4 +33,5 @@
     <string name="please_attach_nfc_card">Поднесите NFC-карту</string>
     <string name="select">Выбрать</string>
     <string name="sign_in">Войти</string>
+    <string name="cancel">Отмена</string>
 </resources>
