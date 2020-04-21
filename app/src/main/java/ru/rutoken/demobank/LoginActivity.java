@@ -88,8 +88,8 @@ public class LoginActivity extends Pkcs11CallerActivity {
         if (exception != null) {
             message = Pkcs11ErrorTranslator.getInstance(this).messageForRV(exception.getErrorCode());
         }
+        mToken.clearPin();
         Toast.makeText(this, message, Toast.LENGTH_LONG).show();
-        logout(mToken);
     }
 
     @Override
@@ -99,16 +99,6 @@ public class LoginActivity extends Pkcs11CallerActivity {
         intent.putExtra(MainActivity.EXTRA_TOKEN_SERIAL, mTokenSerial);
         intent.putExtra(MainActivity.EXTRA_CERTIFICATE_FINGERPRINT, mCertificateFingerprint);
         startActivity(intent);
-    }
-
-    @Override
-    protected void manageLogoutError(@Nullable Pkcs11Exception exception) {
-        showLogonFinished();
-    }
-
-    @Override
-    protected void manageLogoutSucceed() {
-        showLogonFinished();
     }
 
     @Override

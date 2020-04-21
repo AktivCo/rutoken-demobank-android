@@ -139,14 +139,13 @@ public class TokenManagerListener {
         RtPkcs11 rtPkcs11 = RtPkcs11Library.getInstance();
 
         try {
-            token.openSession(rtPkcs11);
+            token.openSession();
             token.readCertificates(rtPkcs11);
 
             processConnectedToken(token);
             if (mMainActivity != null) mMainActivity.updateScreen();
         } catch (Pkcs11CallerException e) {
             e.printStackTrace();
-            token.closeSession(rtPkcs11);
 
             if (mMainActivity != null) {
                 if (mToken == null && token.smInitializedStatus() == Token.SmInitializedStatus.NEED_INITIALIZE)
@@ -154,6 +153,8 @@ public class TokenManagerListener {
                 else
                     notifyAboutTokenError(e.getMessage());
             }
+        } finally {
+            token.closeSession();
         }
     }
 

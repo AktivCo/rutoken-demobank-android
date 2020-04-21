@@ -215,7 +215,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
     @Override
     public void onBackPressed() {
         TokenManagerListener.getInstance().resetPaymentsCreated();
-        logout(mToken);
+        mToken.clearPin();
         super.onBackPressed();
     }
 
@@ -243,14 +243,6 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
         uncheckAllPayments();
         mProgressDialog.dismiss();
         mSucceedDialog.show();
-    }
-
-    @Override
-    protected void manageLogoutError(@Nullable Pkcs11Exception exception) {
-    }
-
-    @Override
-    protected void manageLogoutSucceed() {
     }
 
     private void createPayments() {

@@ -42,6 +42,7 @@ public class Token {
     }
 
     private final NativeLong mId;
+    private String mPin;
 
     private long mSession;
 
@@ -115,6 +116,11 @@ public class Token {
 
     public SmInitializedStatus smInitializedStatus() {
         return mSmInitializedStatus;
+    }
+
+    public void clearPin() {
+        // TODO: implement secure pin caching
+        mPin = "";
     }
 
     Token(NativeLong slotId) throws Pkcs11CallerException {
@@ -212,9 +218,9 @@ public class Token {
         mSupportsSM = ((tokenInfoEx.flags.longValue() & RtPkcs11Constants.TOKEN_FLAGS_SUPPORT_SM) != 0);
     }
 
-    public void openSession(Pkcs11 pkcs11) throws Pkcs11CallerException {
+    public void openSession() throws Pkcs11CallerException {
         NativeLongByReference session = new NativeLongByReference();
-        long rv = pkcs11.C_OpenSession(mId,
+        long rv = RtPkcs11Library.getInstance().C_OpenSession(mId,
                 new NativeLong(Pkcs11Constants.CKF_SERIAL_SESSION), null, null, session).longValue();
 
         if (rv != 0) {
@@ -226,9 +232,9 @@ public class Token {
         mSession = session.getValue().longValue();
     }
 
-    public void closeSession(Pkcs11 pkcs11) {
+    public void closeSession() {
         try {
-            NativeLong rv = pkcs11.C_CloseSession(new NativeLong(mSession));
+            NativeLong rv = RtPkcs11Library.getInstance().C_CloseSession(new NativeLong(mSession));
             Pkcs11Exception.throwIfNotOk(rv);
         } catch (Pkcs11CallerException exception2) {
             exception2.printStackTrace();
@@ -254,22 +260,24 @@ public class Token {
         new Pkcs11AsyncTask(callback) {
             @Override
             protected Pkcs11Result doWork() throws Pkcs11CallerException {
-                NativeLong rv = mPkcs11.C_Login(new NativeLong(mSession), new NativeLong(Pkcs11Constants.CKU_USER),
-                        pin.getBytes(), new NativeLong(pin.length()));
+                NativeLongByReference session = new NativeLongByReference();
+                NativeLong rv = mPkcs11.C_OpenSession(mId,
+                        new NativeLong(Pkcs11Constants.CKF_SERIAL_SESSION), null, null, session);
                 Pkcs11Exception.throwIfNotOk(rv);
 
-                return null;
-            }
-        }.execute();
-    }
+                try {
+                    rv = mPkcs11.C_Login(session.getValue(), new NativeLong(Pkcs11Constants.CKU_USER),
+                            pin.getBytes(), new NativeLong(pin.length()));
+                    Pkcs11Exception.throwIfNotOk(rv);
 
-    public void logout(Pkcs11Callback callback) {
-        new Pkcs11AsyncTask(callback) {
-            @Override
-            protected Pkcs11Result doWork() throws Pkcs11CallerException {
-                NativeLong rv = mPkcs11.C_Logout(new NativeLong(mSession));
-                Pkcs11Exception.throwIfNotOk(rv);
+                    rv = mPkcs11.C_Logout(session.getValue());
+                    Pkcs11Exception.throwIfNotOk(rv);
+                } finally {
+                    mPkcs11.C_CloseSession(session.getValue());
+                }
 
+                // TODO: implement secure pin caching
+                mPin = pin;
                 return null;
             }
         }.execute();
@@ -279,12 +287,35 @@ public class Token {
         new Pkcs11AsyncTask(callback) {
             @Override
             protected Pkcs11Result doWork() throws Pkcs11CallerException {
+                // Do we need to check whether certificate is on token?
                 CertificateAndGostKeyPair cert = mCertificateMap.get(certificate);
                 if (cert == null) throw new CertNotFoundException();
 
-                long keyHandle = cert.getGostKeyPair().getPrivateKeyHandle(mPkcs11, mSession);
-                final Pkcs7Signer signer = new Pkcs7Signer(cert.getGostKeyPair().getKeyType(), mSession);
-                return new Pkcs11Result(signer.sign(data, keyHandle, cert.getCertificate().getCertificateHolder()));
+                NativeLongByReference session = new NativeLongByReference();
+                NativeLong rv = mPkcs11.C_OpenSession(mId,
+                        new NativeLong(Pkcs11Constants.CKF_SERIAL_SESSION), null, null, session);
+                Pkcs11Exception.throwIfNotOk(rv);
+
+                try {
+                    rv = mPkcs11.C_Login(session.getValue(), new NativeLong(Pkcs11Constants.CKU_USER),
+                            mPin.getBytes(), new NativeLong(mPin.length()));
+                    Pkcs11Exception.throwIfNotOk(rv);
+
+                    try {
+                        long keyHandle = cert.getGostKeyPair()
+                                             .getPrivateKeyHandle(mPkcs11, session.getValue().longValue());
+
+                        final Pkcs7Signer signer = new Pkcs7Signer(cert.getGostKeyPair().getKeyType(),
+                                session.getValue().longValue());
+
+                        return new Pkcs11Result(signer.sign(data, keyHandle,
+                                cert.getCertificate().getCertificateHolder()));
+                    } finally {
+                        mPkcs11.C_Logout(session.getValue());
+                    }
+                } finally {
+                    mPkcs11.C_CloseSession(session.getValue());
+                }
             }
         }.execute();
     }

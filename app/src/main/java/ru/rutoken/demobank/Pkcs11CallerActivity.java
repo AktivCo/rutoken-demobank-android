@@ -44,19 +44,8 @@ abstract public class Pkcs11CallerActivity extends ManagedActivity {
         }
     }
 
-    class LogoutCallback extends Pkcs11Callback {
-        public void execute(Pkcs11CallerException exception) {
-            manageLogoutError(pkcs11exceptionFromCallerException(exception));
-        }
-
-        public void execute(Object... arguments) {
-            manageLogoutSucceed();
-        }
-    }
-
     final LoginCallback mLoginCallback = new LoginCallback();
     final SignCallback mSignCallback = new SignCallback();
-    final LogoutCallback mLogoutCallback = new LogoutCallback();
 
     protected void sign(Token token, String certificate, byte[] signData) {
         token.sign(certificate, signData, mSignCallback);
@@ -66,17 +55,9 @@ abstract public class Pkcs11CallerActivity extends ManagedActivity {
         token.login(pin, mLoginCallback);
     }
 
-    protected void logout(Token token) {
-        token.logout(mLogoutCallback);
-    }
-
     abstract protected void manageLoginError(@Nullable Pkcs11Exception exception);
 
     abstract protected void manageLoginSucceed();
-
-    abstract protected void manageLogoutError(@Nullable Pkcs11Exception exception);
-
-    abstract protected void manageLogoutSucceed();
 
     abstract protected void manageSignError(@Nullable Pkcs11Exception exception);
 
