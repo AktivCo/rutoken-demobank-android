@@ -32,7 +32,7 @@ import ru.rutoken.utils.TokenModelRecognizer;
 public class MainActivity extends ManagedActivity {
     // Vars
     public static final String EXTRA_TOKEN_SERIAL = "TOKEN_SERIAL";
-    public static final String EXTRA_CERTIFICATE = "CERTIFICATE";
+    public static final String EXTRA_CERTIFICATE_FINGERPRINT = "CERTIFICATE_FINGERPRINT";
     private static final String ACTIVITY_CLASS_IDENTIFIER = TokenManagerListener.MAIN_ACTIVITY_IDENTIFIER;
 
     // GUI
@@ -104,7 +104,7 @@ public class MainActivity extends ManagedActivity {
     public void startPINActivity() {
         Intent intent = new Intent(MainActivity.this, LoginActivity.class);
         intent.putExtra(EXTRA_TOKEN_SERIAL, TokenManagerListener.getInstance().getTokenSerial());
-        intent.putExtra(EXTRA_CERTIFICATE, TokenManagerListener.getInstance().getCertificate());
+        intent.putExtra(EXTRA_CERTIFICATE_FINGERPRINT, TokenManagerListener.getInstance().getCertificateFingerprint());
         intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
         startActivity(intent);
     }
@@ -149,10 +149,10 @@ public class MainActivity extends ManagedActivity {
 
         if (token != null && token.smInitializedStatus() == Token.SmInitializedStatus.NEED_INITIALIZE) {
             textToShow += getString(R.string.need_sm_activate);
-        } else if (token != null && TokenManagerListener.getInstance().getCertificate().equals(TokenManagerListener.NO_CERTIFICATE)) {
+        } else if (token != null && TokenManagerListener.getInstance().getCertificateFingerprint().equals(TokenManagerListener.NO_FINGERPRINT)) {
             textToShow += getString(R.string.no_certificate);
         } else if (token != null) {
-            textToShow += commonNameFromX500Name(token.getCertificate(TokenManagerListener.getInstance().getCertificate())
+            textToShow += commonNameFromX500Name(token.getCertificate(TokenManagerListener.getInstance().getCertificateFingerprint())
                                                       .getSubject());
             shallShowButton = true;
         } else if (TokenManagerListener.getInstance().shallWaitForToken()) {

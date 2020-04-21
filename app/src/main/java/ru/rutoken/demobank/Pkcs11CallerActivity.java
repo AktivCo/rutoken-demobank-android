@@ -58,7 +58,7 @@ abstract public class Pkcs11CallerActivity extends ManagedActivity {
     final SignCallback mSignCallback = new SignCallback();
     final LogoutCallback mLogoutCallback = new LogoutCallback();
 
-    protected void sign(Token token, NativeLong certificate, byte[] signData) {
+    protected void sign(Token token, String certificate, byte[] signData) {
         token.sign(certificate, signData, mSignCallback);
     }
 

@@ -59,7 +59,7 @@ public class Token {
     private UserChangePolicy mUserPinChangePolicy;
     private boolean mSupportsSM;
     private SmInitializedStatus mSmInitializedStatus = SmInitializedStatus.UNKNOWN;
-    private final HashMap<NativeLong, CertificateAndGostKeyPair> mCertificateMap = new HashMap<>();
+    private final HashMap<String, CertificateAndGostKeyPair> mCertificateMap = new HashMap<>();
 
     public String getLabel() {
         return mLabel;
@@ -122,7 +122,7 @@ public class Token {
         initTokenInfo();
     }
 
-    private Map<NativeLong, CertificateAndGostKeyPair> getCertificatesWithCategory(RtPkcs11 pkcs11, CertificateCategory category) throws Pkcs11CallerException {
+    private Map<String, CertificateAndGostKeyPair> getCertificatesWithCategory(RtPkcs11 pkcs11, CertificateCategory category) throws Pkcs11CallerException {
         CK_ATTRIBUTE[] template = (CK_ATTRIBUTE[]) (new CK_ATTRIBUTE()).toArray(2);
 
         NativeLongByReference certClass =
@@ -152,12 +152,12 @@ public class Token {
         Pkcs11Exception.throwIfNotOk(rv);
         Pkcs11Exception.throwIfNotOk(rv2);
 
-        HashMap<NativeLong, CertificateAndGostKeyPair> certificateMap = new HashMap<>();
+        HashMap<String, CertificateAndGostKeyPair> certificateMap = new HashMap<>();
         for (NativeLong c : certs) {
             try {
                 Certificate cert = new Certificate(pkcs11, mSession, c.longValue());
                 GostKeyPair keyPair = GostKeyPair.getGostKeyPairByCertificate(pkcs11, mSession, cert.getCertificateHolder());
-                certificateMap.put(c, new CertificateAndGostKeyPair(cert, keyPair));
+                certificateMap.put(cert.fingerprint(), new CertificateAndGostKeyPair(cert, keyPair));
             } catch (Pkcs11CallerException e) {
                 e.printStackTrace();
             }
@@ -235,19 +235,19 @@ public class Token {
         }
     }
 
-    public void initCertificatesList(RtPkcs11 pkcs11) throws Pkcs11CallerException {
+    public void readCertificates(RtPkcs11 pkcs11) throws Pkcs11CallerException {
         CertificateCategory supportedCategories[] = {CertificateCategory.UNSPECIFIED, CertificateCategory.USER};
         for (CertificateCategory category : supportedCategories) {
             mCertificateMap.putAll(getCertificatesWithCategory(pkcs11, category));
         }
     }
 
-    public Set<NativeLong> enumerateCertificates() {
+    public Set<String> enumerateCertificates() {
         return mCertificateMap.keySet();
     }
 
-    public Certificate getCertificate(NativeLong handle) {
-        return Objects.requireNonNull(mCertificateMap.get(handle)).getCertificate();
+    public Certificate getCertificate(String fingerprint) {
+        return Objects.requireNonNull(mCertificateMap.get(fingerprint)).getCertificate();
     }
 
     public void login(final String pin, Pkcs11Callback callback) {
@@ -275,7 +275,7 @@ public class Token {
         }.execute();
     }
 
-    public void sign(final NativeLong certificate, final byte[] data, Pkcs11Callback callback) {
+    public void sign(final String certificate, final byte[] data, Pkcs11Callback callback) {
         new Pkcs11AsyncTask(callback) {
             @Override
             protected Pkcs11Result doWork() throws Pkcs11CallerException {

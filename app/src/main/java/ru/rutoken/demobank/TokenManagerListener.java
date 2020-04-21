@@ -13,8 +13,6 @@ import android.widget.Toast;
 
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
-import com.sun.jna.NativeLong;
-
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -31,7 +29,7 @@ public class TokenManagerListener {
     public static final String MAIN_ACTIVITY_IDENTIFIER = TokenManagerListener.class.getName() + "MAIN_ACTIVITY";
 
     public static final String NO_TOKEN = "";
-    public static final NativeLong NO_CERTIFICATE = new NativeLong(0);
+    public static final String NO_FINGERPRINT = "";
 
     private static volatile TokenManagerListener mInstance = null;
 
@@ -69,10 +67,10 @@ public class TokenManagerListener {
 
     private String mTokenSerial = NO_TOKEN;
     private Token mToken = null;
-    private NativeLong mCertificate = NO_CERTIFICATE;
+    private String mCertificateFingerprint = NO_FINGERPRINT;
 
     private Token mWaitToken = null;
-    private NativeLong mWaitCertificate = NO_CERTIFICATE;
+    private String mWaitCertificateFingerprint = NO_FINGERPRINT;
 
     public static synchronized TokenManagerListener getInstance() {
         TokenManagerListener localInstance = mInstance;
@@ -142,7 +140,7 @@ public class TokenManagerListener {
 
         try {
             token.openSession(rtPkcs11);
-            token.initCertificatesList(rtPkcs11);
+            token.readCertificates(rtPkcs11);
 
             processConnectedToken(token);
             if (mMainActivity != null) mMainActivity.updateScreen();
@@ -171,7 +169,7 @@ public class TokenManagerListener {
             if (mPaymentsCreated) {
                 mPaymentsCreated = false;
                 mDoWait = true;
-                mWaitCertificate = mCertificate;
+                mWaitCertificateFingerprint = mCertificateFingerprint;
                 mWaitToken = mToken;
             }
 
@@ -201,35 +199,38 @@ public class TokenManagerListener {
     protected void resetTokenInfo() {
         mTokenSerial = NO_TOKEN;
         mToken = null;
-        mCertificate = NO_CERTIFICATE;
+        mCertificateFingerprint = NO_FINGERPRINT;
     }
 
     protected void resetWaitTokenState() {
         mDoWait = false;
         mWaitToken = null;
-        mWaitCertificate = NO_CERTIFICATE;
+        mWaitCertificateFingerprint = NO_FINGERPRINT;
     }
 
     protected void processConnectedToken(Token token) {
         if (token == null) return;
         String tokenSerial = token.getSerialNumber();
-        Set<NativeLong> certificates = token.enumerateCertificates();
+        Set<String> certificateFingerprints = token.enumerateCertificates();
 
         if (mDoWait) { // process wait token once
             do {
-                if (certificates == null) break;
+                if (certificateFingerprints.isEmpty()) break;
+
                 if (!tokenSerial.equals(mWaitToken.getSerialNumber())) break;
-                NativeLong foundCertificate = null;
-                for (NativeLong certificate : certificates) {
-                    if (token.getCertificate(certificate).getSubject().equals(mWaitToken.getCertificate(mWaitCertificate).getSubject())) {
-                        foundCertificate = certificate;
+
+                String certFingerprint = null;
+                for (String fp : certificateFingerprints) {
+                    if (fp.equals(mWaitCertificateFingerprint)) {
+                        certFingerprint = fp;
                         break;
                     }
                 }
-                if (foundCertificate != null) {
+
+                if (certFingerprint != null) {
                     mTokenSerial = tokenSerial;
                     mToken = token;
-                    mCertificate = foundCertificate;
+                    mCertificateFingerprint = certFingerprint;
                     if (mMainActivity != null) mMainActivity.startPINActivity();
                     break;
                 }
@@ -239,10 +240,10 @@ public class TokenManagerListener {
         if (mTokenSerial.equals(NO_TOKEN)) {
             mTokenSerial = tokenSerial;
             mToken = token;
-            if (certificates != null && certificates.iterator().hasNext()) {
-                mCertificate = certificates.iterator().next();
+            if (certificateFingerprints.iterator().hasNext()) {
+                mCertificateFingerprint = certificateFingerprints.iterator().next();
             } else {
-                mCertificate = NO_CERTIFICATE;
+                mCertificateFingerprint = NO_FINGERPRINT;
             }
 
             if (mMainActivity != null) mMainActivity.updateScreen();
@@ -293,16 +294,12 @@ public class TokenManagerListener {
         return mToken;
     }
 
-    public NativeLong getCertificate() {
-        return mCertificate;
+    public String getCertificateFingerprint() {
+        return mCertificateFingerprint;
     }
 
     public Token getWaitToken() {
         return mWaitToken;
-    }
-
-    public NativeLong getWaitCertificate() {
-        return mWaitCertificate;
     }
 
     public void setPaymentsCreated() {

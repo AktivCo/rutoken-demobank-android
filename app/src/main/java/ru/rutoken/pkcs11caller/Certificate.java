@@ -5,6 +5,8 @@
 
 package ru.rutoken.pkcs11caller;
 
+import android.util.Base64;
+
 import com.sun.jna.Memory;
 import com.sun.jna.NativeLong;
 
@@ -12,6 +14,8 @@ import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.cert.X509CertificateHolder;
 
 import java.io.IOException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 import ru.rutoken.pkcs11caller.exception.CertParsingException;
 import ru.rutoken.pkcs11caller.exception.Pkcs11CallerException;
@@ -22,6 +26,7 @@ import ru.rutoken.pkcs11jna.RtPkcs11;
 
 public class Certificate {
     private final X509CertificateHolder mCertificateHolder;
+    private String mFingerprint;
 
     public Certificate(RtPkcs11 pkcs11, long session, long object)
             throws Pkcs11CallerException {
@@ -42,9 +47,12 @@ public class Certificate {
         Pkcs11Exception.throwIfNotOk(rv);
 
         try {
-            mCertificateHolder = new X509CertificateHolder(
-                    attributes[1].pValue.getByteArray(0, attributes[1].ulValueLen.intValue()));
-        } catch (IOException e) {
+            byte[] der = attributes[1].pValue.getByteArray(0, attributes[1].ulValueLen.intValue());
+            mCertificateHolder = new X509CertificateHolder(der);
+
+            MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
+            mFingerprint = Base64.encodeToString(sha256.digest(der), Base64.NO_WRAP);
+        } catch (IOException | NoSuchAlgorithmException e) {
             throw new CertParsingException();
         }
     }
@@ -55,6 +63,10 @@ public class Certificate {
 
     X509CertificateHolder getCertificateHolder() {
         return mCertificateHolder;
+    }
+
+    public String fingerprint() {
+        return mFingerprint;
     }
 
     public enum CertificateCategory {

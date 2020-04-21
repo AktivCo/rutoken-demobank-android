@@ -10,7 +10,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
-import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
@@ -27,8 +26,6 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.sun.jna.NativeLong;
 
 import ru.rutoken.demobank.payment.PaymentsActivity;
 import ru.rutoken.pkcs11caller.Token;
@@ -49,7 +46,7 @@ public class LoginActivity extends Pkcs11CallerActivity {
     private ProgressBar mLoginProgressBar;
 
     protected String mTokenSerial = TokenManagerListener.NO_TOKEN;
-    protected NativeLong mCertificate = TokenManagerListener.NO_CERTIFICATE;
+    protected String mCertificateFingerprint = TokenManagerListener.NO_FINGERPRINT;
     protected Token mToken = null;
 
     private Dialog mOverlayDialog;
@@ -82,7 +79,7 @@ public class LoginActivity extends Pkcs11CallerActivity {
     @Override
     protected void manageLoginSucceed() {
         // sign is used for a challenge-response authentication
-        sign(mToken, mCertificate, SIGN_DATA.getBytes());
+        sign(mToken, mCertificateFingerprint, SIGN_DATA.getBytes());
     }
 
     @Override
@@ -100,7 +97,7 @@ public class LoginActivity extends Pkcs11CallerActivity {
         showLogonFinished();
         Intent intent = new Intent(LoginActivity.this, PaymentsActivity.class);
         intent.putExtra(MainActivity.EXTRA_TOKEN_SERIAL, mTokenSerial);
-        intent.putExtra(MainActivity.EXTRA_CERTIFICATE, mCertificate);
+        intent.putExtra(MainActivity.EXTRA_CERTIFICATE_FINGERPRINT, mCertificateFingerprint);
         startActivity(intent);
     }
 
@@ -133,7 +130,7 @@ public class LoginActivity extends Pkcs11CallerActivity {
 
         Intent intent = getIntent();
         mTokenSerial = intent.getStringExtra(MainActivity.EXTRA_TOKEN_SERIAL);
-        mCertificate = (NativeLong) intent.getSerializableExtra(MainActivity.EXTRA_CERTIFICATE);
+        mCertificateFingerprint = intent.getStringExtra(MainActivity.EXTRA_CERTIFICATE_FINGERPRINT);
         mToken = TokenManager.getInstance().tokenForId(mTokenSerial);
         if (null == mToken) {
             finish();

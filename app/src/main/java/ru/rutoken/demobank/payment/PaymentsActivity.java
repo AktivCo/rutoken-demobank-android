@@ -18,17 +18,13 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.sun.jna.NativeLong;
 
 import java.text.DateFormat;
 import java.util.Date;
@@ -94,7 +90,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
 
     // Activity input
     protected String mTokenSerial = TokenManagerListener.NO_TOKEN;
-    protected NativeLong mCertificate = TokenManagerListener.NO_CERTIFICATE;
+    protected String mCertificateFingerprint = TokenManagerListener.NO_FINGERPRINT;
     protected Token mToken = null;
     //
 
@@ -119,7 +115,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
         setupActionBar();
         Intent intent = getIntent();
         mTokenSerial = intent.getStringExtra(MainActivity.EXTRA_TOKEN_SERIAL);
-        mCertificate = (NativeLong) intent.getSerializableExtra(MainActivity.EXTRA_CERTIFICATE);
+        mCertificateFingerprint = intent.getStringExtra(MainActivity.EXTRA_CERTIFICATE_FINGERPRINT);
         mToken = TokenManager.getInstance().tokenForId(mTokenSerial);
         if (null == mToken) {
             finish();
@@ -309,7 +305,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
 
     protected void signAction() {
         mProgressDialog.show();
-        sign(mToken, mCertificate, Objects.requireNonNull(mSignData).getBytes());
+        sign(mToken, mCertificateFingerprint, Objects.requireNonNull(mSignData).getBytes());
     }
 
     protected String createFullPaymentHtml(int num) {
