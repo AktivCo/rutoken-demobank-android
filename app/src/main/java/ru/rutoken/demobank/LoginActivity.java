@@ -14,6 +14,7 @@ import android.os.Bundle;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
+
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.DisplayMetrics;
@@ -27,6 +28,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import ru.rutoken.demobank.nfc.NfcDetectCardFragment;
 import ru.rutoken.demobank.payment.PaymentsActivity;
 import ru.rutoken.pkcs11caller.Token;
 import ru.rutoken.pkcs11caller.TokenManager;
@@ -44,6 +46,7 @@ public class LoginActivity extends Pkcs11CallerActivity {
     private EditText mPinEditText;
     private TextView mAlertTextView;
     private ProgressBar mLoginProgressBar;
+    private NfcDetectCardFragment mCardFragment;
 
     protected String mTokenSerial = TokenManagerListener.NO_TOKEN;
     protected String mCertificateFingerprint = TokenManagerListener.NO_FINGERPRINT;
@@ -54,6 +57,11 @@ public class LoginActivity extends Pkcs11CallerActivity {
     @Override
     public String getActivityClassIdentifier() {
         return getClass().getName();
+    }
+
+    @Override
+    protected NfcDetectCardFragment getNfcCardFragment() {
+        return mCardFragment;
     }
 
     protected void showLogonStarted() {
@@ -115,11 +123,12 @@ public class LoginActivity extends Pkcs11CallerActivity {
 
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
 
+        Intent intent = getIntent();
+        mTokenSerial = intent.getStringExtra(MainActivity.EXTRA_TOKEN_SERIAL);
+
         setupActionBar();
         setupUI();
 
-        Intent intent = getIntent();
-        mTokenSerial = intent.getStringExtra(MainActivity.EXTRA_TOKEN_SERIAL);
         mCertificateFingerprint = intent.getStringExtra(MainActivity.EXTRA_CERTIFICATE_FINGERPRINT);
         mToken = TokenManager.getInstance().tokenForId(mTokenSerial);
         if (null == mToken) {
@@ -151,6 +160,7 @@ public class LoginActivity extends Pkcs11CallerActivity {
         mPinEditText = findViewById(R.id.pinET);
         mAlertTextView = findViewById(R.id.alertTV);
         mLoginProgressBar = findViewById(R.id.loginPB);
+        mCardFragment = NfcDetectCardFragment.newInstance(mTokenSerial);
 
         mLoginProgressBar.setVisibility(View.GONE);
 

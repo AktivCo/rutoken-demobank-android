@@ -11,6 +11,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.sun.jna.NativeLong;
@@ -20,7 +21,10 @@ import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import ru.rutoken.pkcs11caller.exception.Pkcs11CallerException;
 
@@ -348,6 +352,33 @@ public class TokenManager {
 
     //TODO: implement
     public Future<NativeLong> getSlotIdByTokenSerial(String tokenSerial) {
-        return null;
+        return new Future<NativeLong>() {
+            @Override
+            public boolean cancel(boolean mayInterruptIfRunning) {
+                return false;
+            }
+
+            @Override
+            public boolean isCancelled() {
+                return false;
+            }
+
+            @Override
+            public boolean isDone() {
+                return false;
+            }
+
+            @Override
+            public NativeLong get() throws ExecutionException, InterruptedException {
+                return mTokenSerials.keySet().iterator().next();
+            }
+
+            @Override
+            public NativeLong get(long timeout, @NonNull TimeUnit unit)
+                    throws ExecutionException,InterruptedException, TimeoutException {
+                return null;
+            }
+
+        };
     }
 }

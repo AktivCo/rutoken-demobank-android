@@ -38,6 +38,7 @@ import ru.rutoken.demobank.MainActivity;
 import ru.rutoken.demobank.Pkcs11CallerActivity;
 import ru.rutoken.demobank.R;
 import ru.rutoken.demobank.TokenManagerListener;
+import ru.rutoken.demobank.nfc.NfcDetectCardFragment;
 import ru.rutoken.pkcs11caller.Token;
 import ru.rutoken.pkcs11caller.TokenManager;
 import ru.rutoken.pkcs11caller.exception.Pkcs11Exception;
@@ -81,6 +82,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
     private InfoDialog mInfoDialog;
     private AlertDialog mSucceedDialog;
     private AlertDialog mProgressDialog;
+    private NfcDetectCardFragment mCardFragment;
 
     private String[] mPaymentTitles;
     private String[][] mPaymentValuesArray = null;
@@ -101,6 +103,11 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
     @Override
     public String getActivityClassIdentifier() {
         return getClass().getName();
+    }
+
+    @Override
+    protected NfcDetectCardFragment getNfcCardFragment() {
+        return mCardFragment;
     }
 
     //
@@ -147,6 +154,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
         mTokenIDTextView = findViewById(R.id.tokenIdTV);
         mTokenModelTextView = findViewById(R.id.modelTV);
         mTokenBatteryImageView = findViewById(R.id.batteryIV);
+        mCardFragment = NfcDetectCardFragment.newInstance(mTokenSerial);
 
         mTokenModelTextView.setText(TokenModelRecognizer.getInstance(this).marketingNameForPkcs11Name(mToken.getModel())
                 + " " + mToken.getShortDecSerialNumber());

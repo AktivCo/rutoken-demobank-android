@@ -7,8 +7,7 @@ package ru.rutoken.demobank;
 
 import androidx.annotation.Nullable;
 
-import com.sun.jna.NativeLong;
-
+import ru.rutoken.demobank.nfc.NfcDetectCardFragment;
 import ru.rutoken.pkcs11caller.Pkcs11Callback;
 import ru.rutoken.pkcs11caller.Token;
 import ru.rutoken.pkcs11caller.exception.Pkcs11CallerException;
@@ -46,14 +45,16 @@ abstract public class Pkcs11CallerActivity extends ManagedActivity {
 
     final LoginCallback mLoginCallback = new LoginCallback();
     final SignCallback mSignCallback = new SignCallback();
-
+    
     protected void sign(Token token, String certificate, byte[] signData) {
-        token.sign(certificate, signData, mSignCallback);
+        token.sign(certificate, signData, mSignCallback, getNfcCardFragment().new Control(getSupportFragmentManager()));
     }
 
     protected void login(Token token, String pin) {
-        token.login(pin, mLoginCallback);
+        token.login(pin, mLoginCallback, getNfcCardFragment().new Control(getSupportFragmentManager()));
     }
+
+    abstract protected NfcDetectCardFragment getNfcCardFragment();
 
     abstract protected void manageLoginError(@Nullable Pkcs11Exception exception);
 

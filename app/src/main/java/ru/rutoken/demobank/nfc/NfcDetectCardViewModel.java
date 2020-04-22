@@ -11,25 +11,33 @@ import java.util.concurrent.ExecutionException;
 import ru.rutoken.pkcs11caller.TokenExecutors;
 import ru.rutoken.pkcs11caller.TokenManager;
 
-public class NfcDetectCardViewModel extends ViewModel {
+class NfcDetectCardViewModel extends ViewModel {
+    private MutableLiveData<Command> mCommand = new MutableLiveData<>();
 
-    private MutableLiveData<Boolean> mProgress = new MutableLiveData<>();
-
-    public NfcDetectCardViewModel(String tokenSerial) {
+    NfcDetectCardViewModel(String tokenSerial) {
         TokenManager.getInstance().getSlotIdByTokenSerial(tokenSerial);
         //TODO: use normal key for TokenExecutors
         TokenExecutors.getInstance().get(new NativeLong(1)).execute(() -> {
             try {
                 TokenManager.getInstance().getSlotIdByTokenSerial(tokenSerial).get();
-                mProgress.postValue(true);
+                mCommand.postValue(Command.SHOW_PROGRESS);
             } catch (ExecutionException | InterruptedException e) {
-                mProgress.postValue(false);
+                mCommand.postValue(Command.DISMISS);
                 e.printStackTrace();
             }
         });
     }
 
-    public LiveData<Boolean> getProgress() {
-        return mProgress;
+    LiveData<Command> getCommand() {
+        return mCommand;
+    }
+
+    void setCommand(Command command) {
+        mCommand.postValue(command);
+    }
+
+    enum Command {
+        SHOW_PROGRESS,
+        DISMISS
     }
 }
