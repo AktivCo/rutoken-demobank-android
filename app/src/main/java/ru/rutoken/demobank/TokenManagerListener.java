@@ -129,7 +129,6 @@ public class TokenManagerListener {
     }
 
     protected void onTokenAdded(Intent intent) {
-        --mTwbaCounter;
         if (mMainActivity != null) mMainActivity.updateScreen();
 
         String tokenSerial = intent.getStringExtra(TokenManager.EXTRA_TOKEN_SERIAL);
@@ -140,22 +139,17 @@ public class TokenManagerListener {
 
         try {
             token.openSession();
-            token.readCertificates(rtPkcs11);
+            token.readCertificates(rtPkcs11, () -> onTokenCertificateLoaded(token));
 
             processConnectedToken(token);
             if (mMainActivity != null) mMainActivity.updateScreen();
         } catch (Pkcs11CallerException e) {
             e.printStackTrace();
-
-            if (mMainActivity != null) {
-                if (mToken == null && token.smInitializedStatus() == Token.SmInitializedStatus.NEED_INITIALIZE)
-                    mMainActivity.updateScreen(token);
-                else
-                    notifyAboutTokenError(e.getMessage());
-            }
+            notifyAboutTokenError(e.getMessage());
         } finally {
             token.closeSession();
         }
+
     }
 
     protected void onTokenRemoved(Intent intent) {
@@ -195,6 +189,11 @@ public class TokenManagerListener {
 
     @SuppressWarnings("EmptyMethod")
     protected void onInternalError() {
+    }
+
+    private void onTokenCertificateLoaded(Token token) {
+        --mTwbaCounter;
+        processConnectedToken(token);
     }
 
     protected void resetTokenInfo() {

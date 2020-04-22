@@ -5,6 +5,9 @@
 
 package ru.rutoken.pkcs11caller;
 
+import android.os.Handler;
+import android.os.Looper;
+
 import com.sun.jna.NativeLong;
 import com.sun.jna.ptr.NativeLongByReference;
 
@@ -62,6 +65,7 @@ public class Token {
     private boolean mIsNfc;
     private SmInitializedStatus mSmInitializedStatus = SmInitializedStatus.UNKNOWN;
     private final HashMap<String, CertificateAndGostKeyPair> mCertificateMap = new HashMap<>();
+    private final Handler mHandler = new Handler(Looper.getMainLooper());
 
     public String getLabel() {
         return mLabel;
@@ -245,11 +249,19 @@ public class Token {
         }
     }
 
-    public void readCertificates(RtPkcs11 pkcs11) throws Pkcs11CallerException {
-        CertificateCategory supportedCategories[] = {CertificateCategory.UNSPECIFIED, CertificateCategory.USER};
-        for (CertificateCategory category : supportedCategories) {
-            mCertificateMap.putAll(getCertificatesWithCategory(pkcs11, category));
-        }
+    public void readCertificates(RtPkcs11 pkcs11, Runnable onResult) {
+        TokenExecutors.getInstance().get(mId).execute(() -> {
+            try {
+                CertificateCategory[] supportedCategories = {CertificateCategory.UNSPECIFIED, CertificateCategory.USER};
+                for (CertificateCategory category : supportedCategories) {
+                    mCertificateMap.putAll(getCertificatesWithCategory(pkcs11, category));
+                }
+            } catch (Pkcs11CallerException e) {
+                throw new IllegalStateException(e);
+            } finally {
+                mHandler.post(onResult);
+            }
+        });
     }
 
     public Set<String> enumerateCertificates() {
