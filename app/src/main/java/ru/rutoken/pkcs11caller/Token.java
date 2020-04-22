@@ -47,8 +47,6 @@ public class Token {
     private final NativeLong mId;
     private String mPin;
 
-    private long mSession;
-
     private String mLabel;
     private String mModel;
     private String mSerialNumber;
@@ -66,6 +64,7 @@ public class Token {
     private SmInitializedStatus mSmInitializedStatus = SmInitializedStatus.UNKNOWN;
     private final HashMap<String, CertificateAndGostKeyPair> mCertificateMap = new HashMap<>();
     private final Handler mHandler = new Handler(Looper.getMainLooper());
+    private final RtPkcs11 mRtPkcs11;
 
     public String getLabel() {
         return mLabel;
@@ -128,12 +127,15 @@ public class Token {
         mPin = "";
     }
 
-    Token(NativeLong slotId) throws Pkcs11CallerException {
+    Token(RtPkcs11 rtPkcs11, NativeLong slotId) throws Pkcs11CallerException {
+        mRtPkcs11 = Objects.requireNonNull(rtPkcs11);
         mId = slotId;
         initTokenInfo();
     }
 
-    private Map<String, CertificateAndGostKeyPair> getCertificatesWithCategory(RtPkcs11 pkcs11, CertificateCategory category) throws Pkcs11CallerException {
+    private Map<String, CertificateAndGostKeyPair> getCertificatesWithCategory(CertificateCategory category,
+                                                                               NativeLong session)
+            throws Pkcs11CallerException {
         CK_ATTRIBUTE[] template = (CK_ATTRIBUTE[]) (new CK_ATTRIBUTE()).toArray(2);
 
         NativeLongByReference certClass =
@@ -147,33 +149,31 @@ public class Token {
         template[1].pValue = certCategory.getPointer();
         template[1].ulValueLen = new NativeLong(NativeLong.SIZE);
 
-        NativeLong rv = pkcs11.C_FindObjectsInit(new NativeLong(mSession), template, new NativeLong(template.length));
+        NativeLong rv = mRtPkcs11.C_FindObjectsInit(session, template, new NativeLong(template.length));
         Pkcs11Exception.throwIfNotOk(rv);
 
         NativeLong[] objects = new NativeLong[30];
         NativeLongByReference count = new NativeLongByReference(new NativeLong(objects.length));
         ArrayList<NativeLong> certs = new ArrayList<>();
         do {
-            rv = pkcs11.C_FindObjects(new NativeLong(mSession), objects, new NativeLong(objects.length), count);
+            rv = mRtPkcs11.C_FindObjects(session, objects, new NativeLong(objects.length), count);
             if (rv.longValue() != Pkcs11Constants.CKR_OK) break;
             certs.addAll(Arrays.asList(objects).subList(0, count.getValue().intValue()));
         } while (count.getValue().longValue() == objects.length);
-
-        NativeLong rv2 = pkcs11.C_FindObjectsFinal(new NativeLong(mSession));
+        NativeLong rv2 = mRtPkcs11.C_FindObjectsFinal(session);
         Pkcs11Exception.throwIfNotOk(rv);
         Pkcs11Exception.throwIfNotOk(rv2);
 
         HashMap<String, CertificateAndGostKeyPair> certificateMap = new HashMap<>();
         for (NativeLong c : certs) {
             try {
-                Certificate cert = new Certificate(pkcs11, mSession, c.longValue());
-                GostKeyPair keyPair = GostKeyPair.getGostKeyPairByCertificate(pkcs11, mSession, cert.getCertificateHolder());
+                Certificate cert = new Certificate(mRtPkcs11, session.longValue(), c.longValue());
+                GostKeyPair keyPair = GostKeyPair.getGostKeyPairByCertificate(mRtPkcs11, session.longValue(), cert.getCertificateHolder());
                 certificateMap.put(cert.fingerprint(), new CertificateAndGostKeyPair(cert, keyPair));
             } catch (Pkcs11CallerException e) {
                 e.printStackTrace();
             }
         }
-
         return certificateMap;
     }
 
@@ -182,10 +182,10 @@ public class Token {
         CK_TOKEN_INFO_EXTENDED tokenInfoEx = new CK_TOKEN_INFO_EXTENDED();
         tokenInfoEx.ulSizeofThisStructure = new NativeLong(tokenInfoEx.size());
 
-        NativeLong rv = RtPkcs11Library.getInstance().C_GetTokenInfo(mId, tokenInfo);
+        NativeLong rv = mRtPkcs11.C_GetTokenInfo(mId, tokenInfo);
         Pkcs11Exception.throwIfNotOk(rv);
 
-        rv = RtPkcs11Library.getInstance().C_EX_GetTokenInfoExtended(mId, tokenInfoEx);
+        rv = mRtPkcs11.C_EX_GetTokenInfoExtended(mId, tokenInfoEx);
         Pkcs11Exception.throwIfNotOk(rv);
 
         mLabel = Utils.removeTrailingSpaces(tokenInfo.label);
@@ -226,38 +226,15 @@ public class Token {
                 || tokenInfoEx.ulTokenType.longValue() == RtPkcs11Constants.TOKEN_TYPE_RUTOKEN_MIKRON_SCDUAL_NFC;
     }
 
-    public void openSession() throws Pkcs11CallerException {
-        NativeLongByReference session = new NativeLongByReference();
-        long rv = RtPkcs11Library.getInstance().C_OpenSession(mId,
-                new NativeLong(Pkcs11Constants.CKF_SERIAL_SESSION), null, null, session).longValue();
-
-        if (rv != 0) {
-            if (rv == Pkcs11Constants.CKR_FUNCTION_NOT_SUPPORTED)
-                mSmInitializedStatus = SmInitializedStatus.NEED_INITIALIZE;
-
-            throw new Pkcs11Exception(rv);
-        }
-        mSession = session.getValue().longValue();
-    }
-
-    public void closeSession() {
-        try {
-            NativeLong rv = RtPkcs11Library.getInstance().C_CloseSession(new NativeLong(mSession));
-            Pkcs11Exception.throwIfNotOk(rv);
-        } catch (Pkcs11CallerException exception2) {
-            exception2.printStackTrace();
-        }
-    }
-
-    public void readCertificates(RtPkcs11 pkcs11, Runnable onResult) {
+    public void readCertificates(Runnable onResult) {
         TokenExecutors.getInstance().get(mId).execute(() -> {
-            try {
+            try (Session session = new Session()) {
                 CertificateCategory[] supportedCategories = {CertificateCategory.UNSPECIFIED, CertificateCategory.USER};
                 for (CertificateCategory category : supportedCategories) {
-                    mCertificateMap.putAll(getCertificatesWithCategory(pkcs11, category));
+                    mCertificateMap.putAll(getCertificatesWithCategory(category, session.get()));
                 }
             } catch (Pkcs11CallerException e) {
-                throw new IllegalStateException(e);
+                e.printStackTrace();
             } finally {
                 mHandler.post(onResult);
             }
@@ -276,23 +253,18 @@ public class Token {
         new Pkcs11AsyncTask(callback) {
             @Override
             protected Pkcs11Result doWork() throws Pkcs11CallerException {
-                NativeLongByReference session = new NativeLongByReference();
+
                 if (mIsNfc)
                     nfcFragmentControl.show();
 
-                try {
-                    NativeLong rv = mPkcs11.C_OpenSession(mId,
-                            new NativeLong(Pkcs11Constants.CKF_SERIAL_SESSION), null, null, session);
-                    Pkcs11Exception.throwIfNotOk(rv);
-
-                    rv = mPkcs11.C_Login(session.getValue(), new NativeLong(Pkcs11Constants.CKU_USER),
+                try (Session session = new Session()) {
+                    NativeLong rv = mPkcs11.C_Login(session.get(), new NativeLong(Pkcs11Constants.CKU_USER),
                             pin.getBytes(), new NativeLong(pin.length()));
                     Pkcs11Exception.throwIfNotOk(rv);
-                    
-                    rv = mPkcs11.C_Logout(session.getValue());
+
+                    rv = mPkcs11.C_Logout(session.get());
                     Pkcs11Exception.throwIfNotOk(rv);
                 } finally {
-                    mPkcs11.C_CloseSession(session.getValue());
                     if (mIsNfc)
                         nfcFragmentControl.dismiss();
                 }
@@ -313,37 +285,63 @@ public class Token {
                 CertificateAndGostKeyPair cert = mCertificateMap.get(certificate);
                 if (cert == null) throw new CertNotFoundException();
 
-                NativeLongByReference session = new NativeLongByReference();
                 if (mIsNfc)
                     nfcFragmentControl.show();
-
-                try {
-                    NativeLong rv = mPkcs11.C_OpenSession(mId,
-                            new NativeLong(Pkcs11Constants.CKF_SERIAL_SESSION), null, null, session);
-                    Pkcs11Exception.throwIfNotOk(rv);
-
-                    rv = mPkcs11.C_Login(session.getValue(), new NativeLong(Pkcs11Constants.CKU_USER),
+                try (Session session = new Session()) {
+                    NativeLong rv = mPkcs11.C_Login(session.get(), new NativeLong(Pkcs11Constants.CKU_USER),
                             mPin.getBytes(), new NativeLong(mPin.length()));
                     Pkcs11Exception.throwIfNotOk(rv);
 
                     try {
                         long keyHandle = cert.getGostKeyPair()
-                                .getPrivateKeyHandle(mPkcs11, session.getValue().longValue());
+                                .getPrivateKeyHandle(mPkcs11, session.get().longValue());
 
                         final Pkcs7Signer signer = new Pkcs7Signer(cert.getGostKeyPair().getKeyType(),
-                                session.getValue().longValue());
+                                session.get().longValue());
 
                         return new Pkcs11Result(signer.sign(data, keyHandle,
                                 cert.getCertificate().getCertificateHolder()));
                     } finally {
-                        mPkcs11.C_Logout(session.getValue());
+                        mPkcs11.C_Logout(session.get());
                     }
                 } finally {
-                    mPkcs11.C_CloseSession(session.getValue());
                     if (mIsNfc)
                         nfcFragmentControl.dismiss();
                 }
             }
         }.execute();
+    }
+
+
+    private class Session implements AutoCloseable {
+        private NativeLong mSession;
+
+        Session() throws Pkcs11CallerException {
+            NativeLongByReference session = new NativeLongByReference();
+            long rv = mRtPkcs11.C_OpenSession(mId,
+                    new NativeLong(Pkcs11Constants.CKF_SERIAL_SESSION), null, null, session).longValue();
+
+            if (rv != 0) {
+                if (rv == Pkcs11Constants.CKR_FUNCTION_NOT_SUPPORTED)
+                    mSmInitializedStatus = SmInitializedStatus.NEED_INITIALIZE;
+
+                throw new Pkcs11Exception(rv);
+            }
+            mSession = session.getValue();
+        }
+
+        @Override
+        public void close() {
+            try {
+                NativeLong rv = mRtPkcs11.C_CloseSession(mSession);
+                Pkcs11Exception.throwIfNotOk(rv);
+            } catch (Pkcs11CallerException e) {
+                e.printStackTrace();
+            }
+        }
+
+        NativeLong get() {
+            return mSession;
+        }
     }
 }

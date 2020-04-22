@@ -19,11 +19,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-import ru.rutoken.pkcs11caller.RtPkcs11Library;
 import ru.rutoken.pkcs11caller.Token;
 import ru.rutoken.pkcs11caller.TokenManager;
-import ru.rutoken.pkcs11caller.exception.Pkcs11CallerException;
-import ru.rutoken.pkcs11jna.RtPkcs11;
 
 public class TokenManagerListener {
     public static final String MAIN_ACTIVITY_IDENTIFIER = TokenManagerListener.class.getName() + "MAIN_ACTIVITY";
@@ -135,21 +132,7 @@ public class TokenManagerListener {
         if (tokenSerial == null) return;
 
         Token token = TokenManager.getInstance().tokenForId(tokenSerial);
-        RtPkcs11 rtPkcs11 = RtPkcs11Library.getInstance();
-
-        try {
-            token.openSession();
-            token.readCertificates(rtPkcs11, () -> onTokenCertificateLoaded(token));
-
-            processConnectedToken(token);
-            if (mMainActivity != null) mMainActivity.updateScreen();
-        } catch (Pkcs11CallerException e) {
-            e.printStackTrace();
-            notifyAboutTokenError(e.getMessage());
-        } finally {
-            token.closeSession();
-        }
-
+        token.readCertificates(() -> onTokenCertificateLoaded(token));
     }
 
     protected void onTokenRemoved(Intent intent) {

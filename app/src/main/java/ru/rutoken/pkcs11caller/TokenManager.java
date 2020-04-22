@@ -42,7 +42,7 @@ public class TokenManager {
             Token token = null;
 
             try {
-                token = new Token(mSlotId);
+                token = new Token(RtPkcs11Library.getInstance(), mSlotId);
             } catch (Pkcs11CallerException e) {
                 mTokenError = e;
                 e.printStackTrace();
