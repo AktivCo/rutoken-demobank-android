@@ -228,15 +228,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
     }
 
     @Override
-    protected void manageLoginError(@Nullable Pkcs11Exception exception) {
-    }
-
-    @Override
-    protected void manageLoginSucceed() {
-    }
-
-    @Override
-    protected void manageSignError(@Nullable Pkcs11Exception exception) {
+    protected void manageTokenOperationError(@Nullable Pkcs11Exception exception) {
         uncheckAllPayments();
         mProgressDialog.dismiss();
         String message = getString(R.string.error);
@@ -247,7 +239,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
     }
 
     @Override
-    protected void manageSignSucceed(byte[] data) {
+    protected void manageTokenOperationSucceed() {
         uncheckAllPayments();
         mProgressDialog.dismiss();
         mSucceedDialog.show();

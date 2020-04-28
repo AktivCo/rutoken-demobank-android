@@ -7,19 +7,19 @@ package ru.rutoken.pkcs11caller;
 
 import android.os.AsyncTask;
 
-import org.bouncycastle.crypto.ExtendedDigest;
-
+import ru.rutoken.demobank.Pkcs11CallerActivity;
 import ru.rutoken.pkcs11caller.exception.GeneralErrorException;
 import ru.rutoken.pkcs11jna.RtPkcs11;
 import ru.rutoken.pkcs11caller.exception.Pkcs11CallerException;
 
 abstract class Pkcs11AsyncTask extends AsyncTask<Void, Void, Pkcs11Result> {
     final RtPkcs11 mPkcs11 = RtPkcs11Library.getInstance();
-    final Pkcs11Callback mCallback;
+
+    private final Pkcs11CallerActivity.Pkcs11Callback mCallback;
 
     protected abstract Pkcs11Result doWork() throws Pkcs11CallerException;
 
-    Pkcs11AsyncTask(Pkcs11Callback callback) {
+    Pkcs11AsyncTask(Pkcs11CallerActivity.Pkcs11Callback callback) {
         mCallback = callback;
     }
 

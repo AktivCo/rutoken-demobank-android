@@ -8,6 +8,8 @@ package ru.rutoken.pkcs11caller;
 import android.os.Handler;
 import android.os.Looper;
 
+import androidx.annotation.Nullable;
+
 import com.sun.jna.NativeLong;
 import com.sun.jna.ptr.NativeLongByReference;
 
@@ -19,6 +21,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import ru.rutoken.bcprovider.Pkcs7Signer;
+import ru.rutoken.demobank.Pkcs11CallerActivity;
 import ru.rutoken.demobank.nfc.NfcDetectCardFragment;
 import ru.rutoken.pkcs11caller.Certificate.CertificateCategory;
 import ru.rutoken.pkcs11caller.exception.CertNotFoundException;
@@ -45,7 +48,7 @@ public class Token {
     }
 
     private final NativeLong mId;
-    private String mPin;
+    private String mPin = "";
 
     private String mLabel;
     private String mModel;
@@ -249,48 +252,27 @@ public class Token {
         return Objects.requireNonNull(mCertificateMap.get(fingerprint)).getCertificate();
     }
 
-    public void login(final String pin, Pkcs11Callback callback, NfcDetectCardFragment.Control nfcFragmentControl) {
+    public void loginAndSign(@Nullable final String pin, final String certificate, final byte[] data,
+                             Pkcs11CallerActivity.Pkcs11Callback callback,
+                             NfcDetectCardFragment.Control nfcFragmentControl) {
         new Pkcs11AsyncTask(callback) {
             @Override
             protected Pkcs11Result doWork() throws Pkcs11CallerException {
+                String pinToUse = (!mPin.isEmpty())? mPin : pin;
 
-                if (mIsNfc)
-                    nfcFragmentControl.show();
-
-                try (Session session = new Session()) {
-                    NativeLong rv = mPkcs11.C_Login(session.get(), new NativeLong(Pkcs11Constants.CKU_USER),
-                            pin.getBytes(), new NativeLong(pin.length()));
-                    Pkcs11Exception.throwIfNotOk(rv);
-
-                    rv = mPkcs11.C_Logout(session.get());
-                    Pkcs11Exception.throwIfNotOk(rv);
-                } finally {
-                    if (mIsNfc)
-                        nfcFragmentControl.dismiss();
-                }
-
-                // TODO: implement secure pin caching
-                mPin = pin;
-                return null;
-            }
-        }.execute();
-    }
-
-    public void sign(final String certificate, final byte[] data, Pkcs11Callback callback,
-                     NfcDetectCardFragment.Control nfcFragmentControl) {
-        new Pkcs11AsyncTask(callback) {
-            @Override
-            protected Pkcs11Result doWork() throws Pkcs11CallerException {
-                // Do we need to check whether certificate is on token?
                 CertificateAndGostKeyPair cert = mCertificateMap.get(certificate);
                 if (cert == null) throw new CertNotFoundException();
 
                 if (mIsNfc)
                     nfcFragmentControl.show();
+
                 try (Session session = new Session()) {
                     NativeLong rv = mPkcs11.C_Login(session.get(), new NativeLong(Pkcs11Constants.CKU_USER),
-                            mPin.getBytes(), new NativeLong(mPin.length()));
+                            pinToUse.getBytes(), new NativeLong(pinToUse.length()));
                     Pkcs11Exception.throwIfNotOk(rv);
+
+                    // TODO: implement secure pin caching
+                    mPin = pinToUse;
 
                     try {
                         long keyHandle = cert.getGostKeyPair()
@@ -302,7 +284,8 @@ public class Token {
                         return new Pkcs11Result(signer.sign(data, keyHandle,
                                 cert.getCertificate().getCertificateHolder()));
                     } finally {
-                        mPkcs11.C_Logout(session.get());
+                        rv = mPkcs11.C_Logout(session.get());
+                        Pkcs11Exception.throwIfNotOk(rv);
                     }
                 } finally {
                     if (mIsNfc)

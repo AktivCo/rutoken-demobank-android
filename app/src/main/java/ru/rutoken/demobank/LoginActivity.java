@@ -26,7 +26,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import ru.rutoken.demobank.nfc.NfcDetectCardFragment;
 import ru.rutoken.demobank.payment.PaymentsActivity;
@@ -77,36 +76,22 @@ public class LoginActivity extends Pkcs11CallerActivity {
     }
 
     @Override
-    protected void manageLoginError(@Nullable Pkcs11Exception exception) {
-        if (exception != null) {
-            mAlertTextView.setText(Pkcs11ErrorTranslator.getInstance(this).messageForRV(exception.getErrorCode()));
-        }
-        showLogonFinished();
-    }
-
-    @Override
-    protected void manageLoginSucceed() {
-        // sign is used for a challenge-response authentication
-        sign(mToken, mCertificateFingerprint, SIGN_DATA.getBytes());
-    }
-
-    @Override
-    protected void manageSignError(@Nullable Pkcs11Exception exception) {
-        String message = getString(R.string.error);
-        if (exception != null) {
-            message = Pkcs11ErrorTranslator.getInstance(this).messageForRV(exception.getErrorCode());
-        }
+    protected void manageTokenOperationError(@Nullable Pkcs11Exception exception) {
         mToken.clearPin();
-        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+        String message = (exception == null) ? getString(R.string.error)
+                : Pkcs11ErrorTranslator.getInstance(this).messageForRV(exception.getErrorCode());
+
+        mAlertTextView.setText(message);
+        showLogonFinished();
     }
 
     @Override
-    protected void manageSignSucceed(byte[] data) {
+    protected void manageTokenOperationSucceed() {
         showLogonFinished();
-        Intent intent = new Intent(LoginActivity.this, PaymentsActivity.class);
-        intent.putExtra(MainActivity.EXTRA_TOKEN_SERIAL, mTokenSerial);
-        intent.putExtra(MainActivity.EXTRA_CERTIFICATE_FINGERPRINT, mCertificateFingerprint);
-        startActivity(intent);
+
+        startActivity(new Intent(LoginActivity.this, PaymentsActivity.class)
+                .putExtra(MainActivity.EXTRA_TOKEN_SERIAL, mTokenSerial)
+                .putExtra(MainActivity.EXTRA_CERTIFICATE_FINGERPRINT, mCertificateFingerprint));
     }
 
     @Override
@@ -193,7 +178,9 @@ public class LoginActivity extends Pkcs11CallerActivity {
         mLoginButton.setOnClickListener(view -> {
             TokenManagerListener.getInstance().resetWaitForToken();
             showLogonStarted();
-            login(mToken, mPinEditText.getText().toString());
+
+             // Certificate and sign data are used for a challenge-response authentication.
+            login(mToken, mPinEditText.getText().toString(), mCertificateFingerprint, SIGN_DATA.getBytes());
 
         });
     }
