@@ -42,4 +42,9 @@ abstract class Pkcs11AsyncTask extends AsyncTask<Void, Void, Pkcs11Result> {
         else if (result.exception == null) mCallback.execute(result.arguments);
         else mCallback.execute(result.exception);
     }
+
+    @Override
+    protected void onCancelled(Pkcs11Result result) {
+        mCallback.execute(result.exception);
+    }
 }

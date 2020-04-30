@@ -1,5 +1,6 @@
 package ru.rutoken.demobank.nfc;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,6 +9,7 @@ import android.widget.TextView;
 
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
@@ -25,6 +27,7 @@ public class NfcDetectCardFragment extends BottomSheetDialogFragment {
     private static final String TOKEN_SERIAL_KEY = "tokenSerialKey";
 
     private NfcDetectCardViewModel mViewModel;
+    private CancelCallback mCancelCallback;
 
     public static NfcDetectCardFragment newInstance(String tokenSerial) {
         Bundle bundle = new Bundle();
@@ -45,7 +48,7 @@ public class NfcDetectCardFragment extends BottomSheetDialogFragment {
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        findViewById(R.id.cancel_button).setOnClickListener((View v) -> dismiss());
+        findViewById(R.id.nfcCancelButton).setOnClickListener((View v) -> dismiss());
         String tokenSerial = Objects.requireNonNull(getArguments()).getString(TOKEN_SERIAL_KEY);
 
         mViewModel = new ViewModelProvider(this, new Factory() {
@@ -69,6 +72,13 @@ public class NfcDetectCardFragment extends BottomSheetDialogFragment {
                         .getWindow()).getAttributes().windowAnimations = R.style.DialogAnimation;
     }
 
+    @Override
+    public void onDismiss(@NonNull DialogInterface dialog) {
+        if (mCancelCallback != null)
+            mCancelCallback.cancel();
+        super.onDismiss(dialog);
+    }
+
     private void onCommand(Command command) {
         switch (command) {
             case SHOW_PROGRESS:
@@ -82,7 +92,6 @@ public class NfcDetectCardFragment extends BottomSheetDialogFragment {
                 dismiss();
                 break;
         }
-
     }
 
     private <T extends View> T findViewById(@IdRes int id) {
@@ -96,12 +105,21 @@ public class NfcDetectCardFragment extends BottomSheetDialogFragment {
             mFragmentManager = fragmentManager;
         }
 
-        public void show() {
+        public void show(@Nullable CancelCallback cancelCallback) {
+            if (cancelCallback != null)
+                mCancelCallback = cancelCallback;
+
             NfcDetectCardFragment.this.show(mFragmentManager, "nfcDetectCard");
         }
 
         public void dismiss() {
+            mCancelCallback = null;
             Objects.requireNonNull(mViewModel).setCommand(Command.DISMISS);
         }
+    }
+
+    @FunctionalInterface
+    public interface CancelCallback {
+        void cancel();
     }
 }

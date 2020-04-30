@@ -264,7 +264,7 @@ public class Token {
                 if (cert == null) throw new CertNotFoundException();
 
                 if (mIsNfc)
-                    nfcFragmentControl.show();
+                    nfcFragmentControl.show(() -> cancel(true));
 
                 try (Session session = new Session()) {
                     NativeLong rv = mPkcs11.C_Login(session.get(), new NativeLong(Pkcs11Constants.CKU_USER),

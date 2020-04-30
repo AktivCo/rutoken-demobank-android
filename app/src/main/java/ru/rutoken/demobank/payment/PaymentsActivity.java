@@ -239,6 +239,12 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
     }
 
     @Override
+    protected void manageTokenOperationCanceled() {
+        uncheckAllPayments();
+        mProgressDialog.dismiss();
+    }
+
+    @Override
     protected void manageTokenOperationSucceed() {
         uncheckAllPayments();
         mProgressDialog.dismiss();

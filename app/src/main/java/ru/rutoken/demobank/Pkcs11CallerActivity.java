@@ -41,11 +41,17 @@ abstract public class Pkcs11CallerActivity extends ManagedActivity {
 
     abstract protected void manageTokenOperationError(@Nullable Pkcs11Exception exception);
 
+    abstract protected void manageTokenOperationCanceled();
+
     abstract protected void manageTokenOperationSucceed();
 
     public class Pkcs11Callback {
         public void execute(Pkcs11CallerException exception) {
-            manageTokenOperationError(pkcs11exceptionFromCallerException(exception));
+            if (exception.getCause() instanceof InterruptedException)
+                manageTokenOperationCanceled();
+
+            else
+                manageTokenOperationError(pkcs11exceptionFromCallerException(exception));
         }
 
         public void execute(Object... arguments) {

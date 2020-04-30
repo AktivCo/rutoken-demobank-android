@@ -86,6 +86,11 @@ public class LoginActivity extends Pkcs11CallerActivity {
     }
 
     @Override
+    protected void manageTokenOperationCanceled() {
+        showLogonFinished();
+    }
+
+    @Override
     protected void manageTokenOperationSucceed() {
         showLogonFinished();
 
