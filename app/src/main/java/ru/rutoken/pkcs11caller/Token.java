@@ -49,6 +49,8 @@ public class Token {
         UNKNOWN, NEED_INITIALIZE, INITIALIZED
     }
 
+    private final int mExecutorKey;
+    private final boolean mIsNfc;
     private String mPin = "";
     private String mLabel;
     private String mModel;
@@ -63,11 +65,18 @@ public class Token {
     private BodyColor mColor;
     private UserChangePolicy mUserPinChangePolicy;
     private boolean mSupportsSM;
-    private boolean mIsNfc;
     private SmInitializedStatus mSmInitializedStatus = SmInitializedStatus.UNKNOWN;
     private final HashMap<String, CertificateAndGostKeyPair> mCertificateMap = new HashMap<>();
     private final Handler mHandler = new Handler(Looper.getMainLooper());
     private final RtPkcs11 mRtPkcs11;
+
+    public int getExecutorKey() {
+        return mExecutorKey;
+    }
+
+    public boolean isNfc() {
+        return mIsNfc;
+    }
 
     public String getLabel() {
         return mLabel;
@@ -130,8 +139,10 @@ public class Token {
         mPin = "";
     }
 
-    Token(NativeLong slotId, CK_TOKEN_INFO tokenInfo, RtPkcs11 pkcs11) throws Pkcs11CallerException {
+    Token(int executorKey, NativeLong slotId, CK_TOKEN_INFO tokenInfo, boolean isNfc, RtPkcs11 pkcs11) throws Pkcs11CallerException {
+        mExecutorKey = executorKey;
         mRtPkcs11 = Objects.requireNonNull(pkcs11);
+        mIsNfc = isNfc;
         initTokenInfo(slotId, tokenInfo, pkcs11);
     }
 
@@ -219,13 +230,10 @@ public class Token {
         }
 
         mSupportsSM = ((tokenInfoEx.flags.longValue() & RtPkcs11Constants.TOKEN_FLAGS_SUPPORT_SM) != 0);
-        // TODO: replace with TokenManager isNfc data after MR#39
-        mIsNfc = tokenInfoEx.ulTokenType.longValue() == RtPkcs11Constants.TOKEN_TYPE_RUTOKEN_SCDUAL_NFC
-                || tokenInfoEx.ulTokenType.longValue() == RtPkcs11Constants.TOKEN_TYPE_RUTOKEN_MIKRON_SCDUAL_NFC;
     }
 
     public void readCertificates(Runnable onResult) {
-        TokenExecutors.getInstance().get(new NativeLong(1)).execute(() -> {
+        TokenExecutors.getInstance().get(mExecutorKey).execute(() -> {
             try (Session session = new Session()) {
                 CertificateCategory[] supportedCategories = {CertificateCategory.UNSPECIFIED, CertificateCategory.USER};
                 for (CertificateCategory category : supportedCategories) {

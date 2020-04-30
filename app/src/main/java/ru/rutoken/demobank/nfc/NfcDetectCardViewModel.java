@@ -4,8 +4,6 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.sun.jna.NativeLong;
-
 import java.util.concurrent.ExecutionException;
 
 import ru.rutoken.pkcs11caller.TokenExecutors;
@@ -15,8 +13,7 @@ class NfcDetectCardViewModel extends ViewModel {
     private final MutableLiveData<Command> mCommand = new MutableLiveData<>();
 
     NfcDetectCardViewModel(String tokenSerial) {
-        //TODO: use normal key for TokenExecutors
-        TokenExecutors.getInstance().get(new NativeLong(1)).execute(() -> {
+        TokenExecutors.getInstance().get(tokenSerial).execute(() -> {
             try {
                 TokenManager.getInstance().getSlotIdByTokenSerial(tokenSerial).get();
                 setCommand(Command.SHOW_PROGRESS);
