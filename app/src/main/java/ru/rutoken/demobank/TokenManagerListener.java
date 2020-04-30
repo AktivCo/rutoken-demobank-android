@@ -115,13 +115,12 @@ public class TokenManagerListener {
     }
 
     protected void onTokenAdded(Intent intent) {
+        --mTokenAddingCounter;
         if (mMainActivity != null) mMainActivity.updateScreen();
 
         String tokenSerial = intent.getStringExtra(TokenManager.EXTRA_TOKEN_SERIAL);
         if (tokenSerial == null) return;
-
-        Token token = Objects.requireNonNull(TokenManager.getInstance().getTokenBySerial(tokenSerial));
-        token.readCertificates(() -> onTokenCertificateLoaded(token));
+        processConnectedToken(TokenManager.getInstance().getTokenBySerial(tokenSerial));
     }
 
     protected void onTokenRemoved(Intent intent) {
@@ -161,11 +160,6 @@ public class TokenManagerListener {
 
     @SuppressWarnings("EmptyMethod")
     protected void onInternalError() {
-    }
-
-    private void onTokenCertificateLoaded(Token token) {
-        --mTokenAddingCounter;
-        processConnectedToken(token);
     }
 
     protected void resetTokenInfo() {
