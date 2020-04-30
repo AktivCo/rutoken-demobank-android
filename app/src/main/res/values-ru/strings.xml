@@ -30,7 +30,8 @@
     <string name="install_control_panel">Установить</string>
     <string name="need_sm_activate">Для соединения введите код активации защищенного канала в приложении Панель Управления Рутокен, выбрав Bluetooth-токен.</string>
     <string name="failed_to_add_token">Не удалось подключить токен</string>
-    <string name="please_attach_nfc_card">Поднесите NFC-карту</string>
+    <string name="attach_nfc_card">Поднесите NFC-карту</string>
+    <string name="hold_nfc_card">Карта обнаружена, идет обмен данными…</string>
     <string name="select">Выбрать</string>
     <string name="sign_in">Войти</string>
     <string name="cancel">Отмена</string>

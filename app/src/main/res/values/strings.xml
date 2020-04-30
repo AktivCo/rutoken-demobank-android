@@ -31,7 +31,8 @@
     <string name="need_sm_activate">To continue work with Rutoken Bluetooth you must activate secure channel.
                                     \n\nTo activate secure channel run Rutoken Control Panel and activate secure channel with Rutoken Bluetooth.</string>
     <string name="failed_to_add_token">Failed to add token</string>
-    <string name="please_attach_nfc_card">Attach a NFC card</string>
+    <string name="attach_nfc_card">Attach a NFC card</string>
+    <string name="hold_nfc_card">Card detected. Please wait until processing…</string>
     <string name="select">Select</string>
     <string name="sign_in">Sign in</string>
     <string name="cancel">Cancel</string>

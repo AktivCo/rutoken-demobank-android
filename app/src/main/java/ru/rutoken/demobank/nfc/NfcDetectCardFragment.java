@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
@@ -71,8 +72,10 @@ public class NfcDetectCardFragment extends BottomSheetDialogFragment {
     private void onCommand(Command command) {
         switch (command) {
             case SHOW_PROGRESS:
-                findViewById(R.id.cancel_button).setVisibility(View.INVISIBLE);
-                findViewById(R.id.progress_bar).setVisibility(View.VISIBLE);
+                findViewById(R.id.nfcCancelButton).setVisibility(View.INVISIBLE);
+                findViewById(R.id.nfcSignImage).setVisibility(View.INVISIBLE);
+                this.<TextView>findViewById(R.id.nfcMessage).setText(R.string.hold_nfc_card);
+                findViewById(R.id.nfcProgressBar).setVisibility(View.VISIBLE);
                 break;
 
             case DISMISS:

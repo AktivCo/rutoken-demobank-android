@@ -9,40 +9,40 @@
     tools:context=".nfc.NfcDetectCardFragment">
 
     <ImageView
-        android:id="@+id/imageView2"
+        android:id="@+id/nfcSignImage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
         android:src="@drawable/nfc_sign"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/message"
+        app:layout_constraintBottom_toTopOf="@+id/nfcMessage"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         android:contentDescription="@null" />
 
     <TextView
-        android:id="@+id/message"
+        android:id="@+id/nfcMessage"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
         android:layout_marginTop="40dp"
-        android:text="@string/please_attach_nfc_card"
+        android:text="@string/attach_nfc_card"
         android:textAlignment="center"
         android:textColor="@color/nfcText"
         android:textSize="30sp"
-        app:layout_constraintTop_toBottomOf="@+id/imageView2"
-        app:layout_constraintBottom_toBottomOf="@+id/cancel_button"
+        app:layout_constraintTop_toBottomOf="@+id/nfcSignImage"
+        app:layout_constraintBottom_toBottomOf="@+id/nfcCancelButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button
-        android:id="@+id/cancel_button"
+        android:id="@+id/nfcCancelButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/cancel"
         android:background="@color/rutokenBlue"
         android:textColor="@android:color/white"
-        app:layout_constraintTop_toBottomOf="@+id/message"
+        app:layout_constraintTop_toBottomOf="@+id/nfcMessage"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -50,16 +50,16 @@
 
 
     <ProgressBar
+        android:id="@+id/nfcProgressBar"
         style="?android:attr/progressBarStyleLarge"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/progress_bar"
-        android:visibility="invisible"
-        android:indeterminateTintMode="src_atop"
+        android:layout_width="240dp"
+        android:layout_height="240dp"
         android:indeterminateTint="@color/rutokenRed"
-        app:layout_constraintTop_toBottomOf="@+id/message"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:indeterminateTintMode="src_atop"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="@+id/nfcSignImage"
+        app:layout_constraintEnd_toEndOf="@+id/nfcSignImage"
+        app:layout_constraintStart_toStartOf="@+id/nfcSignImage"
+        app:layout_constraintTop_toTopOf="@+id/nfcSignImage" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
