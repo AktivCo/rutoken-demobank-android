@@ -9,8 +9,8 @@ import com.sun.jna.Native;
 import com.sun.jna.NativeLong;
 import com.sun.jna.ptr.NativeLongByReference;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 
 import ru.rutoken.pkcs11caller.exception.KeyNotFoundException;
 import ru.rutoken.pkcs11caller.exception.ObjectNotFoundException;
@@ -22,13 +22,7 @@ import ru.rutoken.pkcs11jna.Pkcs11Constants;
 
 class Utils {
     static String removeTrailingSpaces(byte[] string) {
-        String result = "";
-        try {
-            result = (new String(string, "UTF-8")).replaceAll(" *$", "");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        return result;
+        return new String(string, StandardCharsets.UTF_8).replaceAll(" *$", "");
     }
 
     static long findObject(Pkcs11 pkcs11, long session, CK_ATTRIBUTE[] template)
@@ -38,7 +32,7 @@ class Utils {
                 template, new NativeLong(template.length));
         Pkcs11Exception.throwIfNotOk(rv);
 
-        NativeLong objects[] = new NativeLong[1];
+        NativeLong[] objects = new NativeLong[1];
         NativeLongByReference count =
                 new NativeLongByReference(new NativeLong(objects.length));
         rv = pkcs11.C_FindObjects(nativeSession, objects, new NativeLong(objects.length),

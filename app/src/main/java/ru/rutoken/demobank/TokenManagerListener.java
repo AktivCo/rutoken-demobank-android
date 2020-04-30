@@ -60,7 +60,7 @@ public class TokenManagerListener {
     private boolean mWaitingForMainActivity = false;
     private boolean mPaymentsCreated = false;
     private boolean mDoWait = false;
-    private int mTwbaCounter = 0;
+    private int mTokenAddingCounter = 0;
     private String mTokenSerial = NO_TOKEN;
     private Token mToken = null;
     private String mCertificateFingerprint = NO_FINGERPRINT;
@@ -102,12 +102,12 @@ public class TokenManagerListener {
     }
 
     protected void onTokenAdding(Intent intent) {
-        ++mTwbaCounter;
+        ++mTokenAddingCounter;
         if (mMainActivity != null) mMainActivity.updateScreen();
     }
 
     protected void onTokenAddingFailed(Intent intent) {
-        --mTwbaCounter;
+        --mTokenAddingCounter;
         if (mMainActivity != null) {
             mMainActivity.updateScreen();
             notifyAboutTokenError(intent.getStringExtra(TokenManager.EXTRA_TOKEN_ERROR));
@@ -164,7 +164,7 @@ public class TokenManagerListener {
     }
 
     private void onTokenCertificateLoaded(Token token) {
-        --mTwbaCounter;
+        --mTokenAddingCounter;
         processConnectedToken(token);
     }
 
@@ -246,7 +246,7 @@ public class TokenManagerListener {
     }
 
     public boolean shallShowProgressBar() {
-        return (mTwbaCounter > 0);
+        return (mTokenAddingCounter > 0);
     }
 
     public boolean shallWaitForToken() {

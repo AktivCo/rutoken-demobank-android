@@ -5,7 +5,6 @@
 
 package ru.rutoken.demobank.payment;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Resources;
@@ -14,7 +13,6 @@ import android.os.Bundle;
 import android.text.Html;
 import android.text.Spanned;
 import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,6 +26,7 @@ import android.widget.Toast;
 
 import java.text.DateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Objects;
 
 import androidx.annotation.Nullable;
@@ -74,10 +73,6 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
 
     // GUI
     private LinearLayout mPaymentsLayout;
-    private TextView mTokenModelTextView;
-    private TextView mTokenIDTextView;
-    private TextView mTokenBatteryTextView;
-    private ImageView mTokenBatteryImageView;
     private PopupWindow mPopupWindow;
     private InfoDialog mInfoDialog;
     private AlertDialog mSucceedDialog;
@@ -86,19 +81,16 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
 
     private String[] mPaymentTitles;
     private String[][] mPaymentValuesArray = null;
-    //
 
     private String mSignData;
 
     // Activity input
-    protected String mTokenSerial = TokenManagerListener.NO_TOKEN;
-    protected String mCertificateFingerprint = TokenManagerListener.NO_FINGERPRINT;
-    protected Token mToken = null;
-    //
+    private String mTokenSerial = TokenManagerListener.NO_TOKEN;
+    private String mCertificateFingerprint = TokenManagerListener.NO_FINGERPRINT;
+    private Token mToken = null;
 
     // Logic
     private int mChecksCount = 0;
-    //
 
     @Override
     public String getActivityClassIdentifier() {
@@ -109,8 +101,6 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
     protected NfcDetectCardFragment getNfcCardFragment() {
         return mCardFragment;
     }
-
-    //
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -126,14 +116,14 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
         mToken = TokenManager.getInstance().getTokenBySerial(mTokenSerial);
         if (null == mToken) {
             finish();
+            return;
         }
         TokenManagerListener.getInstance().setPaymentsCreated();
         setupUI();
     }
 
     private void setupActionBar() {
-        LayoutInflater inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View v = inflater.inflate(R.layout.actionbar_layout, null);
+        View view = getLayoutInflater().inflate(R.layout.actionbar_layout, null);
 
         ActionBar.LayoutParams params = new ActionBar.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.CENTER);
@@ -144,34 +134,34 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
             actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
             actionBar.setDisplayHomeAsUpEnabled(false);
             actionBar.setDisplayShowTitleEnabled(false);
-            actionBar.setCustomView(v, params);
+            actionBar.setCustomView(view, params);
         }
     }
 
     private void setupUI() {
         mPaymentsLayout = findViewById(R.id.paymentsLayout);
-        mTokenBatteryTextView = findViewById(R.id.percentageTV);
-        mTokenIDTextView = findViewById(R.id.tokenIdTV);
-        mTokenModelTextView = findViewById(R.id.modelTV);
-        mTokenBatteryImageView = findViewById(R.id.batteryIV);
+        TextView tokenBatteryTextView = findViewById(R.id.percentageTV);
+        TextView tokenIDTextView = findViewById(R.id.tokenIdTV);
+        TextView tokenModelTextView = findViewById(R.id.modelTV);
+        ImageView tokenBatteryImageView = findViewById(R.id.batteryIV);
         mCardFragment = NfcDetectCardFragment.newInstance(mTokenSerial);
 
-        mTokenModelTextView.setText(TokenModelRecognizer.getInstance(this).marketingNameForPkcs11Name(mToken.getModel())
+        tokenModelTextView.setText(TokenModelRecognizer.getInstance(this).marketingNameForPkcs11Name(mToken.getModel())
                 + " " + mToken.getShortDecSerialNumber());
-        mTokenIDTextView.setText("");
+        tokenIDTextView.setText("");
 
         if (mToken.getModel().contains("ECP BT")) {
             int charge = TokenBatteryCharge.getBatteryPercentage(mToken.getCharge());
-            mTokenBatteryTextView.setText(charge + "%");
-            mTokenBatteryImageView.setImageResource(TokenBatteryCharge.getBatteryImageForVoltage(mToken.getCharge()));
+            tokenBatteryTextView.setText(charge + "%");
+            tokenBatteryImageView.setImageResource(TokenBatteryCharge.getBatteryImageForVoltage(mToken.getCharge()));
         } else {
-            mTokenBatteryTextView.setText("");
-            mTokenBatteryImageView.setImageResource(android.R.color.transparent);
+            tokenBatteryTextView.setText("");
+            tokenBatteryImageView.setImageResource(android.R.color.transparent);
         }
 
-        LayoutInflater inflater = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
-        View popupView = inflater.inflate(R.layout.popup_layout, null);
-        mPopupWindow = new PopupWindow(popupView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        View popupView = getLayoutInflater().inflate(R.layout.popup_layout, null);
+        mPopupWindow = new PopupWindow(popupView, ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
 
         Button popupButton = popupView.findViewById(R.id.popupB);
         popupButton.setOnClickListener(view -> {
@@ -179,7 +169,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
             StringBuilder builder = new StringBuilder();
             for (int i = 0; i < mPaymentsLayout.getChildCount(); ++i) {
                 View childView = mPaymentsLayout.getChildAt(i);
-                if (Payment.class.isInstance(childView)) {
+                if (childView instanceof Payment) {
                     Payment payment = (Payment) childView;
                     CheckBox checkBox = payment.findViewById(R.id.checkBox);
                     if (checkBox.isChecked()) {
@@ -199,10 +189,10 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
         createPayments();
     }
 
-    protected void uncheckAllPayments() {
+    private void uncheckAllPayments() {
         for (int i = 0; i < mPaymentsLayout.getChildCount(); ++i) {
             View childView = mPaymentsLayout.getChildAt(i);
-            if (Payment.class.isInstance(childView)) {
+            if (childView instanceof Payment) {
                 Payment payment = (Payment) childView;
                 CheckBox checkBox = payment.findViewById(R.id.checkBox);
                 checkBox.setChecked(false);
@@ -212,10 +202,9 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                onBackPressed();
-                return true;
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed();
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -259,11 +248,10 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
         mPaymentValuesArray = new String[n][];
         for (int i = 0; i < n; ++i) {
             int id = ta.getResourceId(i, 0);
-            if (id > 0) {
+            if (id > 0)
                 mPaymentValuesArray[i] = res.getStringArray(id);
-            } else {
-                // something wrong with the XML
-            }
+            else
+                throw new RuntimeException("something wrong with the XML");
         }
         ta.recycle();
 
@@ -279,10 +267,10 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
         }
 
         for (int i = 0; i < mPaymentValuesArray.length; ++i) {
-            int price = Integer.valueOf(mPaymentValuesArray[i][nPrice]);
+            int price = Integer.parseInt(mPaymentValuesArray[i][nPrice]);
             Payment payment = new Payment(this, null, i, mPaymentValuesArray[i][nRecipient], price);
             payment.setOnClickListener(view -> {
-                if (!Payment.class.isInstance(view)) return;
+                if (!(view instanceof Payment)) return;
                 showOnePaymentInfo((Payment) view);
             });
             CheckBox checkBox = payment.findViewById(R.id.checkBox);
@@ -301,16 +289,17 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
         }
     }
 
-    protected void signAction() {
+    private void signAction() {
         mProgressDialog.show();
         sign(mToken, mCertificateFingerprint, Objects.requireNonNull(mSignData).getBytes());
     }
 
-    protected String createFullPaymentHtml(int num) {
+    private String createFullPaymentHtml(int num) {
         StringBuilder result = new StringBuilder();
         DateFormat df = DateFormat.getDateInstance();
         String date = df.format(new Date());
-        result.append("<h3>").append(getString(R.string.payment)).append(String.format("%d", num + Payment.FIRST_NUMBER)).append("</h3>");
+        result.append("<h3>").append(getString(R.string.payment)).append(
+                String.format(Locale.getDefault(), "%d", num + Payment.FIRST_NUMBER)).append("</h3>");
         result.append("<font color=#CCCCCC>").append(getString(R.string.fromDate)).append(" ").append(date).append("</font>");
         result.append("<br/><br/>");
         for (int i = 0; i < mPaymentTitles.length; ++i) {
@@ -321,7 +310,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
     }
 
     private void showBatchPaymentInfo(int count) {
-        String message = String.format(getString(R.string.batch_sign_message), count) + "<br />" + getString(R.string.batch_require_proceed);
+        String message = getString(R.string.batch_sign_message, count) + "<br />" + getString(R.string.batch_require_proceed);
         mInfoDialog.show(Html.fromHtml(message));
     }
 

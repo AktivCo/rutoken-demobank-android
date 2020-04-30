@@ -5,7 +5,7 @@
 
 package ru.rutoken.demobank;
 
-abstract class ExternallyDismissableActivity extends GuaranteedChildStartActivity {
+abstract class ExternallyDismissibleActivity extends GuaranteedChildStartActivity {
     private boolean mPendingDismiss = false;
 
     @Override

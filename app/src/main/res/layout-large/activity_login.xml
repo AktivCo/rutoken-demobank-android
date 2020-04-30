@@ -16,7 +16,8 @@
         android:layout_height="wrap_content"
         android:id="@+id/imageView"
         android:layout_centerHorizontal="true"
-        app:srcCompat="@drawable/pin" />
+        app:srcCompat="@drawable/pin"
+        android:contentDescription="@null" />
 
     <EditText
         android:layout_width="match_parent"
@@ -31,7 +32,8 @@
         android:textIsSelectable="false"
         android:textSize="20sp"
         android:inputType="textPassword"
-        android:textColorHint="@android:color/darker_gray" />
+        android:textColorHint="@android:color/darker_gray"
+        android:importantForAutofill="no" />
 
     <TextView
         android:layout_width="match_parent"
@@ -42,7 +44,7 @@
         android:layout_centerHorizontal="true"
         android:textColor="#ffff0000"
         android:gravity="center"
-        android:textSize="10sp" />
+        android:textSize="12sp" />
 
     <Button
         android:id="@+id/loginB"

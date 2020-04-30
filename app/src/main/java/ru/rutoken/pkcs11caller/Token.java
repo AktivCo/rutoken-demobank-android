@@ -21,7 +21,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
-import ru.rutoken.bcprovider.Pkcs7Signer;
+import ru.rutoken.bcprovider.CmsSigner;
 import ru.rutoken.demobank.Pkcs11CallerActivity;
 import ru.rutoken.demobank.nfc.NfcDetectCardFragment;
 import ru.rutoken.pkcs11caller.Certificate.CertificateCategory;
@@ -273,7 +273,7 @@ public class Token {
                         long keyHandle = cert.getGostKeyPair()
                                 .getPrivateKeyHandle(mPkcs11, session.get().longValue());
 
-                        final Pkcs7Signer signer = new Pkcs7Signer(cert.getGostKeyPair().getKeyType(),
+                        final CmsSigner signer = new CmsSigner(cert.getGostKeyPair().getKeyType(),
                                 session.get().longValue());
 
                         return new Pkcs11Result(signer.sign(data, keyHandle,

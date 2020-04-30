@@ -26,7 +26,7 @@ public interface Signature {
         }
     }
 
-    void signInit(long privateKeyHandle) throws Pkcs11Exception;
+    void signInit(long privateKeyHandle);
 
     byte[] sign(final byte[] data) throws Pkcs11Exception;
 

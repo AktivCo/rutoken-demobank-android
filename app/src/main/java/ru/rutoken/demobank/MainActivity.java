@@ -5,12 +5,10 @@
 
 package ru.rutoken.demobank;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -92,7 +90,7 @@ public class MainActivity extends ManagedActivity {
 
     private void setupUI() {
         mInfoTextView = findViewById(R.id.infoTV);
-        mTWBAProgressBar = findViewById(R.id.twbaPB);
+        mTWBAProgressBar = findViewById(R.id.tokenAddingProgressBar);
         mSelectButton = findViewById(R.id.selectButton);
 
         mTWBAProgressBar.setVisibility(View.INVISIBLE);
@@ -110,8 +108,7 @@ public class MainActivity extends ManagedActivity {
     }
 
     private void setupActionBar() {
-        LayoutInflater inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View v = inflater.inflate(R.layout.actionbar_layout, null);
+        View view = getLayoutInflater().inflate(R.layout.actionbar_layout, null);
 
         ActionBar.LayoutParams params = new ActionBar.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.CENTER);
@@ -122,17 +119,13 @@ public class MainActivity extends ManagedActivity {
             actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
             actionBar.setDisplayHomeAsUpEnabled(false);
             actionBar.setDisplayShowTitleEnabled(false);
-            actionBar.setCustomView(v, params);
+            actionBar.setCustomView(view, params);
         }
     }
 
-    public void updateScreen(Token token) {
-        updateScreenInfo(token);
-        updateProgressBar();
-    }
-
     public void updateScreen() {
-        updateScreen(TokenManagerListener.getInstance().getToken());
+        updateScreenInfo(TokenManagerListener.getInstance().getToken());
+        updateProgressBar();
     }
 
     private void updateProgressBar() {
@@ -156,7 +149,7 @@ public class MainActivity extends ManagedActivity {
                                                       .getSubject());
             shallShowButton = true;
         } else if (TokenManagerListener.getInstance().shallWaitForToken()) {
-            textToShow = String.format(getString(R.string.wait_token),
+            textToShow = getString(R.string.wait_token,
                     TokenManagerListener.getInstance().getWaitToken().getShortDecSerialNumber());
         } else {
             textToShow = getString(R.string.no_token);

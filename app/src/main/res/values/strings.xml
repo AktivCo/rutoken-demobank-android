@@ -6,7 +6,7 @@
                             \nTurn on Bluetooth on your device and pair it with Rutoken Bluetooth.\n
                             \nor
                             \nConnect Rutoken via USB to your device.</string>
-    <string name="wait_token" formatted="false">Connection with Rutoken (s/n %s) is lost
+    <string name="wait_token">Connection with Rutoken (s/n %s) is lost
                                                 \n\nConnect Rutoken or tap your device by Rutoken NFC-card</string>
     <string name="no_certificate">There are no certificates on Rutoken
                                   \n\nTo create key pairs and certificates on Rutoken use https://ra.rutoken.ru on your desktop</string>
@@ -17,7 +17,7 @@
     <string name="error">Internal error</string>
     <string name="done">Operation finished</string>
     <string name="need_pin_message">You need to input PIN to proceed.</string>
-    <string name="batch_sign_message" formatted="false">%d payments will be sent.</string>
+    <string name="batch_sign_message">%d payments will be sent.</string>
     <string name="batch_require_proceed">Please, confirm operation.</string>
     <string name="rutoken">Rutoken</string>
     <string name="token_model" translatable="false">Token model</string>

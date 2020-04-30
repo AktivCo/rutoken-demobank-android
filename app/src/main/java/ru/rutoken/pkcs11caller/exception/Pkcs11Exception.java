@@ -18,8 +18,7 @@ public class Pkcs11Exception extends Pkcs11CallerException {
     }
 
     public Pkcs11Exception(NativeLong code) {
-        super(getLocalizedDescription(code.longValue()));
-        mCode = code.longValue();
+        this(code.longValue());
     }
 
     private static String getLocalizedDescription(long code) {

@@ -14,7 +14,7 @@ import ru.rutoken.pkcs11caller.GostOids;
 import ru.rutoken.pkcs11caller.digest.Digest;
 import ru.rutoken.pkcs11caller.exception.Pkcs11Exception;
 
-public class GostDigestCalculator implements DigestCalculator {
+class GostDigestCalculator implements DigestCalculator {
     private final Digest mDigest;
     private final ByteArrayOutputStream mStream = new ByteArrayOutputStream();
 

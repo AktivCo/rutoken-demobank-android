@@ -6,7 +6,6 @@
 package ru.rutoken.demobank;
 
 import android.app.Dialog;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
@@ -19,7 +18,6 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -46,12 +44,11 @@ public class LoginActivity extends Pkcs11CallerActivity {
     private TextView mAlertTextView;
     private ProgressBar mLoginProgressBar;
     private NfcDetectCardFragment mCardFragment;
-
-    protected String mTokenSerial = TokenManagerListener.NO_TOKEN;
-    protected String mCertificateFingerprint = TokenManagerListener.NO_FINGERPRINT;
-    protected Token mToken = null;
-
     private Dialog mOverlayDialog;
+
+    private String mTokenSerial = TokenManagerListener.NO_TOKEN;
+    private String mCertificateFingerprint = TokenManagerListener.NO_FINGERPRINT;
+    private Token mToken = null;
 
     @Override
     public String getActivityClassIdentifier() {
@@ -63,13 +60,13 @@ public class LoginActivity extends Pkcs11CallerActivity {
         return mCardFragment;
     }
 
-    protected void showLogonStarted() {
+    private void showLogonStarted() {
         mLoginProgressBar.setVisibility(View.VISIBLE);
         mLoginButton.setEnabled(false);
         mOverlayDialog.show();
     }
 
-    protected void showLogonFinished() {
+    private void showLogonFinished() {
         mLoginProgressBar.setVisibility(View.GONE);
         mLoginButton.setEnabled(true);
         mOverlayDialog.dismiss();
@@ -102,14 +99,7 @@ public class LoginActivity extends Pkcs11CallerActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
-        if ((displayMetrics.density > 1.0) && ((getResources().getConfiguration().screenLayout &
-                Configuration.SCREENLAYOUT_SIZE_MASK) ==
-                Configuration.SCREENLAYOUT_SIZE_XLARGE)) {
-            setContentView(R.layout.activity_login_high_density);
-        } else {
-            setContentView(R.layout.activity_login);
-        }
+        setContentView(R.layout.activity_login);
 
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
 
@@ -117,8 +107,10 @@ public class LoginActivity extends Pkcs11CallerActivity {
         mTokenSerial = intent.getStringExtra(MainActivity.EXTRA_TOKEN_SERIAL);
         mCertificateFingerprint = intent.getStringExtra(MainActivity.EXTRA_CERTIFICATE_FINGERPRINT);
         mToken = TokenManager.getInstance().getTokenBySerial(mTokenSerial);
-        if (mToken == null)
+        if (mToken == null) {
             finish();
+            return;
+        }
 
         mOverlayDialog = new Dialog(this, android.R.style.Theme_Panel);
         mOverlayDialog.setCancelable(false);
@@ -128,8 +120,7 @@ public class LoginActivity extends Pkcs11CallerActivity {
     }
 
     private void setupActionBar() {
-        LayoutInflater inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View v = inflater.inflate(R.layout.actionbar_layout, null);
+        View view = getLayoutInflater().inflate(R.layout.actionbar_layout, null);
 
         ActionBar.LayoutParams params = new ActionBar.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.CENTER);
@@ -140,7 +131,7 @@ public class LoginActivity extends Pkcs11CallerActivity {
             actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
             actionBar.setDisplayHomeAsUpEnabled(false);
             actionBar.setDisplayShowTitleEnabled(false);
-            actionBar.setCustomView(v, params);
+            actionBar.setCustomView(view, params);
         }
     }
 

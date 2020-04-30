@@ -6,7 +6,7 @@ import org.bouncycastle.operator.DigestCalculatorProvider;
 
 import java.util.Objects;
 
-public class DigestProvider implements DigestCalculatorProvider {
+class DigestProvider implements DigestCalculatorProvider {
     private final DigestCalculator mDigestCalculator;
 
     DigestProvider(final DigestCalculator digestCalculator) {

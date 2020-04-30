@@ -1,7 +1,6 @@
 package ru.rutoken.utils;
 
 import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
 
 import java.util.List;
 

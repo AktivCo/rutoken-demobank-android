@@ -14,32 +14,23 @@ import java.util.Map;
 import ru.rutoken.demobank.R;
 
 public class Pkcs11ErrorTranslator {
-    private static volatile Pkcs11ErrorTranslator mInstance = null;
-    private final Context mContext;
+    private static Pkcs11ErrorTranslator INSTANCE;
     private final Map<Long, String> mErrorMessages = new HashMap<>();
     private String mGenericMessage;
 
     public static synchronized Pkcs11ErrorTranslator getInstance(Context context) {
-        Pkcs11ErrorTranslator localInstance = mInstance;
-        if (localInstance == null) {
-            synchronized (Pkcs11ErrorTranslator.class) {
-                localInstance = mInstance;
-                if (localInstance == null) {
-                    mInstance = localInstance = new Pkcs11ErrorTranslator(context);
-                }
-            }
-        }
-        return localInstance;
+        if (INSTANCE == null)
+            INSTANCE = new Pkcs11ErrorTranslator(context);
+        return INSTANCE;
     }
 
     private Pkcs11ErrorTranslator(Context context) {
-        mContext = context.getApplicationContext();
-        Resources res = mContext.getResources();
+        Resources res = context.getApplicationContext().getResources();
         if (res == null) {
             return;
         }
-        int intRV[] = res.getIntArray(R.array.rv);
-        String messages[] = res.getStringArray(R.array.rvMessages);
+        int[] intRV = res.getIntArray(R.array.rv);
+        String[] messages = res.getStringArray(R.array.rvMessages);
         Assert.assertTrue("incompatible length", intRV.length == messages.length);
         for (int i = 0; i < intRV.length; ++i) {
             mErrorMessages.put((long) intRV[i], messages[i]);

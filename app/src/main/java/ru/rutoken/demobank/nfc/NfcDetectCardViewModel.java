@@ -12,16 +12,16 @@ import ru.rutoken.pkcs11caller.TokenExecutors;
 import ru.rutoken.pkcs11caller.TokenManager;
 
 class NfcDetectCardViewModel extends ViewModel {
-    private MutableLiveData<Command> mCommand = new MutableLiveData<>();
+    private final MutableLiveData<Command> mCommand = new MutableLiveData<>();
 
     NfcDetectCardViewModel(String tokenSerial) {
         //TODO: use normal key for TokenExecutors
         TokenExecutors.getInstance().get(new NativeLong(1)).execute(() -> {
             try {
                 TokenManager.getInstance().getSlotIdByTokenSerial(tokenSerial).get();
-                mCommand.postValue(Command.SHOW_PROGRESS);
+                setCommand(Command.SHOW_PROGRESS);
             } catch (ExecutionException | InterruptedException e) {
-                mCommand.postValue(Command.DISMISS);
+                setCommand(Command.DISMISS);
                 e.printStackTrace();
             }
         });

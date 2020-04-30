@@ -2,7 +2,9 @@
 
 ## Description
 
-Rutoken DemoBank is a demonstrational application which shows a typical usage of the electronic identifier [Rutoken ECP Bluetooth](https://www.rutoken.ru/products/all/rutoken-ecp-bluetooth/) and also contains some useful classes for developers to significantly ease developing for complicated device which combines both typical Bluetooth accessory and SmartCard with reader logics.
+Rutoken DemoBank is a demonstrational application which shows a typical usage of the electronic identifier
+[Rutoken ECP Bluetooth](https://www.rutoken.ru/products/all/rutoken-ecp-bluetooth/) and also contains some useful classes
+for developers to significantly ease developing for complicated device which combines both typical Bluetooth accessory and SmartCard with reader logics.
 
 ## Requirements
 
@@ -54,4 +56,5 @@ To create a key pair and certificate on Rutoken ECP Bluetooth follow these steps
 ## License
 
 Project source code is distributed under [New BSD license](LICENSE) if the opposite is not mentioned in the source code entity itself,
-app/src/main/java/ru/rutoken/demobank directory contains objects of copyright and distributed under commercial license of JSC “Aktiv-Soft”, [License Agreement](https://download.rutoken.ru/License_Agreement.pdf) (only in Russian).
+app/src/main/java/ru/rutoken/demobank directory contains objects of copyright and distributed under commercial license of JSC “Aktiv-Soft”,
+[License Agreement](https://download.rutoken.ru/License_Agreement.pdf) (only in Russian).

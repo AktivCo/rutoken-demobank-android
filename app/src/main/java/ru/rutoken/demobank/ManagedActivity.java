@@ -5,7 +5,7 @@
 
 package ru.rutoken.demobank;
 
-abstract public class ManagedActivity extends ExternallyDismissableActivity {
+abstract public class ManagedActivity extends ExternallyDismissibleActivity {
     public abstract String getActivityClassIdentifier();
 
     @Override

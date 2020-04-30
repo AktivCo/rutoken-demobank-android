@@ -19,7 +19,7 @@ public class RtPkcs11Library {
             synchronized (RtPkcs11Library.class) {
                 localInstance = instance;
                 if (localInstance == null) {
-                    instance = localInstance = Native.loadLibrary("rtpkcs11ecp", RtPkcs11.class);
+                    instance = localInstance = Native.load("rtpkcs11ecp", RtPkcs11.class);
                 }
             }
         }

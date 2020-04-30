@@ -8,11 +8,12 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
 import ru.rutoken.demobank.R;
 
-public class PcscInstallDialogFragment extends DialogFragment {
-
+class PcscInstallDialogFragment extends DialogFragment {
+    @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -23,7 +24,7 @@ public class PcscInstallDialogFragment extends DialogFragment {
                 .setTitle(R.string.no_pcsc_title);
 
         builder.setPositiveButton(R.string.install_control_panel, (dialog, id) -> {
-            Activity activity = getActivity();
+            Activity activity = requireActivity();
             try {
                 activity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + PcscChecker.PCSC_PACKAGE_NAME)));
             } catch (ActivityNotFoundException e) {

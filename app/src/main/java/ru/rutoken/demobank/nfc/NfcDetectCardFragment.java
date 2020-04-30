@@ -55,7 +55,8 @@ public class NfcDetectCardFragment extends BottomSheetDialogFragment {
             @NonNull
             @Override
             public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
-                return (T) (new NfcDetectCardViewModel(tokenSerial));
+                //noinspection unchecked
+                return (T) new NfcDetectCardViewModel(tokenSerial);
             }
         }).get(NfcDetectCardViewModel.class);
 
@@ -99,7 +100,7 @@ public class NfcDetectCardFragment extends BottomSheetDialogFragment {
     }
 
     public class Control {
-        private FragmentManager mFragmentManager;
+        private final FragmentManager mFragmentManager;
 
         public Control(FragmentManager fragmentManager) {
             mFragmentManager = fragmentManager;

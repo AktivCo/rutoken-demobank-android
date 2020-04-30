@@ -14,7 +14,7 @@ import ru.rutoken.pkcs11caller.digest.Digest;
 import ru.rutoken.pkcs11caller.exception.Pkcs11Exception;
 import ru.rutoken.pkcs11caller.signature.Signature;
 
-public class GostContentSigner implements ContentSigner {
+class GostContentSigner implements ContentSigner {
     private final Signature mSignature;
     private final Digest mDigest;
     private final DigestProvider mDigestProvider;
@@ -56,7 +56,7 @@ public class GostContentSigner implements ContentSigner {
         return mDigestProvider;
     }
 
-    void signInit(long privateKeyHandle) throws Pkcs11Exception {
+    void signInit(long privateKeyHandle) {
         mSignature.signInit(privateKeyHandle);
     }
 }
