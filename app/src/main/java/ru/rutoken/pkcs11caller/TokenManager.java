@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -35,6 +36,7 @@ import ru.rutoken.pkcs11caller.TokenManagerEvent.EventType;
 import ru.rutoken.pkcs11caller.exception.Pkcs11CallerException;
 import ru.rutoken.pkcs11caller.exception.Pkcs11Exception;
 import ru.rutoken.pkcs11jna.CK_TOKEN_INFO;
+import ru.rutoken.utils.KeyExecutors;
 
 import static ru.rutoken.pkcs11caller.SlotEventThread.SlotEvent;
 
@@ -53,6 +55,7 @@ public class TokenManager {
 
     private static final TokenManager INSTANCE = new TokenManager();
     private static final Handler HANDLER = new Handler(Looper.getMainLooper());
+    private static final KeyExecutors<TokenData> EXECUTORS = new KeyExecutors<>(Executors::newSingleThreadExecutor);
 
     private final Set<TokenData> mTokenDataSet = Collections.synchronizedSet(new HashSet<>());
     private SlotEventThread mSlotEventThread;
@@ -237,13 +240,11 @@ public class TokenManager {
         final boolean isNfc;
         @Nullable
         Token token = null;
-        final int executorKey;
         private AtomicReference<SettableFuture<NativeLong>> slotId = new AtomicReference<>();
         private State state = State.SlotRemoved;
 
         TokenData(SlotEvent slotEvent) {
             isNfc = new String(slotEvent.slotInfo.slotDescription).contains("Aktiv Rutoken ECP NFC");
-            executorKey = slotEvent.slotId.intValue();
             final SettableFuture<NativeLong> slotIdFuture = SettableFuture.create();
             slotIdFuture.set(slotEvent.slotId);
             slotId.set(slotIdFuture);
@@ -425,9 +426,9 @@ public class TokenManager {
 
     private static class TokenCreator {
         static void start(SlotEvent slotEvent, CK_TOKEN_INFO tokenInfo, TokenData tokenData) {
-            TokenExecutors.getInstance().get(tokenData.executorKey).execute(() -> {
+            EXECUTORS.get(tokenData).execute(() -> {
                 try {
-                    final Token token = new Token(tokenData.executorKey, slotEvent.slotId, tokenInfo, tokenData.isNfc, RtPkcs11Library.getInstance());
+                    final Token token = new Token(slotEvent.slotId, tokenInfo, tokenData.isNfc, RtPkcs11Library.getInstance());
 
                     tokenData.postEvent(new TokenManagerEvent(EventType.TOKEN_ADDED, slotEvent, token));
                 } catch (Pkcs11CallerException e) {
@@ -440,7 +441,7 @@ public class TokenManager {
 
     private static class TokenInfoLoader {
         static void start(SlotEvent slotEvent, TokenData tokenData) {
-            TokenExecutors.getInstance().get(tokenData.executorKey).execute(() -> {
+            EXECUTORS.get(tokenData).execute(() -> {
                 try {
                     final CK_TOKEN_INFO tokenInfo = new CK_TOKEN_INFO();
                     Pkcs11Exception.throwIfNotOk(

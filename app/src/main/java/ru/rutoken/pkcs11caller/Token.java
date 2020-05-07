@@ -49,7 +49,6 @@ public class Token {
         UNKNOWN, NEED_INITIALIZE, INITIALIZED
     }
 
-    private final int mExecutorKey;
     private final boolean mIsNfc;
     private String mPin = "";
     private String mLabel;
@@ -69,10 +68,6 @@ public class Token {
     private final HashMap<String, CertificateAndGostKeyPair> mCertificateMap = new HashMap<>();
     private final Handler mHandler = new Handler(Looper.getMainLooper());
     private final RtPkcs11 mRtPkcs11;
-
-    public int getExecutorKey() {
-        return mExecutorKey;
-    }
 
     public boolean isNfc() {
         return mIsNfc;
@@ -139,8 +134,7 @@ public class Token {
         mPin = "";
     }
 
-    Token(int executorKey, NativeLong slotId, CK_TOKEN_INFO tokenInfo, boolean isNfc, RtPkcs11 pkcs11) throws Pkcs11CallerException {
-        mExecutorKey = executorKey;
+    Token(NativeLong slotId, CK_TOKEN_INFO tokenInfo, boolean isNfc, RtPkcs11 pkcs11) throws Pkcs11CallerException {
         mRtPkcs11 = Objects.requireNonNull(pkcs11);
         mIsNfc = isNfc;
         initTokenInfo(slotId, tokenInfo, pkcs11);
@@ -233,7 +227,7 @@ public class Token {
     }
 
     public void readCertificates(Runnable onResult) {
-        TokenExecutors.getInstance().get(mExecutorKey).execute(() -> {
+        TokenExecutors.getInstance().get(this).execute(() -> {
             try (Session session = new Session()) {
                 CertificateCategory[] supportedCategories = {CertificateCategory.UNSPECIFIED, CertificateCategory.USER};
                 for (CertificateCategory category : supportedCategories) {

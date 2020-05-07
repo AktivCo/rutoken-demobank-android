@@ -6,7 +6,7 @@ import java.util.concurrent.Executors;
 
 import ru.rutoken.utils.KeyExecutors;
 
-public class TokenExecutors extends KeyExecutors<Integer> {
+public class TokenExecutors extends KeyExecutors<Token> {
     private static final TokenExecutors INSTANCE = new TokenExecutors();
 
     private TokenExecutors() {
@@ -18,6 +18,6 @@ public class TokenExecutors extends KeyExecutors<Integer> {
     }
 
     public ExecutorService get(String tokenSerial) {
-        return get(Objects.requireNonNull(TokenManager.getInstance().getTokenBySerial(tokenSerial)).getExecutorKey());
+        return get(Objects.requireNonNull(TokenManager.getInstance().getTokenBySerial(tokenSerial)));
     }
 }
