@@ -3,23 +3,22 @@ package ru.rutoken.demobank.bcprovider;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.cryptopro.CryptoProObjectIdentifiers;
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
+import org.bouncycastle.crypto.io.DigestOutputStream;
 import org.bouncycastle.operator.DigestCalculator;
 
-import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.security.InvalidParameterException;
-import java.util.Objects;
 
+import ru.rutoken.demobank.bcprovider.digest.Digest;
 import ru.rutoken.demobank.pkcs11caller.GostOids;
-import ru.rutoken.demobank.pkcs11caller.digest.Digest;
-import ru.rutoken.demobank.pkcs11caller.exception.Pkcs11Exception;
 
 class GostDigestCalculator implements DigestCalculator {
     private final Digest mDigest;
-    private final ByteArrayOutputStream mStream = new ByteArrayOutputStream();
+    private final DigestOutputStream mDigestStream;
 
     GostDigestCalculator(Digest.Type digestType, long sessionHandle) {
-        mDigest = Digest.getInstance(Objects.requireNonNull(digestType), sessionHandle);
+        mDigest = Digest.getInstance(digestType, sessionHandle);
+        mDigestStream = new DigestOutputStream(mDigest);
     }
 
     @Override
@@ -36,17 +35,18 @@ class GostDigestCalculator implements DigestCalculator {
 
     @Override
     public byte[] getDigest() {
-        byte[] data = mStream.toByteArray();
         try {
-            return mDigest.digest(data);
-        } catch(Pkcs11Exception e) {
-            e.printStackTrace();
+            byte[] hash = new byte[mDigest.getDigestSize()];
+            mDigest.doFinal(hash, 0);
+
+            return hash;
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
     @Override
     public OutputStream getOutputStream() {
-        return mStream;
+        return mDigestStream;
     }
 }

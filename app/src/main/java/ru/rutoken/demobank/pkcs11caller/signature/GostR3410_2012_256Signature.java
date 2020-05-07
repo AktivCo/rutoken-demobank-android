@@ -1,6 +1,6 @@
 package ru.rutoken.demobank.pkcs11caller.signature;
 
-import ru.rutoken.demobank.pkcs11caller.digest.Digest;
+import ru.rutoken.demobank.bcprovider.digest.Digest;
 import ru.rutoken.demobank.pkcs11caller.exception.Pkcs11Exception;
 import ru.rutoken.pkcs11jna.Pkcs11;
 import ru.rutoken.pkcs11jna.RtPkcs11Constants;

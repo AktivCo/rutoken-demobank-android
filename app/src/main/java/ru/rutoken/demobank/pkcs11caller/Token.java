@@ -13,6 +13,8 @@ import androidx.annotation.Nullable;
 import com.sun.jna.NativeLong;
 import com.sun.jna.ptr.NativeLongByReference;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -175,9 +177,9 @@ public class Token {
 
         HashMap<String, CertificateAndGostKeyPair> certificateMap = new HashMap<>();
         for (NativeLong c : certs) {
-                Certificate cert = new Certificate(mRtPkcs11, session.longValue(), c.longValue());
-                GostKeyPair keyPair = GostKeyPair.getGostKeyPairByCertificate(mRtPkcs11, session.longValue(), cert.getCertificateHolder());
-                certificateMap.put(cert.fingerprint(), new CertificateAndGostKeyPair(cert, keyPair));
+            Certificate cert = new Certificate(mRtPkcs11, session.longValue(), c.longValue());
+            GostKeyPair keyPair = GostKeyPair.getGostKeyPairByCertificate(mRtPkcs11, session.longValue(), cert.getCertificateHolder());
+            certificateMap.put(cert.fingerprint(), new CertificateAndGostKeyPair(cert, keyPair));
         }
         return certificateMap;
     }
@@ -270,8 +272,16 @@ public class Token {
                         final CmsSigner signer = new CmsSigner(cert.getGostKeyPair().getKeyType(),
                                 session.get().longValue());
 
-                        return new Pkcs11Result(signer.sign(data, keyHandle,
-                                cert.getCertificate().getCertificateHolder()));
+
+                        try (OutputStream stream = signer.initSignature(keyHandle,
+                                cert.getCertificate().getCertificateHolder(), true)) {
+
+                            stream.write(data);
+                        } catch (IOException e) {
+                            throw new GeneralErrorException("IO error", e);
+                        }
+
+                        return new Pkcs11Result(signer.finishSignature());
                     } finally {
                         rv = mPkcs11.C_Logout(session.get());
                         Pkcs11Exception.throwIfNotOk(rv);

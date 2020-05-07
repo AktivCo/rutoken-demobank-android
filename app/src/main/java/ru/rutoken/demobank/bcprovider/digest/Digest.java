@@ -1,11 +1,10 @@
-package ru.rutoken.demobank.pkcs11caller.digest;
+package ru.rutoken.demobank.bcprovider.digest;
 
 import java.security.InvalidParameterException;
 
 import ru.rutoken.demobank.pkcs11caller.RtPkcs11Library;
-import ru.rutoken.demobank.pkcs11caller.exception.Pkcs11Exception;
 
-public interface Digest {
+public interface Digest extends org.bouncycastle.crypto.Digest {
     enum Type {
         GOSTR3411_1994,
         GOSTR3411_2012_256,
@@ -24,8 +23,6 @@ public interface Digest {
                 throw new InvalidParameterException();
         }
     }
-
-    byte[] digest(final byte[] data) throws Pkcs11Exception;
 
     Type getType();
 }

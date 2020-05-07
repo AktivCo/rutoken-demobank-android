@@ -3,7 +3,7 @@ package ru.rutoken.demobank.pkcs11caller.signature;
 import java.security.InvalidParameterException;
 
 import ru.rutoken.demobank.pkcs11caller.RtPkcs11Library;
-import ru.rutoken.demobank.pkcs11caller.digest.Digest;
+import ru.rutoken.demobank.bcprovider.digest.Digest;
 import ru.rutoken.demobank.pkcs11caller.exception.Pkcs11Exception;
 
 public interface Signature {
