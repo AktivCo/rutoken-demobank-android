@@ -246,7 +246,7 @@ public class TokenManagerListener {
     }
 
     public boolean shallShowProgressBar() {
-        return (mTokenAddingCounter > 0);
+        return (mTokenAddingCounter > 0 && !hasToken());
     }
 
     public boolean shallWaitForToken() {
@@ -286,5 +286,9 @@ public class TokenManagerListener {
     private void notifyAboutTokenError(String errorMsg) {
         errorMsg = mMainActivity.getString(R.string.failed_to_add_token) + " : " + errorMsg;
         Toast.makeText(mMainActivity, errorMsg, Toast.LENGTH_SHORT).show();
+    }
+
+    private boolean hasToken() {
+        return !mTokenSerial.equals(NO_TOKEN);
     }
 }
