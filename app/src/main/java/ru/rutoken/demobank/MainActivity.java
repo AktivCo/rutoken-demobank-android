@@ -7,6 +7,7 @@ package ru.rutoken.demobank;
 
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
@@ -24,6 +25,7 @@ import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.asn1.x500.style.IETFUtils;
 
 import ru.rutoken.pkcs11caller.Token;
+import ru.rutoken.pkcs11caller.TokenManager;
 import ru.rutoken.utils.PcscChecker;
 import ru.rutoken.utils.TokenModelRecognizer;
 
@@ -37,6 +39,7 @@ public class MainActivity extends ManagedActivity {
     private TextView mInfoTextView;
     private ProgressBar mTWBAProgressBar;
     private Button mSelectButton;
+    private Button mRemoveNfcButton;
 
     private static String commonNameFromX500Name(X500Name name) {
         String commonName = "";
@@ -92,11 +95,15 @@ public class MainActivity extends ManagedActivity {
         mInfoTextView = findViewById(R.id.infoTV);
         mTWBAProgressBar = findViewById(R.id.tokenAddingProgressBar);
         mSelectButton = findViewById(R.id.selectButton);
+        mRemoveNfcButton = findViewById(R.id.removeNfcButton);
 
         mTWBAProgressBar.setVisibility(View.INVISIBLE);
 
         mSelectButton.setVisibility(View.GONE);
         mSelectButton.setOnClickListener(view -> MainActivity.this.startPINActivity());
+        mRemoveNfcButton.setOnClickListener(view ->
+                TokenManager.getInstance().removeNfcToken(TokenManagerListener.getInstance().getTokenSerial()));
+        mRemoveNfcButton.setPaintFlags(mRemoveNfcButton.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
     }
 
     public void startPINActivity() {
@@ -144,15 +151,25 @@ public class MainActivity extends ManagedActivity {
             textToShow += getString(R.string.need_sm_activate);
         } else if (token != null && TokenManagerListener.getInstance().getCertificateFingerprint().equals(TokenManagerListener.NO_FINGERPRINT)) {
             textToShow += getString(R.string.no_certificate);
+            if (token.isNfc()) {
+                mRemoveNfcButton.setText(R.string.continue_str);
+                mRemoveNfcButton.setVisibility(View.VISIBLE);
+            }
         } else if (token != null) {
             textToShow += commonNameFromX500Name(token.getCertificate(TokenManagerListener.getInstance().getCertificateFingerprint())
-                                                      .getSubject());
+                    .getSubject());
+
             shallShowButton = true;
+            if (token.isNfc()) {
+                mRemoveNfcButton.setText(R.string.disconnect);
+                mRemoveNfcButton.setVisibility(View.VISIBLE);
+            }
         } else if (TokenManagerListener.getInstance().shallWaitForToken()) {
             textToShow = getString(R.string.wait_token,
                     TokenManagerListener.getInstance().getWaitToken().getShortDecSerialNumber());
         } else {
             textToShow = getString(R.string.no_token);
+            mRemoveNfcButton.setVisibility(View.GONE);
         }
 
         mInfoTextView.setText(textToShow);

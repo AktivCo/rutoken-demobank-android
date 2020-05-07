@@ -35,4 +35,6 @@
     <string name="select">Выбрать</string>
     <string name="sign_in">Войти</string>
     <string name="cancel">Отмена</string>
+    <string name="disconnect">Отключить</string>
+    <string name="continue_str">Понятно</string>
 </resources>

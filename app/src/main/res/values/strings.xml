@@ -36,4 +36,6 @@
     <string name="select">Select</string>
     <string name="sign_in">Sign in</string>
     <string name="cancel">Cancel</string>
+    <string name="disconnect">Disconnect</string>
+    <string name="continue_str">Continue</string>
 </resources>

@@ -39,6 +39,7 @@ import ru.rutoken.pkcs11jna.CK_TOKEN_INFO;
 import ru.rutoken.utils.KeyExecutors;
 
 import static ru.rutoken.pkcs11caller.SlotEventThread.SlotEvent;
+import static ru.rutoken.pkcs11caller.TokenManagerEvent.EventType.SLOT_ADDED;
 
 public class TokenManager {
 
@@ -151,21 +152,31 @@ public class TokenManager {
 
     @MainThread
     private void processEvent(TokenManagerEvent event) {
-        switch (event.type) {
-            case SLOT_EVENT_THREAD_FAILED:
-                LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(INTERNAL_ERROR));
-                break;
-            case ENUMERATION_FINISHED:
-                LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(ENUMERATION_FINISHED));
-                break;
-            default:
-                TokenData tokenData = findTokenDataBySlotId(event.requireSlotId());
-                if (tokenData == null) {
-                    tokenData = new TokenData(event.requireSlotEvent());
-                    Log.v(getClass().getName(), "creating " + tokenData);
-                    mTokenDataSet.add(tokenData);
-                }
-                tokenData.processEvent(event);
+        try {
+            switch (event.type) {
+                case SLOT_EVENT_THREAD_FAILED:
+                    LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(INTERNAL_ERROR));
+                    break;
+                case ENUMERATION_FINISHED:
+                    LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(ENUMERATION_FINISHED));
+                    break;
+                default:
+                    TokenData tokenData = findTokenDataBySlotId(event.requireSlotId());
+                    if (tokenData == null) {
+                        if (event.type != SLOT_ADDED) {
+                            Log.v(getClass().getName(), "Can not find TokenData to handle event: " + event.type +
+                                    ", slot: " + event.requireSlotId().longValue());
+                            return;
+                        }
+                        tokenData = new TokenData(event.requireSlotEvent());
+                        Log.v(getClass().getName(), "creating " + tokenData);
+                        mTokenDataSet.add(tokenData);
+                    }
+                    tokenData.processEvent(event);
+                    break;
+            }
+        } catch (Exception e) {
+            Log.w(getClass().getName(), "Event " + event.type + " processing error", e);
         }
     }
 
@@ -315,7 +326,7 @@ public class TokenManager {
                 @Override
                 State process(TokenManagerEvent event, TokenData tokenData, TokenManager tokenManager) {
                     // On adding nfc card there already might exist TokenData
-                    if (event.type == EventType.SLOT_ADDED) {
+                    if (event.type == SLOT_ADDED) {
                         TokenInfoLoader.start(event.requireSlotEvent(), tokenData);
                         return State.TokenInfoLoading;
                     }
