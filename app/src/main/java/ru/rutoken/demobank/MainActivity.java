@@ -33,7 +33,7 @@ public class MainActivity extends ManagedActivity {
     // Vars
     public static final String EXTRA_TOKEN_SERIAL = "TOKEN_SERIAL";
     public static final String EXTRA_CERTIFICATE_FINGERPRINT = "CERTIFICATE_FINGERPRINT";
-    private static final String ACTIVITY_CLASS_IDENTIFIER = TokenManagerListener.MAIN_ACTIVITY_IDENTIFIER;
+    public static final String IDENTIFIER = MainActivity.class.getName();
 
     // GUI
     private TextView mInfoTextView;
@@ -52,7 +52,7 @@ public class MainActivity extends ManagedActivity {
 
     @Override
     public String getActivityClassIdentifier() {
-        return ACTIVITY_CLASS_IDENTIFIER;
+        return IDENTIFIER;
     }
 
     @Override
@@ -64,7 +64,8 @@ public class MainActivity extends ManagedActivity {
 
         setupActionBar();
         setupUI();
-        TokenManagerListener.getInstance().init(getApplicationContext());
+
+        getLifecycle().addObserver(TokenManager.getInstance());
     }
 
     @Override
@@ -75,20 +76,12 @@ public class MainActivity extends ManagedActivity {
 
     @Override
     public void onBackPressed() {
-        if (TokenManagerListener.getInstance().shallWaitForToken()) {
-            TokenManagerListener.getInstance().resetWaitForToken();
+        if (TokenManagerListener.getInstance(this).shallWaitForToken()) {
+            TokenManagerListener.getInstance(this).resetWaitForToken();
         } else {
             super.onBackPressed();
         }
         updateScreen();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (isFinishing()) {
-            TokenManagerListener.getInstance().destroy();
-        }
     }
 
     private void setupUI() {
@@ -102,14 +95,14 @@ public class MainActivity extends ManagedActivity {
         mSelectButton.setVisibility(View.GONE);
         mSelectButton.setOnClickListener(view -> MainActivity.this.startPINActivity());
         mRemoveNfcButton.setOnClickListener(view ->
-                TokenManager.getInstance().removeNfcToken(TokenManagerListener.getInstance().getTokenSerial()));
+                TokenManager.getInstance().removeNfcToken(TokenManagerListener.getInstance(this).getTokenSerial()));
         mRemoveNfcButton.setPaintFlags(mRemoveNfcButton.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
     }
 
     public void startPINActivity() {
         Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-        intent.putExtra(EXTRA_TOKEN_SERIAL, TokenManagerListener.getInstance().getTokenSerial());
-        intent.putExtra(EXTRA_CERTIFICATE_FINGERPRINT, TokenManagerListener.getInstance().getCertificateFingerprint());
+        intent.putExtra(EXTRA_TOKEN_SERIAL, TokenManagerListener.getInstance(this).getTokenSerial());
+        intent.putExtra(EXTRA_CERTIFICATE_FINGERPRINT, TokenManagerListener.getInstance(this).getCertificateFingerprint());
         intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
         startActivity(intent);
     }
@@ -131,12 +124,12 @@ public class MainActivity extends ManagedActivity {
     }
 
     public void updateScreen() {
-        updateScreenInfo(TokenManagerListener.getInstance().getToken());
+        updateScreenInfo(TokenManagerListener.getInstance(this).getToken());
         updateProgressBar();
     }
 
     private void updateProgressBar() {
-        if (TokenManagerListener.getInstance().shallShowProgressBar()) {
+        if (TokenManagerListener.getInstance(this).shallShowProgressBar()) {
             mTWBAProgressBar.setVisibility(View.VISIBLE);
         } else {
             mTWBAProgressBar.setVisibility(View.INVISIBLE);
@@ -150,7 +143,8 @@ public class MainActivity extends ManagedActivity {
 
         if (token != null && token.smInitializedStatus() == Token.SmInitializedStatus.NEED_INITIALIZE) {
             textToShow += getString(R.string.need_sm_activate);
-        } else if (token != null && TokenManagerListener.getInstance().getCertificateFingerprint().equals(TokenManagerListener.NO_FINGERPRINT)) {
+        } else if (token != null && TokenManagerListener.getInstance(this)
+                .getCertificateFingerprint().equals(TokenManagerListener.NO_FINGERPRINT)) {
             textToShow += getString(R.string.no_certificate);
 
             if (token.isNfc()) {
@@ -158,7 +152,8 @@ public class MainActivity extends ManagedActivity {
                 shallShowRemoveButton = true;
             }
         } else if (token != null) {
-            textToShow += commonNameFromX500Name(token.getCertificate(TokenManagerListener.getInstance().getCertificateFingerprint())
+            textToShow += commonNameFromX500Name(
+                    token.getCertificate(TokenManagerListener.getInstance(this).getCertificateFingerprint())
                     .getSubject());
 
             shallShowSelectButton = true;
@@ -167,9 +162,9 @@ public class MainActivity extends ManagedActivity {
                 mRemoveNfcButton.setText(R.string.disconnect);
                 shallShowRemoveButton = true;
             }
-        } else if (TokenManagerListener.getInstance().shallWaitForToken()) {
+        } else if (TokenManagerListener.getInstance(this).shallWaitForToken()) {
             textToShow = getString(R.string.wait_token,
-                    TokenManagerListener.getInstance().getWaitToken().getShortDecSerialNumber());
+                    TokenManagerListener.getInstance(this).getWaitToken().getShortDecSerialNumber());
         } else {
             textToShow = getString(R.string.no_token);
             mRemoveNfcButton.setVisibility(View.GONE);

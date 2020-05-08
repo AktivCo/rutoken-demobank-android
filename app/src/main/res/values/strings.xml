@@ -38,4 +38,5 @@
     <string name="cancel">Cancel</string>
     <string name="disconnect">Disconnect</string>
     <string name="continue_str">Continue</string>
+    <string name="rutoken_not_found">Rutoken not found</string>
 </resources>

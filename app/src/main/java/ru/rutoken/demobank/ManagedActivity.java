@@ -11,12 +11,12 @@ abstract public class ManagedActivity extends ExternallyDismissibleActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        TokenManagerListener.getInstance().onActivityResumed(this);
+        TokenManagerListener.getInstance(this).onActivityResumed(this);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        TokenManagerListener.getInstance().onActivityPaused(this);
+        TokenManagerListener.getInstance(this).onActivityPaused(this);
     }
 }

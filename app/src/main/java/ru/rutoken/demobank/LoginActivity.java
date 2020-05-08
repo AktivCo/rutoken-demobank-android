@@ -24,6 +24,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import ru.rutoken.demobank.nfc.NfcDetectCardFragment;
 import ru.rutoken.demobank.payment.PaymentsActivity;
@@ -108,6 +109,7 @@ public class LoginActivity extends Pkcs11CallerActivity {
         mCertificateFingerprint = intent.getStringExtra(MainActivity.EXTRA_CERTIFICATE_FINGERPRINT);
         mToken = TokenManager.getInstance().getTokenBySerial(mTokenSerial);
         if (mToken == null) {
+            Toast.makeText(this, R.string.rutoken_not_found, Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
@@ -171,7 +173,7 @@ public class LoginActivity extends Pkcs11CallerActivity {
         mPinEditText.requestFocus();
 
         mLoginButton.setOnClickListener(view -> {
-            TokenManagerListener.getInstance().resetWaitForToken();
+            TokenManagerListener.getInstance(this).resetWaitForToken();
             showLogonStarted();
 
              // Certificate and sign data are used for a challenge-response authentication.

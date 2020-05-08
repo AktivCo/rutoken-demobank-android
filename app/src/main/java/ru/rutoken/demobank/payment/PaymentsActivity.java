@@ -115,10 +115,11 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
         mCertificateFingerprint = intent.getStringExtra(MainActivity.EXTRA_CERTIFICATE_FINGERPRINT);
         mToken = TokenManager.getInstance().getTokenBySerial(mTokenSerial);
         if (null == mToken) {
+            Toast.makeText(this, R.string.rutoken_not_found, Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
-        TokenManagerListener.getInstance().setPaymentsCreated();
+        TokenManagerListener.getInstance(this).setPaymentsCreated();
         setupUI();
     }
 
@@ -211,7 +212,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
 
     @Override
     public void onBackPressed() {
-        TokenManagerListener.getInstance().resetPaymentsCreated();
+        TokenManagerListener.getInstance(this).resetPaymentsCreated();
         mToken.clearPin();
         super.onBackPressed();
     }

@@ -5,8 +5,6 @@
 
 package ru.rutoken.pkcs11caller;
 
-import android.content.Context;
-import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -15,7 +13,9 @@ import androidx.annotation.AnyThread;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.core.util.Consumer;
+import androidx.lifecycle.DefaultLifecycleObserver;
+import androidx.lifecycle.LifecycleOwner;
 
 import com.google.common.util.concurrent.SettableFuture;
 import com.sun.jna.NativeLong;
@@ -27,6 +27,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -41,59 +42,43 @@ import ru.rutoken.utils.KeyExecutors;
 import static ru.rutoken.pkcs11caller.SlotEventThread.SlotEvent;
 import static ru.rutoken.pkcs11caller.TokenManagerEvent.EventType.SLOT_ADDED;
 
-public class TokenManager {
-
-    public static final String ENUMERATION_FINISHED = TokenManager.class.getName() + ".ENUMERATION_FINISHED";
-    public static final String TOKEN_ADDING = TokenManager.class.getName() + ".TOKEN_ADDING";
-    public static final String TOKEN_ADDING_FAILED = TokenManager.class.getName() + ".TOKEN_ADDING_FAILED";
-    public static final String TOKEN_ADDED = TokenManager.class.getName() + ".TOKEN_ADDED";
-    public static final String TOKEN_REMOVED = TokenManager.class.getName() + ".TOKEN_REMOVED";
-    public static final String INTERNAL_ERROR = TokenManager.class.getName() + ".INTERNAL_ERROR";
-
-    public static final String EXTRA_SLOT_ID = TokenManager.class.getName() + ".SLOT_ID";
-    public static final String EXTRA_TOKEN_SERIAL = TokenManager.class.getName() + ".TOKEN_SERIAL";
-    public static final String EXTRA_TOKEN_ERROR = TokenManager.class.getName() + ".TOKEN_ERROR";
-
+public class TokenManager implements DefaultLifecycleObserver {
     private static final TokenManager INSTANCE = new TokenManager();
     private static final Handler HANDLER = new Handler(Looper.getMainLooper());
     private static final KeyExecutors<TokenData> EXECUTORS = new KeyExecutors<>(Executors::newSingleThreadExecutor);
 
     private final Set<TokenData> mTokenDataSet = Collections.synchronizedSet(new HashSet<>());
+    private final CopyOnWriteArraySet<Listener> mListeners = new CopyOnWriteArraySet<>();
     private SlotEventThread mSlotEventThread;
-    private Context mContext;
 
     public static TokenManager getInstance() {
         return INSTANCE;
     }
 
-    public void init(Context context) {
-        if (mContext != null)
-            return;
-        mContext = context;
-
+    @Override
+    public void onCreate(@NonNull LifecycleOwner owner) {
         mSlotEventThread = new SlotEventThread();
         mSlotEventThread.start();
     }
 
-    public void destroy() {
-        if (mContext == null)
-            return;
-
+    @Override
+    public void onDestroy(@NonNull LifecycleOwner owner) {
         mSlotEventThread.interrupt();
-        mSlotEventThread = null;
         final Iterator<TokenData> iterator = mTokenDataSet.iterator();
         while (iterator.hasNext()) {
             final TokenData tokenData = iterator.next();
-            final String serialNumber = tokenData.getSerialNumber();
+            final String tokenSerial = tokenData.getSerialNumber();
             tokenData.close();
             iterator.remove();
 
-            if (serialNumber != null)
-                sendTokenRemoved(serialNumber);
+            if (tokenSerial != null)
+                notifyTokenRemoved(tokenSerial);
         }
         RtPkcs11Library.getInstance().C_Finalize(null);
+    }
 
-        mContext = null;
+    public void addListener(Listener listener) {
+        mListeners.add(Objects.requireNonNull(listener));
     }
 
     @AnyThread
@@ -147,7 +132,7 @@ public class TokenManager {
             throw new IllegalStateException("Token with serial: " + tokenSerial + " is not constructed yet");
 
         removeTokenData(tokenData);
-        sendTokenRemoved(tokenSerial);
+        notifyTokenRemoved(tokenSerial);
     }
 
     @MainThread
@@ -155,10 +140,10 @@ public class TokenManager {
         try {
             switch (event.type) {
                 case SLOT_EVENT_THREAD_FAILED:
-                    LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(INTERNAL_ERROR));
+                    notifyListeners(Listener::onInternalError);
                     break;
                 case ENUMERATION_FINISHED:
-                    LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(ENUMERATION_FINISHED));
+                    notifyListeners(Listener::onEnumerationFinished);
                     break;
                 default:
                     TokenData tokenData = findTokenDataBySlotId(event.requireSlotId());
@@ -212,26 +197,39 @@ public class TokenManager {
         tokenData.close();
     }
 
-    private void sendTokenAdding(NativeLong slotId) {
-        LocalBroadcastManager.getInstance(mContext).sendBroadcast(
-                new Intent(TOKEN_ADDING).putExtra(EXTRA_SLOT_ID, slotId));
+    private void notifyListeners(Consumer<Listener> consumer) {
+        for (Listener listener : mListeners)
+            consumer.accept(listener);
     }
 
-    private void sendTokenAddingFailed(NativeLong slotId, String errorMessage) {
-        Intent intent = new Intent(TOKEN_ADDING_FAILED)
-                .putExtra(EXTRA_SLOT_ID, slotId)
-                .putExtra(EXTRA_TOKEN_ERROR, errorMessage);
-        LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
+    private void notifyTokenAdding(NativeLong slotId) {
+        notifyListeners(listener -> listener.onTokenAdding(slotId.longValue()));
     }
 
-    private void sendTokenAdded(String tokenSerial) {
-        LocalBroadcastManager.getInstance(mContext).sendBroadcast(
-                new Intent(TOKEN_ADDED).putExtra(EXTRA_TOKEN_SERIAL, tokenSerial));
+    private void notifyTokenAddingFailed(NativeLong slotId, String errorMessage) {
+        notifyListeners(listener -> listener.onTokenAddingFailed(slotId.longValue(), errorMessage));
     }
 
-    private void sendTokenRemoved(String tokenSerial) {
-        LocalBroadcastManager.getInstance(mContext).sendBroadcast(
-                new Intent(TOKEN_REMOVED).putExtra(EXTRA_TOKEN_SERIAL, tokenSerial));
+    private void notifyTokenAdded(String tokenSerial) {
+        notifyListeners(listener -> listener.onTokenAdded(tokenSerial));
+    }
+
+    private void notifyTokenRemoved(String tokenSerial) {
+        notifyListeners(listener -> listener.onTokenRemoved(tokenSerial));
+    }
+
+    public interface Listener {
+        void onEnumerationFinished();
+
+        void onTokenAdding(long slotId);
+
+        void onTokenAddingFailed(long slotId, String error);
+
+        void onTokenAdded(String tokenSerial);
+
+        void onTokenRemoved(String tokenSerial);
+
+        void onInternalError();
     }
 
     private static class TokenManagerException extends RuntimeException {
@@ -292,7 +290,7 @@ public class TokenManager {
             if (this.state == State.Closed) {
                 if (state == State.Closed)
                     return;
-                throw new IllegalStateException(this  + " is closed, and cannot accept state: " + state);
+                throw new IllegalStateException(this + " is closed, and cannot accept state: " + state);
             }
 
             this.state = state;
@@ -304,7 +302,8 @@ public class TokenManager {
         @Override
         public String toString() {
             final String tokenSerial = getSerialNumber();
-            return getClass().getSimpleName() + " " + hashCode() + (tokenSerial != null ? ", tokenSerial: " + tokenSerial : "");
+            return getClass().getSimpleName() + " " + hashCode()
+                    + (tokenSerial != null ? ", tokenSerial: " + tokenSerial : "");
         }
 
         @AnyThread
@@ -361,7 +360,7 @@ public class TokenManager {
                                 if (tokenData.token != null)
                                     return State.TokenAdded;
                             }
-                            tokenManager.sendTokenAdding(event.requireSlotId());
+                            tokenManager.notifyTokenAdding(event.requireSlotId());
                             TokenCreator.start(event.requireSlotEvent(), event.requireTokenInfo(), tokenData);
                             return State.TokenAdding;
                         case TOKEN_INFO_FAILED:
@@ -377,17 +376,17 @@ public class TokenManager {
                 State process(TokenManagerEvent event, TokenData tokenData, TokenManager tokenManager) {
                     switch (event.type) {
                         case SLOT_REMOVED:
-                            tokenManager.sendTokenAddingFailed(
+                            tokenManager.notifyTokenAddingFailed(
                                     event.requireSlotId(), "Slot removed during token adding");
                             tokenManager.removeTokenData(tokenData);
                             return State.Closed;
                         case TOKEN_ADDED:
                             // Token created
                             tokenData.token = event.requireToken();
-                            tokenManager.sendTokenAdded(event.requireToken().getSerialNumber());
+                            tokenManager.notifyTokenAdded(event.requireToken().getSerialNumber());
                             return State.TokenAdded;
                         case TOKEN_ADDING_FAILED:
-                            tokenManager.sendTokenAddingFailed(event.requireSlotId(),
+                            tokenManager.notifyTokenAddingFailed(event.requireSlotId(),
                                     event.requireException().getMessage());
                             return State.TokenAddingFailed;
                         default:
@@ -406,7 +405,7 @@ public class TokenManager {
                             return State.SlotRemoved;
                         }
                         tokenManager.removeTokenData(tokenData);
-                        tokenManager.sendTokenRemoved(Objects.requireNonNull(tokenData.getSerialNumber()));
+                        tokenManager.notifyTokenRemoved(Objects.requireNonNull(tokenData.getSerialNumber()));
                         return State.Closed;
                     }
                     throw new TokenManagerException(
@@ -439,7 +438,8 @@ public class TokenManager {
         static void start(SlotEvent slotEvent, CK_TOKEN_INFO tokenInfo, TokenData tokenData) {
             EXECUTORS.get(tokenData).execute(() -> {
                 try {
-                    final Token token = new Token(slotEvent.slotId, tokenInfo, tokenData.isNfc, RtPkcs11Library.getInstance());
+                    final Token token = new Token(slotEvent.slotId, tokenInfo,
+                            tokenData.isNfc, RtPkcs11Library.getInstance());
 
                     tokenData.postEvent(new TokenManagerEvent(EventType.TOKEN_ADDED, slotEvent, token));
                 } catch (Pkcs11CallerException e) {
