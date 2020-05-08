@@ -203,7 +203,11 @@ public class TokenManagerListener {
                 }
             } while (false);
         }
-        // Process new token, if need
+
+        if (mDoWait)
+            // if the expected device was connected it was processed in the previous block
+            resetWaitForToken();
+
         if (mTokenSerial.equals(NO_TOKEN)) {
             mTokenSerial = tokenSerial;
             mToken = token;

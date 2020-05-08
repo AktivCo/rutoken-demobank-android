@@ -145,24 +145,27 @@ public class MainActivity extends ManagedActivity {
 
     private void updateScreenInfo(Token token) {
         String textToShow = getCertificateData(token);
-        boolean shallShowButton = false;
+        boolean shallShowSelectButton = false;
+        boolean shallShowRemoveButton = false;
 
         if (token != null && token.smInitializedStatus() == Token.SmInitializedStatus.NEED_INITIALIZE) {
             textToShow += getString(R.string.need_sm_activate);
         } else if (token != null && TokenManagerListener.getInstance().getCertificateFingerprint().equals(TokenManagerListener.NO_FINGERPRINT)) {
             textToShow += getString(R.string.no_certificate);
+
             if (token.isNfc()) {
                 mRemoveNfcButton.setText(R.string.continue_str);
-                mRemoveNfcButton.setVisibility(View.VISIBLE);
+                shallShowRemoveButton = true;
             }
         } else if (token != null) {
             textToShow += commonNameFromX500Name(token.getCertificate(TokenManagerListener.getInstance().getCertificateFingerprint())
                     .getSubject());
 
-            shallShowButton = true;
+            shallShowSelectButton = true;
+
             if (token.isNfc()) {
                 mRemoveNfcButton.setText(R.string.disconnect);
-                mRemoveNfcButton.setVisibility(View.VISIBLE);
+                shallShowRemoveButton = true;
             }
         } else if (TokenManagerListener.getInstance().shallWaitForToken()) {
             textToShow = getString(R.string.wait_token,
@@ -173,7 +176,8 @@ public class MainActivity extends ManagedActivity {
         }
 
         mInfoTextView.setText(textToShow);
-        mSelectButton.setVisibility(shallShowButton ? View.VISIBLE : View.GONE);
+        mSelectButton.setVisibility(shallShowSelectButton ? View.VISIBLE : View.GONE);
+        mRemoveNfcButton.setVisibility(shallShowRemoveButton ? View.VISIBLE : View.GONE);
     }
 
     private String getCertificateData(@Nullable Token token) {
