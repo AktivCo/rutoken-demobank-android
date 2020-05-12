@@ -74,9 +74,17 @@ public class NfcDetectCardFragment extends BottomSheetDialogFragment {
     }
 
     @Override
+    public void onStart() {
+        mViewModel.startTokenWait();
+        super.onStart();
+    }
+
+    @Override
     public void onDismiss(@NonNull DialogInterface dialog) {
+        mViewModel.stopTokenWait();
         if (mCancelCallback != null)
             mCancelCallback.cancel();
+
         super.onDismiss(dialog);
     }
 

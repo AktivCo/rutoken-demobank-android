@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 
 import ru.rutoken.bcprovider.CmsSigner;
@@ -291,7 +292,7 @@ public class Token {
             final NativeLong slotId;
             try {
                 slotId = TokenManager.getInstance().getSlotIdByTokenSerial(getSerialNumber()).get();
-            } catch (ExecutionException e) {
+            } catch (ExecutionException | CancellationException e) {
                 throw new GeneralErrorException("Cannot get slot id", e);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
