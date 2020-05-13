@@ -45,7 +45,6 @@ public class LoginActivity extends Pkcs11CallerActivity {
     private EditText mPinEditText;
     private TextView mAlertTextView;
     private ProgressBar mLoginProgressBar;
-    private NfcDetectCardFragment mCardFragment;
     private Dialog mOverlayDialog;
 
     private String mTokenSerial = TokenManagerListener.NO_TOKEN;
@@ -55,11 +54,6 @@ public class LoginActivity extends Pkcs11CallerActivity {
     @Override
     public String getActivityClassIdentifier() {
         return getClass().getName();
-    }
-
-    @Override
-    protected NfcDetectCardFragment getNfcCardFragment() {
-        return mCardFragment;
     }
 
     private void showLogonStarted() {
@@ -143,7 +137,6 @@ public class LoginActivity extends Pkcs11CallerActivity {
         mPinEditText = findViewById(R.id.pinET);
         mAlertTextView = findViewById(R.id.alertTV);
         mLoginProgressBar = findViewById(R.id.loginPB);
-        mCardFragment = NfcDetectCardFragment.newInstance(mTokenSerial);
 
         mLoginProgressBar.setVisibility(View.GONE);
 

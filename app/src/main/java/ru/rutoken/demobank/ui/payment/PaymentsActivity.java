@@ -52,12 +52,11 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
     private InfoDialog mInfoDialog;
     private AlertDialog mSucceedDialog;
     private AlertDialog mProgressDialog;
-    private NfcDetectCardFragment mCardFragment;
+
     private String[] mPaymentTitles;
     private String[][] mPaymentValuesArray = null;
     private String mSignData;
     // Activity input
-    private String mTokenSerial = TokenManagerListener.NO_TOKEN;
     private String mCertificateFingerprint = TokenManagerListener.NO_FINGERPRINT;
     private Token mToken = null;
     // Logic
@@ -69,11 +68,6 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
     }
 
     @Override
-    protected NfcDetectCardFragment getNfcCardFragment() {
-        return mCardFragment;
-    }
-
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_payments);
@@ -82,9 +76,10 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
 
         setupActionBar();
         Intent intent = getIntent();
-        mTokenSerial = intent.getStringExtra(MainActivity.EXTRA_TOKEN_SERIAL);
+
+        String tokenSerial = intent.getStringExtra(MainActivity.EXTRA_TOKEN_SERIAL);
         mCertificateFingerprint = intent.getStringExtra(MainActivity.EXTRA_CERTIFICATE_FINGERPRINT);
-        mToken = TokenManager.getInstance().getTokenBySerial(mTokenSerial);
+        mToken = TokenManager.getInstance().getTokenBySerial(tokenSerial);
         if (null == mToken) {
             Toast.makeText(this, R.string.rutoken_not_found, Toast.LENGTH_SHORT).show();
             finish();
@@ -116,7 +111,6 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
         TextView tokenIDTextView = findViewById(R.id.tokenIdTV);
         TextView tokenModelTextView = findViewById(R.id.modelTV);
         ImageView tokenBatteryImageView = findViewById(R.id.batteryIV);
-        mCardFragment = NfcDetectCardFragment.newInstance(mTokenSerial);
 
         tokenModelTextView.setText(TokenModelRecognizer.getInstance(this).marketingNameForPkcs11Name(mToken.getModel())
                 + " " + mToken.getShortDecSerialNumber());
