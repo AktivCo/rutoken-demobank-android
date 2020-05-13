@@ -12,7 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
 import ru.rutoken.demobank.R;
 
-class PcscInstallDialogFragment extends DialogFragment {
+public class PcscInstallDialogFragment extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
