@@ -4,4 +4,5 @@
     <color name="rutokenRed">#DD2233</color>
     <color name="background">#FAFAFA</color>>
     <color name="rutokenBlue">#117788</color>
+    <color name="ic_launcher_background">@color/rutokenRed</color>
 </resources>
