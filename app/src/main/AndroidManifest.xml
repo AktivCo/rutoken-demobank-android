@@ -11,7 +11,7 @@
         android:icon="@mipmap/ic_launcher"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.main.MainActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -20,19 +20,19 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".LoginActivity"
-            android:parentActivityName=".MainActivity"
+            android:name=".ui.login.LoginActivity"
+            android:parentActivityName=".ui.main.MainActivity"
             android:windowSoftInputMode="stateVisible" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="ru.rutoken.demobank.MainActivity" />
+                android:value="ru.rutoken.demobank.ui.main.MainActivity" />
         </activity>
         <activity
-            android:name=".payment.PaymentsActivity"
-            android:parentActivityName=".LoginActivity" >
+            android:name=".ui.payment.PaymentsActivity"
+            android:parentActivityName=".ui.login.LoginActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="ru.rutoken.demobank.LoginActivity" />
+                android:value="ru.rutoken.demobank.ui.login.LoginActivity" />
         </activity>
     </application>
 </manifest>
