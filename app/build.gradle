@@ -70,7 +70,7 @@ def copyFile(String file, String sourcePath, String destinationPath) {
 }
 
 def copyJniLibs(String arch, String jniArch) {
-    def jniLibs =  "./src/main/jniLibs/$jniArch"
+    def jniLibs = "./src/main/jniLibs/$jniArch"
 
     copyFile('librtpcsc.so', "../../../../pcsc/android-$arch/lib", jniLibs)
     copyFile('librtpkcs11ecp.so', "../../../android-$arch/lib", jniLibs)
