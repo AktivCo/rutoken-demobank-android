@@ -12,9 +12,6 @@ android {
             abiFilters "armeabi-v7a", "arm64-v8a"
         }
     }
-    lintOptions {
-        abortOnError false
-    }
     signingConfigs {
         release {
             storeFile project.hasProperty("keystorePath") ? file(project.property("keystorePath")) : null

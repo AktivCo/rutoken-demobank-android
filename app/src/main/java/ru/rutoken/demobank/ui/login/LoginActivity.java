@@ -104,7 +104,7 @@ public class LoginActivity extends Pkcs11CallerActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
 
         Intent intent = getIntent();
         mTokenSerial = intent.getStringExtra(MainActivity.EXTRA_TOKEN_SERIAL);

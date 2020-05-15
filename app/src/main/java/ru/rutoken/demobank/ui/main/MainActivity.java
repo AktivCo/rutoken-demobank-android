@@ -64,7 +64,7 @@ public class MainActivity extends ManagedActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
 
         setupActionBar();
         setupUI();

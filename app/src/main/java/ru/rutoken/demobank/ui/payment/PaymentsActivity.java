@@ -107,7 +107,7 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_payments);
 
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
 
         setupActionBar();
         Intent intent = getIntent();
