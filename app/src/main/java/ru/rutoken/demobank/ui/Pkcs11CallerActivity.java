@@ -7,10 +7,10 @@ package ru.rutoken.demobank.ui;
 
 import androidx.annotation.Nullable;
 
-import ru.rutoken.demobank.ui.nfc.NfcDetectCardFragment;
 import ru.rutoken.demobank.pkcs11caller.Token;
 import ru.rutoken.demobank.pkcs11caller.exception.Pkcs11CallerException;
 import ru.rutoken.demobank.pkcs11caller.exception.Pkcs11Exception;
+import ru.rutoken.demobank.ui.nfc.NfcDetectCardFragment;
 
 abstract public class Pkcs11CallerActivity extends ManagedActivity {
     private final Pkcs11Callback mPkcs11Callback = new Pkcs11Callback();

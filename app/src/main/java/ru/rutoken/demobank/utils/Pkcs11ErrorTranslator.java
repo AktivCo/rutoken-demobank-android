@@ -18,12 +18,6 @@ public class Pkcs11ErrorTranslator {
     private final Map<Long, String> mErrorMessages = new HashMap<>();
     private String mGenericMessage;
 
-    public static synchronized Pkcs11ErrorTranslator getInstance(Context context) {
-        if (INSTANCE == null)
-            INSTANCE = new Pkcs11ErrorTranslator(context);
-        return INSTANCE;
-    }
-
     private Pkcs11ErrorTranslator(Context context) {
         Resources res = context.getApplicationContext().getResources();
         if (res == null) {
@@ -36,6 +30,12 @@ public class Pkcs11ErrorTranslator {
             mErrorMessages.put((long) intRV[i], messages[i]);
         }
         mGenericMessage = res.getString(R.string.generic_error);
+    }
+
+    public static synchronized Pkcs11ErrorTranslator getInstance(Context context) {
+        if (INSTANCE == null)
+            INSTANCE = new Pkcs11ErrorTranslator(context);
+        return INSTANCE;
     }
 
     public String messageForRV(long rv) {

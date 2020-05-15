@@ -25,11 +25,11 @@ import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.asn1.x500.style.IETFUtils;
 
 import ru.rutoken.demobank.R;
+import ru.rutoken.demobank.pkcs11caller.Token;
+import ru.rutoken.demobank.pkcs11caller.TokenManager;
 import ru.rutoken.demobank.ui.ManagedActivity;
 import ru.rutoken.demobank.ui.TokenManagerListener;
 import ru.rutoken.demobank.ui.login.LoginActivity;
-import ru.rutoken.demobank.pkcs11caller.Token;
-import ru.rutoken.demobank.pkcs11caller.TokenManager;
 import ru.rutoken.demobank.utils.PcscChecker;
 import ru.rutoken.demobank.utils.TokenModelRecognizer;
 
@@ -106,7 +106,8 @@ public class MainActivity extends ManagedActivity {
     public void startPINActivity() {
         Intent intent = new Intent(MainActivity.this, LoginActivity.class);
         intent.putExtra(EXTRA_TOKEN_SERIAL, TokenManagerListener.getInstance(this).getTokenSerial());
-        intent.putExtra(EXTRA_CERTIFICATE_FINGERPRINT, TokenManagerListener.getInstance(this).getCertificateFingerprint());
+        intent.putExtra(EXTRA_CERTIFICATE_FINGERPRINT,
+                TokenManagerListener.getInstance(this).getCertificateFingerprint());
         intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
         startActivity(intent);
     }
@@ -158,7 +159,7 @@ public class MainActivity extends ManagedActivity {
         } else if (token != null) {
             textToShow += commonNameFromX500Name(
                     token.getCertificate(TokenManagerListener.getInstance(this).getCertificateFingerprint())
-                    .getSubject());
+                            .getSubject());
 
             shallShowSelectButton = true;
 

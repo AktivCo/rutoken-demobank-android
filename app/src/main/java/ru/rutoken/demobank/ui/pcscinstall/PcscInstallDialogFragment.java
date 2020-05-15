@@ -10,6 +10,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
+
 import ru.rutoken.demobank.R;
 import ru.rutoken.demobank.utils.PcscChecker;
 
@@ -27,9 +28,11 @@ public class PcscInstallDialogFragment extends DialogFragment {
         builder.setPositiveButton(R.string.install_control_panel, (dialog, id) -> {
             Activity activity = requireActivity();
             try {
-                activity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + PcscChecker.PCSC_PACKAGE_NAME)));
+                activity.startActivity(new Intent(Intent.ACTION_VIEW,
+                        Uri.parse("market://details?id=" + PcscChecker.PCSC_PACKAGE_NAME)));
             } catch (ActivityNotFoundException e) {
-                activity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + PcscChecker.PCSC_PACKAGE_NAME)));
+                activity.startActivity(new Intent(Intent.ACTION_VIEW,
+                        Uri.parse("https://play.google.com/store/apps/details?id=" + PcscChecker.PCSC_PACKAGE_NAME)));
             }
             activity.finish();
         });

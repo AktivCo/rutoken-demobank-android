@@ -21,8 +21,8 @@ import ru.rutoken.pkcs11jna.CK_SLOT_INFO;
 import ru.rutoken.pkcs11jna.Pkcs11Constants;
 
 import static ru.rutoken.demobank.pkcs11caller.TokenManagerEvent.EventType.ENUMERATION_FINISHED;
-import static ru.rutoken.demobank.pkcs11caller.TokenManagerEvent.EventType.SLOT_EVENT_THREAD_FAILED;
 import static ru.rutoken.demobank.pkcs11caller.TokenManagerEvent.EventType.SLOT_ADDED;
+import static ru.rutoken.demobank.pkcs11caller.TokenManagerEvent.EventType.SLOT_EVENT_THREAD_FAILED;
 import static ru.rutoken.demobank.pkcs11caller.TokenManagerEvent.EventType.SLOT_REMOVED;
 
 class SlotEventThread extends Thread {
@@ -98,8 +98,11 @@ class SlotEventThread extends Thread {
 
         if (mLastSlotEvent.get(slotId) == eventType) {
             final EventType oppositeEventType = oppositeEvent(eventType);
-            Log.v(getClass().getName(), "post opposite (virtual) event: " + oppositeEventType + ", slot: " + slotId.longValue());
-            TokenManager.getInstance().postEvent(new TokenManagerEvent(oppositeEventType, new SlotEvent(slotId, slotInfo)));
+            Log.v(getClass().getName(), "post opposite (virtual) event: " + oppositeEventType
+                    + ", slot: " + slotId.longValue());
+
+            TokenManager.getInstance().postEvent(new TokenManagerEvent(oppositeEventType,
+                    new SlotEvent(slotId, slotInfo)));
             mLastSlotEvent.put(slotId, oppositeEventType);
         }
 

@@ -25,13 +25,13 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 
 import ru.rutoken.demobank.bcprovider.CmsSigner;
-import ru.rutoken.demobank.ui.Pkcs11CallerActivity;
-import ru.rutoken.demobank.ui.nfc.NfcDetectCardFragment;
 import ru.rutoken.demobank.pkcs11caller.Certificate.CertificateCategory;
 import ru.rutoken.demobank.pkcs11caller.exception.CertNotFoundException;
 import ru.rutoken.demobank.pkcs11caller.exception.GeneralErrorException;
 import ru.rutoken.demobank.pkcs11caller.exception.Pkcs11CallerException;
 import ru.rutoken.demobank.pkcs11caller.exception.Pkcs11Exception;
+import ru.rutoken.demobank.ui.Pkcs11CallerActivity;
+import ru.rutoken.demobank.ui.nfc.NfcDetectCardFragment;
 import ru.rutoken.pkcs11jna.CK_ATTRIBUTE;
 import ru.rutoken.pkcs11jna.CK_TOKEN_INFO;
 import ru.rutoken.pkcs11jna.CK_TOKEN_INFO_EXTENDED;
@@ -40,19 +40,10 @@ import ru.rutoken.pkcs11jna.RtPkcs11;
 import ru.rutoken.pkcs11jna.RtPkcs11Constants;
 
 public class Token {
-    public enum UserChangePolicy {
-        USER, SO, BOTH
-    }
-
-    public enum BodyColor {
-        WHITE, BLACK, UNKNOWN
-    }
-
-    public enum SmInitializedStatus {
-        UNKNOWN, NEED_INITIALIZE, INITIALIZED
-    }
-
     private final boolean mIsNfc;
+    private final HashMap<String, CertificateAndGostKeyPair> mCertificateMap = new HashMap<>();
+    private final Handler mHandler = new Handler(Looper.getMainLooper());
+    private final RtPkcs11 mRtPkcs11;
     private String mPin = "";
     private String mLabel;
     private String mModel;
@@ -68,9 +59,13 @@ public class Token {
     private UserChangePolicy mUserPinChangePolicy;
     private boolean mSupportsSM;
     private SmInitializedStatus mSmInitializedStatus = SmInitializedStatus.UNKNOWN;
-    private final HashMap<String, CertificateAndGostKeyPair> mCertificateMap = new HashMap<>();
-    private final Handler mHandler = new Handler(Looper.getMainLooper());
-    private final RtPkcs11 mRtPkcs11;
+
+    Token(NativeLong slotId, CK_TOKEN_INFO tokenInfo, boolean isNfc, RtPkcs11 pkcs11) throws Pkcs11CallerException {
+        mRtPkcs11 = Objects.requireNonNull(pkcs11);
+        mIsNfc = isNfc;
+        initTokenInfo(slotId, tokenInfo);
+        initCertificateList(slotId);
+    }
 
     public boolean isNfc() {
         return mIsNfc;
@@ -137,13 +132,6 @@ public class Token {
         mPin = "";
     }
 
-    Token(NativeLong slotId, CK_TOKEN_INFO tokenInfo, boolean isNfc, RtPkcs11 pkcs11) throws Pkcs11CallerException {
-        mRtPkcs11 = Objects.requireNonNull(pkcs11);
-        mIsNfc = isNfc;
-        initTokenInfo(slotId, tokenInfo);
-        initCertificateList(slotId);
-    }
-
     private Map<String, CertificateAndGostKeyPair> getCertificatesWithCategory(CertificateCategory category,
                                                                                NativeLong session)
             throws Pkcs11CallerException {
@@ -178,7 +166,8 @@ public class Token {
         HashMap<String, CertificateAndGostKeyPair> certificateMap = new HashMap<>();
         for (NativeLong c : certs) {
             Certificate cert = new Certificate(mRtPkcs11, session.longValue(), c.longValue());
-            GostKeyPair keyPair = GostKeyPair.getGostKeyPairByCertificate(mRtPkcs11, session.longValue(), cert.getCertificateHolder());
+            GostKeyPair keyPair = GostKeyPair.getGostKeyPairByCertificate(mRtPkcs11,
+                    session.longValue(), cert.getCertificateHolder());
             certificateMap.put(cert.fingerprint(), new CertificateAndGostKeyPair(cert, keyPair));
         }
         return certificateMap;
@@ -294,6 +283,17 @@ public class Token {
         }.execute();
     }
 
+    public enum UserChangePolicy {
+        USER, SO, BOTH
+    }
+
+    public enum BodyColor {
+        WHITE, BLACK, UNKNOWN
+    }
+
+    public enum SmInitializedStatus {
+        UNKNOWN, NEED_INITIALIZE, INITIALIZED
+    }
 
     private class Session implements AutoCloseable {
         private NativeLong mSession;

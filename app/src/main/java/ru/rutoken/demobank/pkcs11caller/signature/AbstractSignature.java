@@ -30,7 +30,8 @@ abstract class AbstractSignature implements Signature {
     }
 
     byte[] innerSign(final CK_MECHANISM mechanism, final byte[] data) throws Pkcs11Exception {
-        NativeLong rv = mPkcs11.C_SignInit(new NativeLong(mSessionHandle), mechanism, new NativeLong(mPrivateKeyHandle));
+        NativeLong rv = mPkcs11.C_SignInit(new NativeLong(mSessionHandle),
+                mechanism, new NativeLong(mPrivateKeyHandle));
         Pkcs11Exception.throwIfNotOk(rv);
 
         final NativeLongByReference count = new NativeLongByReference();

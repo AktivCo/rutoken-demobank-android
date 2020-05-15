@@ -36,8 +36,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import ru.rutoken.demobank.pkcs11caller.TokenManagerEvent.EventType;
 import ru.rutoken.demobank.pkcs11caller.exception.Pkcs11CallerException;
 import ru.rutoken.demobank.pkcs11caller.exception.Pkcs11Exception;
-import ru.rutoken.pkcs11jna.CK_TOKEN_INFO;
 import ru.rutoken.demobank.utils.KeyExecutors;
+import ru.rutoken.pkcs11jna.CK_TOKEN_INFO;
 
 import static ru.rutoken.demobank.pkcs11caller.SlotEventThread.SlotEvent;
 import static ru.rutoken.demobank.pkcs11caller.TokenManagerEvent.EventType.SLOT_ADDED;

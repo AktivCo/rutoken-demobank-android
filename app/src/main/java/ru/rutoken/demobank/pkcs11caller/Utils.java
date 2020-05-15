@@ -50,8 +50,8 @@ class Utils {
             throws Pkcs11CallerException {
         CK_ATTRIBUTE[] template = (CK_ATTRIBUTE[]) (new CK_ATTRIBUTE()).toArray(2);
 
-        final NativeLongByReference keyClass =
-                new NativeLongByReference(isPrivate ? new NativeLong(Pkcs11Constants.CKO_PRIVATE_KEY) : new NativeLong(Pkcs11Constants.CKO_PUBLIC_KEY));
+        final NativeLongByReference keyClass = new NativeLongByReference(isPrivate ?
+                new NativeLong(Pkcs11Constants.CKO_PRIVATE_KEY) : new NativeLong(Pkcs11Constants.CKO_PUBLIC_KEY));
         template[0].type = new NativeLong(Pkcs11Constants.CKA_CLASS);
         template[0].pValue = keyClass.getPointer();
         template[0].ulValueLen = new NativeLong(NativeLong.SIZE);

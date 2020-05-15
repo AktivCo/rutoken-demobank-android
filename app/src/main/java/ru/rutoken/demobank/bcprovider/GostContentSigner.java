@@ -9,8 +9,8 @@ import org.bouncycastle.operator.ContentSigner;
 import java.io.OutputStream;
 import java.security.InvalidParameterException;
 
-import ru.rutoken.demobank.pkcs11caller.GostOids;
 import ru.rutoken.demobank.bcprovider.digest.Digest;
+import ru.rutoken.demobank.pkcs11caller.GostOids;
 import ru.rutoken.demobank.pkcs11caller.exception.Pkcs11Exception;
 import ru.rutoken.demobank.pkcs11caller.signature.Signature;
 
@@ -49,7 +49,7 @@ class GostContentSigner implements ContentSigner {
             mDigest.doFinal(hash, 0);
 
             return mSignature.sign(hash);
-        } catch(Pkcs11Exception e) {
+        } catch (Pkcs11Exception e) {
             throw new RuntimeException(e);
         }
     }

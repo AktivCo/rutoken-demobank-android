@@ -11,10 +11,10 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 
-import java.util.Objects;
-
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
+import java.util.Objects;
 
 /**
  * Activity calls onChildCreated method when child activity is started. Beware to use startActivity
@@ -24,16 +24,16 @@ import androidx.appcompat.app.AppCompatActivity;
 
 abstract class GuaranteedChildStartActivity extends AppCompatActivity {
     private static final IntentFilter mFilter;
-    private int mHashCode;
-    private boolean mPendingActivityStart = false;
-    private Integer mParentHashCode = null;
-    private static final String CHILD_ACTIVITY_CREATED = GuaranteedChildStartActivity.class.getName() + ".CHILD_ACTIVITY_CREATED";
+    private static final String CHILD_ACTIVITY_CREATED =
+            GuaranteedChildStartActivity.class.getName() + ".CHILD_ACTIVITY_CREATED";
 
     static {
         mFilter = new IntentFilter();
         mFilter.addAction(CHILD_ACTIVITY_CREATED);
     }
 
+    private int mHashCode;
+    private boolean mPendingActivityStart = false;
     private final BroadcastReceiver mChildActivityCreatedReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -48,6 +48,7 @@ abstract class GuaranteedChildStartActivity extends AppCompatActivity {
             }
         }
     };
+    private Integer mParentHashCode = null;
 
     protected boolean hasPendingChildStart() {
         return mPendingActivityStart;
@@ -66,7 +67,8 @@ abstract class GuaranteedChildStartActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        LocalBroadcastManager.getInstance(this.getApplicationContext()).registerReceiver(mChildActivityCreatedReceiver, mFilter);
+        LocalBroadcastManager.getInstance(this.getApplicationContext())
+                .registerReceiver(mChildActivityCreatedReceiver, mFilter);
         mHashCode = System.identityHashCode(this);
         Intent i = getIntent();
         int parentHashCode = i.getIntExtra("hashCode", 0);
@@ -90,6 +92,7 @@ abstract class GuaranteedChildStartActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        LocalBroadcastManager.getInstance(this.getApplicationContext()).unregisterReceiver(mChildActivityCreatedReceiver);
+        LocalBroadcastManager.getInstance(this.getApplicationContext())
+                .unregisterReceiver(mChildActivityCreatedReceiver);
     }
 }

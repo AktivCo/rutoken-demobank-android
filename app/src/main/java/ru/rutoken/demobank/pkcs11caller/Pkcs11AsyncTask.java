@@ -7,21 +7,21 @@ package ru.rutoken.demobank.pkcs11caller;
 
 import android.os.AsyncTask;
 
-import ru.rutoken.demobank.ui.Pkcs11CallerActivity;
 import ru.rutoken.demobank.pkcs11caller.exception.GeneralErrorException;
-import ru.rutoken.pkcs11jna.RtPkcs11;
 import ru.rutoken.demobank.pkcs11caller.exception.Pkcs11CallerException;
+import ru.rutoken.demobank.ui.Pkcs11CallerActivity;
+import ru.rutoken.pkcs11jna.RtPkcs11;
 
 abstract class Pkcs11AsyncTask extends AsyncTask<Void, Void, Pkcs11Result> {
     final RtPkcs11 mPkcs11 = RtPkcs11Library.getInstance();
 
     private final Pkcs11CallerActivity.Pkcs11Callback mCallback;
 
-    protected abstract Pkcs11Result doWork() throws Pkcs11CallerException;
-
     Pkcs11AsyncTask(Pkcs11CallerActivity.Pkcs11Callback callback) {
         mCallback = callback;
     }
+
+    protected abstract Pkcs11Result doWork() throws Pkcs11CallerException;
 
     @Override
     protected Pkcs11Result doInBackground(Void... voids) {

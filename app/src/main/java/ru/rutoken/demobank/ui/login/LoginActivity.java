@@ -9,10 +9,6 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
-
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.ActionBar;
-
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Gravity;
@@ -24,15 +20,18 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
+
 import ru.rutoken.demobank.R;
-import ru.rutoken.demobank.ui.main.MainActivity;
-import ru.rutoken.demobank.ui.Pkcs11CallerActivity;
-import ru.rutoken.demobank.ui.TokenManagerListener;
-import ru.rutoken.demobank.ui.nfc.NfcDetectCardFragment;
-import ru.rutoken.demobank.ui.payment.PaymentsActivity;
 import ru.rutoken.demobank.pkcs11caller.Token;
 import ru.rutoken.demobank.pkcs11caller.TokenManager;
 import ru.rutoken.demobank.pkcs11caller.exception.Pkcs11Exception;
+import ru.rutoken.demobank.ui.Pkcs11CallerActivity;
+import ru.rutoken.demobank.ui.TokenManagerListener;
+import ru.rutoken.demobank.ui.main.MainActivity;
+import ru.rutoken.demobank.ui.nfc.NfcDetectCardFragment;
+import ru.rutoken.demobank.ui.payment.PaymentsActivity;
 import ru.rutoken.demobank.utils.Pkcs11ErrorTranslator;
 
 public class LoginActivity extends Pkcs11CallerActivity {
@@ -178,7 +177,7 @@ public class LoginActivity extends Pkcs11CallerActivity {
             TokenManagerListener.getInstance(this).resetWaitForToken();
             showLogonStarted();
 
-             // Certificate and sign data are used for a challenge-response authentication.
+            // Certificate and sign data are used for a challenge-response authentication.
             login(mToken, mPinEditText.getText().toString(), mCertificateFingerprint, SIGN_DATA.getBytes());
 
         });

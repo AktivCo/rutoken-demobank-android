@@ -24,53 +24,28 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
+
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Objects;
 
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AlertDialog;
-
-import ru.rutoken.demobank.ui.main.MainActivity;
-import ru.rutoken.demobank.ui.Pkcs11CallerActivity;
 import ru.rutoken.demobank.R;
-import ru.rutoken.demobank.ui.TokenManagerListener;
-import ru.rutoken.demobank.ui.nfc.NfcDetectCardFragment;
 import ru.rutoken.demobank.pkcs11caller.Token;
 import ru.rutoken.demobank.pkcs11caller.TokenManager;
 import ru.rutoken.demobank.pkcs11caller.exception.Pkcs11Exception;
+import ru.rutoken.demobank.ui.Pkcs11CallerActivity;
+import ru.rutoken.demobank.ui.TokenManagerListener;
+import ru.rutoken.demobank.ui.main.MainActivity;
+import ru.rutoken.demobank.ui.nfc.NfcDetectCardFragment;
 import ru.rutoken.demobank.utils.Pkcs11ErrorTranslator;
 import ru.rutoken.demobank.utils.TokenBatteryCharge;
 import ru.rutoken.demobank.utils.TokenModelRecognizer;
 
 public class PaymentsActivity extends Pkcs11CallerActivity {
-    private class InfoDialog {
-        final AlertDialog mDialog;
-        final Button mConfirmButton;
-        final TextView mPaymentTextView;
-
-        InfoDialog() {
-            AlertDialog.Builder builder = new AlertDialog.Builder(PaymentsActivity.this);
-            builder.setCancelable(true);
-            mDialog = builder.create();
-            View view = getLayoutInflater().inflate(R.layout.payment_info_layout, null);
-            mDialog.setView(view);
-            mConfirmButton = view.findViewById(R.id.sendB);
-            mPaymentTextView = view.findViewById(R.id.dataTV);
-        }
-
-        void show(Spanned text) {
-            mPaymentTextView.setText(text);
-            mConfirmButton.setOnClickListener(view -> {
-                mDialog.dismiss();
-                signAction();
-            });
-            mDialog.show();
-        }
-    }
-
     // GUI
     private LinearLayout mPaymentsLayout;
     private PopupWindow mPopupWindow;
@@ -78,17 +53,13 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
     private AlertDialog mSucceedDialog;
     private AlertDialog mProgressDialog;
     private NfcDetectCardFragment mCardFragment;
-
     private String[] mPaymentTitles;
     private String[][] mPaymentValuesArray = null;
-
     private String mSignData;
-
     // Activity input
     private String mTokenSerial = TokenManagerListener.NO_TOKEN;
     private String mCertificateFingerprint = TokenManagerListener.NO_FINGERPRINT;
     private Token mToken = null;
-
     // Logic
     private int mChecksCount = 0;
 
@@ -301,7 +272,8 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
         String date = df.format(new Date());
         result.append("<h3>").append(getString(R.string.payment)).append(
                 String.format(Locale.getDefault(), "%d", num + Payment.FIRST_NUMBER)).append("</h3>");
-        result.append("<font color=#CCCCCC>").append(getString(R.string.fromDate)).append(" ").append(date).append("</font>");
+        result.append("<font color=#CCCCCC>").append(getString(R.string.fromDate)).append(" ").append(date)
+                .append("</font>");
         result.append("<br/><br/>");
         for (int i = 0; i < mPaymentTitles.length; ++i) {
             result.append("<font color=#CCCCCC size=-1>").append(mPaymentTitles[i]).append("</font><br/>");
@@ -311,7 +283,8 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
     }
 
     private void showBatchPaymentInfo(int count) {
-        String message = getString(R.string.batch_sign_message, count) + "<br />" + getString(R.string.batch_require_proceed);
+        String message = getString(R.string.batch_sign_message, count)
+                + "<br />" + getString(R.string.batch_require_proceed);
         mInfoDialog.show(Html.fromHtml(message));
     }
 
@@ -343,10 +316,35 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
     private String getSignData(Payment payment) {
         StringBuilder result = new StringBuilder();
         result.append(payment.getAmount())
-              .append(payment.getReceiver())
-              .append(payment.getDate());
+                .append(payment.getReceiver())
+                .append(payment.getDate());
         for (String s : mPaymentValuesArray[payment.getNum()])
             result.append(s);
         return result.toString();
+    }
+
+    private class InfoDialog {
+        final AlertDialog mDialog;
+        final Button mConfirmButton;
+        final TextView mPaymentTextView;
+
+        InfoDialog() {
+            AlertDialog.Builder builder = new AlertDialog.Builder(PaymentsActivity.this);
+            builder.setCancelable(true);
+            mDialog = builder.create();
+            View view = getLayoutInflater().inflate(R.layout.payment_info_layout, null);
+            mDialog.setView(view);
+            mConfirmButton = view.findViewById(R.id.sendB);
+            mPaymentTextView = view.findViewById(R.id.dataTV);
+        }
+
+        void show(Spanned text) {
+            mPaymentTextView.setText(text);
+            mConfirmButton.setOnClickListener(view -> {
+                mDialog.dismiss();
+                signAction();
+            });
+            mDialog.show();
+        }
     }
 }

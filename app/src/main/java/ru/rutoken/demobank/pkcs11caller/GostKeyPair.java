@@ -98,16 +98,20 @@ public class GostKeyPair {
         publicKeyMechanismTemplate[0].pValue = Pointer.NULL;
         publicKeyMechanismTemplate[0].ulValueLen = new NativeLong(0);
 
-        NativeLong rv = pkcs11.C_GetAttributeValue(new NativeLong(session), new NativeLong(pubKeyHandle), publicKeyMechanismTemplate, new NativeLong(1));
+        NativeLong rv = pkcs11.C_GetAttributeValue(new NativeLong(session), new NativeLong(pubKeyHandle),
+                publicKeyMechanismTemplate, new NativeLong(1));
         Pkcs11Exception.throwIfNotOk(rv);
 
-        ByteBuffer mechanismTypeValueBuffer = ByteBuffer.allocateDirect(publicKeyMechanismTemplate[0].ulValueLen.intValue());
+        ByteBuffer mechanismTypeValueBuffer =
+                ByteBuffer.allocateDirect(publicKeyMechanismTemplate[0].ulValueLen.intValue());
         publicKeyMechanismTemplate[0].pValue = Native.getDirectBufferPointer(mechanismTypeValueBuffer);
 
-        rv = pkcs11.C_GetAttributeValue(new NativeLong(session), new NativeLong(pubKeyHandle), publicKeyMechanismTemplate, new NativeLong(1));
+        rv = pkcs11.C_GetAttributeValue(new NativeLong(session), new NativeLong(pubKeyHandle),
+                publicKeyMechanismTemplate, new NativeLong(1));
         Pkcs11Exception.throwIfNotOk(rv);
 
-        final byte[] parametersGostR3411 = publicKeyMechanismTemplate[0].pValue.getByteArray(0, publicKeyMechanismTemplate[0].ulValueLen.intValue());
+        final byte[] parametersGostR3411 = publicKeyMechanismTemplate[0].pValue
+                .getByteArray(0, publicKeyMechanismTemplate[0].ulValueLen.intValue());
 
         if (Arrays.equals(parametersGostR3411, GostOids.OID_3411_1994))
             return Signature.Type.GOSTR3410_2001;

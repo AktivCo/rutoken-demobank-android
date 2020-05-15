@@ -16,9 +16,9 @@ import java.util.List;
 import java.util.Set;
 
 import ru.rutoken.demobank.R;
-import ru.rutoken.demobank.ui.main.MainActivity;
 import ru.rutoken.demobank.pkcs11caller.Token;
 import ru.rutoken.demobank.pkcs11caller.TokenManager;
+import ru.rutoken.demobank.ui.main.MainActivity;
 
 public class TokenManagerListener implements TokenManager.Listener {
     public static final String NO_TOKEN = "";

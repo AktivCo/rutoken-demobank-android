@@ -5,12 +5,6 @@ import java.security.InvalidParameterException;
 import ru.rutoken.demobank.pkcs11caller.RtPkcs11Library;
 
 public interface Digest extends org.bouncycastle.crypto.Digest {
-    enum Type {
-        GOSTR3411_1994,
-        GOSTR3411_2012_256,
-        GOSTR3411_2012_512
-    }
-
     static Digest getInstance(Digest.Type type, long sessionHandle) {
         switch (type) {
             case GOSTR3411_1994:
@@ -25,4 +19,10 @@ public interface Digest extends org.bouncycastle.crypto.Digest {
     }
 
     Type getType();
+
+    enum Type {
+        GOSTR3411_1994,
+        GOSTR3411_2012_256,
+        GOSTR3411_2012_512
+    }
 }

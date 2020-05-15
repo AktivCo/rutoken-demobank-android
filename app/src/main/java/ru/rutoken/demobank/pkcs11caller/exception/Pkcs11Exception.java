@@ -30,12 +30,12 @@ public class Pkcs11Exception extends Pkcs11CallerException {
         else return String.format("PKCS11 error, code: 0x%08x", code);
     }
 
-    public long getErrorCode() {
-        return mCode;
-    }
-
     public static void throwIfNotOk(NativeLong code) throws Pkcs11Exception {
         if (code.longValue() != Pkcs11Constants.CKR_OK)
             throw new Pkcs11Exception(code);
+    }
+
+    public long getErrorCode() {
+        return mCode;
     }
 }

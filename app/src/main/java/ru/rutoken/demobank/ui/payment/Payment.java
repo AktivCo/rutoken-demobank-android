@@ -17,12 +17,12 @@ import java.util.Date;
 import ru.rutoken.demobank.R;
 
 public class Payment extends RelativeLayout {
+    public static final int FIRST_NUMBER = 746;
+    private final int mAmount;
     private TextView mNumTextView;
     private TextView mDateTextView;
     private TextView mReceiverTextView;
     private TextView mAmountTextView;
-    private final int mAmount;
-    public static final int FIRST_NUMBER = 746;
 
     public Payment(Context context, AttributeSet attrs, int num, String recipient, int amount) {
         super(context, attrs);

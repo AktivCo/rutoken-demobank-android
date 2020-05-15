@@ -107,6 +107,11 @@ public class NfcDetectCardFragment extends BottomSheetDialogFragment {
         return Objects.requireNonNull(getView()).findViewById(id);
     }
 
+    @FunctionalInterface
+    public interface CancelCallback {
+        void cancel();
+    }
+
     public class Control {
         private final FragmentManager mFragmentManager;
 
@@ -125,10 +130,5 @@ public class NfcDetectCardFragment extends BottomSheetDialogFragment {
             mCancelCallback = null;
             Objects.requireNonNull(mViewModel).setCommand(Command.DISMISS);
         }
-    }
-
-    @FunctionalInterface
-    public interface CancelCallback {
-        void cancel();
     }
 }

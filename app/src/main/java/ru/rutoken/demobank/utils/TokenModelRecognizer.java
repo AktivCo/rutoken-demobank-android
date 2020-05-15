@@ -23,19 +23,6 @@ public class TokenModelRecognizer {
         fillInModelNames();
     }
 
-    private void fillInModelNames() {
-        Resources res = mContext.getResources();
-        if (res == null) {
-            return;
-        }
-        String[] pkcs11Models = res.getStringArray(R.array.pkcs11_names);
-        String[] marketingModels = res.getStringArray(R.array.marketing_names);
-        Assert.assertTrue("incompatible length", pkcs11Models.length == marketingModels.length);
-        for (int i = 0; i < pkcs11Models.length; ++i) {
-            mModelNames.put(pkcs11Models[i], marketingModels[i]);
-        }
-    }
-
     public static synchronized TokenModelRecognizer getInstance(Context context) {
         TokenModelRecognizer localInstance = mInstance;
         if (localInstance == null) {
@@ -47,6 +34,19 @@ public class TokenModelRecognizer {
             }
         }
         return localInstance;
+    }
+
+    private void fillInModelNames() {
+        Resources res = mContext.getResources();
+        if (res == null) {
+            return;
+        }
+        String[] pkcs11Models = res.getStringArray(R.array.pkcs11_names);
+        String[] marketingModels = res.getStringArray(R.array.marketing_names);
+        Assert.assertTrue("incompatible length", pkcs11Models.length == marketingModels.length);
+        for (int i = 0; i < pkcs11Models.length; ++i) {
+            mModelNames.put(pkcs11Models[i], marketingModels[i]);
+        }
     }
 
     public String marketingNameForPkcs11Name(String pkcs11Model) {
