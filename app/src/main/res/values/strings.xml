@@ -17,7 +17,7 @@
     <string name="error">Internal error</string>
     <string name="done">Operation finished</string>
     <string name="need_pin_message">You need to input PIN to proceed.</string>
-    <string name="batch_sign_message">%d payments will be sent.</string>
+    <string name="batch_sign_message">%d\u00A0payments will be sent.</string>
     <string name="batch_require_proceed">Please, confirm operation.</string>
     <string name="rutoken">Rutoken</string>
     <string name="token_model" translatable="false">Token model</string>
