@@ -30,7 +30,6 @@ import ru.rutoken.demobank.pkcs11caller.exception.Pkcs11Exception;
 import ru.rutoken.demobank.ui.Pkcs11CallerActivity;
 import ru.rutoken.demobank.ui.TokenManagerListener;
 import ru.rutoken.demobank.ui.main.MainActivity;
-import ru.rutoken.demobank.ui.nfc.NfcDetectCardFragment;
 import ru.rutoken.demobank.ui.payment.PaymentsActivity;
 import ru.rutoken.demobank.utils.Pkcs11ErrorTranslator;
 

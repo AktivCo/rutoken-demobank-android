@@ -3,7 +3,7 @@ package ru.rutoken.demobank.ui.nfc;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModel;
 
-public class NfcDetectCardViewModel extends ViewModel {
+class NfcDetectCardViewModel extends ViewModel {
     private final NfcDetectCardControl mControl;
 
     NfcDetectCardViewModel(int controlId) {
@@ -11,15 +11,15 @@ public class NfcDetectCardViewModel extends ViewModel {
     }
 
     LiveData<Boolean> getWorkProgressFlag() {
-        return mControl.mWorkProgressFlag;
+        return mControl.getData().workProgressFlag;
     }
 
     LiveData<Void> getDismissAction() {
-        return mControl.mDismissAction;
+        return mControl.getData().dismissAction;
     }
 
     void cancel() {
-        if (mControl.mCancelCallback != null)
-            mControl.mCancelCallback.onCancel();
+        if (mControl.getData().cancelCallback != null)
+            mControl.getData().cancelCallback.onCancel();
     }
 }

@@ -20,16 +20,13 @@ public class NfcDetectCardControl {
     private final static Map<Integer /* id */, NfcDetectCardControl> sControls =
             Collections.synchronizedMap(new HashMap<>());
 
-    final MutableLiveData<Boolean> mWorkProgressFlag = new MutableLiveData<>();
-    final MutableLiveData<Void> mDismissAction = new MutableLiveData<>();
-    @Nullable
-    final NfcDetectCardControl.CancelCallback mCancelCallback;
-    private final int mId;
     private final FragmentManager mFragmentManager;
+    private final Data mData;
+    private final int mId;
 
     public NfcDetectCardControl(FragmentManager fragmentManager, @Nullable CancelCallback cancelCallback) {
         mFragmentManager = Objects.requireNonNull(fragmentManager);
-        mCancelCallback = cancelCallback;
+        mData = new Data(cancelCallback);
 
         sControls.put(mId = sIdCounter.getAndIncrement(), this);
     }
@@ -43,11 +40,15 @@ public class NfcDetectCardControl {
     }
 
     public void startWorkProgress() {
-        mWorkProgressFlag.postValue(true);
+        mData.workProgressFlag.postValue(true);
     }
 
     public void dismiss() {
-        mDismissAction.postValue(null);
+        mData.dismissAction.postValue(null);
+    }
+
+    Data getData() {
+        return mData;
     }
 
     /**
@@ -56,5 +57,16 @@ public class NfcDetectCardControl {
     @FunctionalInterface
     public interface CancelCallback {
         void onCancel();
+    }
+
+    static class Data {
+        final MutableLiveData<Boolean> workProgressFlag = new MutableLiveData<>();
+        final MutableLiveData<Void> dismissAction = new MutableLiveData<>();
+        @Nullable
+        final NfcDetectCardControl.CancelCallback cancelCallback;
+
+        Data(@Nullable CancelCallback cancelCallback) {
+            this.cancelCallback = cancelCallback;
+        }
     }
 }

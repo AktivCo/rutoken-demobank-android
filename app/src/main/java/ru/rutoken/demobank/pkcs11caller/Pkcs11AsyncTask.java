@@ -7,12 +7,16 @@ package ru.rutoken.demobank.pkcs11caller;
 
 import android.os.AsyncTask;
 
+import androidx.annotation.NonNull;
+import androidx.lifecycle.DefaultLifecycleObserver;
+import androidx.lifecycle.LifecycleOwner;
+
 import ru.rutoken.demobank.pkcs11caller.exception.GeneralErrorException;
 import ru.rutoken.demobank.pkcs11caller.exception.Pkcs11CallerException;
 import ru.rutoken.demobank.ui.Pkcs11CallerActivity;
 import ru.rutoken.pkcs11jna.RtPkcs11;
 
-abstract class Pkcs11AsyncTask extends AsyncTask<Void, Void, Pkcs11Result> {
+abstract class Pkcs11AsyncTask extends AsyncTask<Void, Void, Pkcs11Result> implements DefaultLifecycleObserver {
     final RtPkcs11 mPkcs11 = RtPkcs11Library.getInstance();
 
     private final Pkcs11CallerActivity.Pkcs11Callback mCallback;
@@ -21,14 +25,20 @@ abstract class Pkcs11AsyncTask extends AsyncTask<Void, Void, Pkcs11Result> {
         mCallback = callback;
     }
 
+    /**
+     * Task should be cancelled if owner Activity was destroyed
+     */
+    @Override
+    public void onDestroy(@NonNull LifecycleOwner owner) {
+        cancel(true);
+    }
+
     protected abstract Pkcs11Result doWork() throws Pkcs11CallerException;
 
     @Override
     protected Pkcs11Result doInBackground(Void... voids) {
         try {
-            synchronized (mPkcs11) {
-                return doWork();
-            }
+            return doWork();
         } catch (Pkcs11CallerException exception) {
             return new Pkcs11Result(exception);
         } catch (Exception exception) {

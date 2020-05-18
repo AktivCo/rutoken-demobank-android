@@ -70,11 +70,12 @@ public class NfcDetectCardFragment extends BottomSheetDialogFragment {
                 .getWindow()).getAttributes().windowAnimations = R.style.DialogAnimation;
     }
 
-    private void onWorkProgressChanged(boolean value) {
-        findViewById(R.id.nfcCancelButton).setVisibility(value ? View.INVISIBLE : View.VISIBLE);
-        findViewById(R.id.nfcSignImage).setVisibility(value ? View.INVISIBLE : View.VISIBLE);
-        this.<TextView>findViewById(R.id.nfcMessage).setText(value ? R.string.hold_nfc_card : R.string.attach_nfc_card);
-        findViewById(R.id.nfcProgressBar).setVisibility(value ? View.VISIBLE : View.INVISIBLE);
+    private void onWorkProgressChanged(boolean progress) {
+        findViewById(R.id.nfcCancelButton).setVisibility(progress ? View.INVISIBLE : View.VISIBLE);
+        findViewById(R.id.nfcSignImage).setVisibility(progress ? View.INVISIBLE : View.VISIBLE);
+        this.<TextView>findViewById(R.id.nfcMessage)
+                .setText(progress ? R.string.hold_nfc_card : R.string.attach_nfc_card);
+        findViewById(R.id.nfcProgressBar).setVisibility(progress ? View.VISIBLE : View.INVISIBLE);
     }
 
     private <T extends View> T findViewById(@IdRes int id) {
