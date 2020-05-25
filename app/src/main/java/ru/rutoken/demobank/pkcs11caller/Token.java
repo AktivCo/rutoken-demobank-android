@@ -214,7 +214,7 @@ public class Token {
             mUserPinChangePolicy = UserChangePolicy.USER;
         }
 
-        mSupportsSM = ((tokenInfoEx.flags.longValue() & RtPkcs11Constants.TOKEN_FLAGS_SUPPORT_SM) != 0);
+        mSupportsSM = ((tokenInfoEx.flags.longValue() & RtPkcs11Constants.TOKEN_FLAGS_SUPPORT_SECURE_MESSAGING) != 0);
     }
 
     private void initCertificateList(NativeLong slotId) throws Pkcs11CallerException {
@@ -331,7 +331,7 @@ public class Token {
             final NativeLong rv = mRtPkcs11.C_OpenSession(
                     slotId, new NativeLong(Pkcs11Constants.CKF_SERIAL_SESSION), null, null, session);
             if (rv.longValue() != Pkcs11Constants.CKR_OK) {
-                if (rv.longValue() == Pkcs11Constants.CKR_FUNCTION_NOT_SUPPORTED)
+                if (rv.longValue() == Pkcs11Constants.CKR_FUNCTION_NOT_SUPPORTED && mSupportsSM)
                     mSmInitializedStatus = SmInitializedStatus.NEED_INITIALIZE;
 
                 throw new Pkcs11Exception(rv);
