@@ -167,10 +167,13 @@ public class Token {
 
         HashMap<String, CertificateAndGostKeyPair> certificateMap = new HashMap<>();
         for (NativeLong c : certs) {
-            Certificate cert = new Certificate(mRtPkcs11, session.longValue(), c.longValue());
-            GostKeyPair keyPair = GostKeyPair.getGostKeyPairByCertificate(mRtPkcs11,
-                    session.longValue(), cert.getCertificateHolder());
-            certificateMap.put(cert.fingerprint(), new CertificateAndGostKeyPair(cert, keyPair));
+            try {
+                Certificate cert = new Certificate(mRtPkcs11, session.longValue(), c.longValue());
+                GostKeyPair keyPair = GostKeyPair.getGostKeyPairByCertificate(mRtPkcs11,
+                        session.longValue(), cert.getCertificateHolder());
+                certificateMap.put(cert.fingerprint(), new CertificateAndGostKeyPair(cert, keyPair));
+            } catch (Pkcs11CallerException ignore) {
+            }
         }
         return certificateMap;
     }
