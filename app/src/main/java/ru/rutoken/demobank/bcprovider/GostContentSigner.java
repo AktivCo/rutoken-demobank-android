@@ -29,11 +29,14 @@ class GostContentSigner implements ContentSigner {
 
     @Override
     public AlgorithmIdentifier getAlgorithmIdentifier() {
-        Signature.Type signType = mSignature.getType();
-        if (signType == Signature.Type.GOSTR3410_2001 || signType == Signature.Type.GOSTR3410_2012_256)
-            return new AlgorithmIdentifier(CryptoProObjectIdentifiers.gostR3410_2001);
-        else if (signType == Signature.Type.GOSTR3410_2012_512)
-            return new AlgorithmIdentifier(new ASN1ObjectIdentifier(GostOids.STRING_OID_3410_2012_512));
+        switch (mSignature.getType()) {
+            case GOSTR3410_2001:
+                return new AlgorithmIdentifier(CryptoProObjectIdentifiers.gostR3410_2001);
+            case GOSTR3410_2012_256:
+                return new AlgorithmIdentifier(new ASN1ObjectIdentifier(GostOids.STRING_OID_3410_2012_256));
+            case GOSTR3410_2012_512:
+                return new AlgorithmIdentifier(new ASN1ObjectIdentifier(GostOids.STRING_OID_3410_2012_512));
+        }
         throw new InvalidParameterException();
     }
 
