@@ -18,7 +18,7 @@ Required libraries:
 
 * librtpkcs11ecp.so (for following architectures: armeabi-v7a, arm64-v8a);
 * librtpcsc.so (for following architectures: armeabi-v7a, arm64-v8a);
-* rtserviceconnection\*.aar, where \* is library version (current version is '-1.0.1');
+* rtserviceconnection\*.aar, where \* is library version (current version is '-1.1.0');
 * pkcs11jna\*.jar, where \* is library version (current version is '-1.1.2').
 
 ## How to build
