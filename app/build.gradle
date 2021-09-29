@@ -72,8 +72,13 @@ def copyFile(String file, String sourcePath, String destinationPath) {
 def copyJniLibs(String arch, String jniArch) {
     def jniLibs = "./src/main/jniLibs/$jniArch"
 
-    copyFile('librtpcsc.so', "../../../../pcsc/android-$arch/lib", jniLibs)
-    copyFile('librtpkcs11ecp.so', "../../../android-$arch/lib", jniLibs)
+    if (new File("$rootDir/external").exists()) {
+        copyFile('librtpcsc.so', "../external/pcsc-android/android-$arch-clang/lib", jniLibs)
+        copyFile('librtpkcs11ecp.so', "../external/pkcs11ecp/android-$arch/lib", jniLibs)
+    } else { // SDK path
+        copyFile('librtpcsc.so', "../../../../pcsc/android-$arch/lib", jniLibs)
+        copyFile('librtpkcs11ecp.so', "../../../android-$arch/lib", jniLibs)
+    }
 
     requireFileInDirectory(jniLibs, 'librtpcsc.so')
     requireFileInDirectory(jniLibs, 'librtpkcs11ecp.so')
@@ -83,8 +88,13 @@ preBuild.doLast {
     copyJniLibs('armv7a', 'armeabi-v7a')
     copyJniLibs('arm64', 'arm64-v8a')
 
-    copyFile('pkcs11jna*.jar', "../../../../../../java/samples/lib", "libs")
-    copyFile('rtserviceconnection*.aar', "../../../../libs", "libs")
+    if (new File("$rootDir/external").exists()) {
+        copyFile('pkcs11jna*.jar', '../external/pkcs11jna/java', 'libs')
+        copyFile('rtserviceconnection*.aar', '../external/rtserviceconnection/java/', 'libs')
+    } else { // SDK path
+        copyFile('pkcs11jna*.jar', "../../../../../../java/samples/lib", "libs")
+        copyFile('rtserviceconnection*.aar', "../../../../libs", "libs")
+    }
 
     requireFileInDirectory('libs', 'pkcs11jna*.jar')
     requireFileInDirectory('libs', 'rtserviceconnection*.aar')
