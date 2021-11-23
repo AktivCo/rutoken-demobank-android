@@ -5,11 +5,15 @@
 
 package ru.rutoken.demobank.ui.main;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Paint;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.Gravity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -18,6 +22,7 @@ import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
+import androidx.browser.customtabs.CustomTabsIntent;
 
 import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
@@ -39,6 +44,8 @@ public class MainActivity extends ManagedActivity {
     public static final String EXTRA_CERTIFICATE_FINGERPRINT = "CERTIFICATE_FINGERPRINT";
     public static final String IDENTIFIER = MainActivity.class.getName();
 
+    private static final String PRIVACY_POLICY_URL = "https://www.rutoken.ru/company/policy/demobank-android.html";
+
     // GUI
     private TextView mInfoTextView;
     private ProgressBar mTWBAProgressBar;
@@ -52,6 +59,13 @@ public class MainActivity extends ManagedActivity {
             return commonName;
         commonName = IETFUtils.valueToString(rdns[0].getFirst().getValue());
         return commonName;
+    }
+
+    /**
+     * Opens URL in a browser using Custom Tabs API
+     */
+    private static void launchCustomTabsUrl(Context context, Uri url) {
+        new CustomTabsIntent.Builder().build().launchUrl(context, url);
     }
 
     @Override
@@ -70,6 +84,22 @@ public class MainActivity extends ManagedActivity {
         setupUI();
 
         getLifecycle().addObserver(TokenManager.getInstance());
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.toPrivacyPolicy) {
+            launchCustomTabsUrl(this, Uri.parse(PRIVACY_POLICY_URL));
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

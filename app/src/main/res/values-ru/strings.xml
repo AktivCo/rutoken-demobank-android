@@ -38,4 +38,5 @@
     <string name="disconnect">Отключить</string>
     <string name="continue_str">Понятно</string>
     <string name="rutoken_not_found">Рутокен не найден</string>
+    <string name="privacy_policy">Политика конфиденциальности</string>
 </resources>
