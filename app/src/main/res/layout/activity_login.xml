@@ -60,11 +60,11 @@
         android:textColor="@android:color/white" />
 
     <ProgressBar
+        android:id="@+id/loginPB"
         style="?android:attr/progressBarStyleLarge"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/loginPB"
-        android:layout_alignTop="@+id/pinET"
-        android:layout_alignStart="@+id/loginB" />
+        android:layout_centerHorizontal="true"
+        android:layout_alignTop="@+id/pinET" />
 
 </RelativeLayout>
