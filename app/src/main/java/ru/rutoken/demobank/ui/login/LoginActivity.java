@@ -171,7 +171,6 @@ public class LoginActivity extends Pkcs11CallerActivity {
 
             // Certificate and sign data are used for a challenge-response authentication.
             login(mToken, mPinEditText.getText().toString(), mCertificateFingerprint, SIGN_DATA.getBytes());
-
         });
     }
 }

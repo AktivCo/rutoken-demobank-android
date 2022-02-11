@@ -1,31 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="120dp"
-    xmlns:android="http://schemas.android.com/apk/res/android"
     android:background="#fffafafa">
 
     <TextView
+        android:id="@+id/numTV"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Large Text"
-        android:id="@+id/numTV"
-        android:layout_centerVertical="true"
         android:layout_alignParentStart="true"
+        android:layout_centerVertical="true"
+        android:text="Large Text"
+        android:textAppearance="?android:attr/textAppearanceLarge"
         android:textColor="#979797"
         android:textSize="17sp" />
 
     <LinearLayout
-        android:orientation="vertical"
+        android:id="@+id/lin"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentTop="true"
         android:layout_toEndOf="@+id/numTV"
-        android:id="@+id/lin"
-        android:showDividers="beginning|end"
-        android:divider="@drawable/info_header_divider">
+        android:divider="@drawable/info_header_divider"
+        android:orientation="vertical"
+        android:showDividers="beginning|end">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -33,46 +32,46 @@
             android:paddingStart="10dp">
 
             <TextView
+                android:id="@+id/dateTV"
                 android:layout_width="wrap_content"
                 android:layout_height="40dp"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:text="Large Text"
-                android:id="@+id/dateTV"
-                android:layout_alignParentTop="true"
                 android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:text="Large Text"
+                android:textAppearance="?android:attr/textAppearanceLarge"
                 android:textColor="#979797"
                 android:textSize="17sp" />
 
             <TextView
+                android:id="@+id/receiverTV"
                 android:layout_width="wrap_content"
                 android:layout_height="40dp"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:text="Large Text"
-                android:id="@+id/receiverTV"
                 android:layout_below="@+id/dateTV"
                 android:layout_alignParentStart="true"
-                android:textColor="@android:color/black"
-                android:textStyle="bold"
                 android:gravity="center"
-                android:textSize="17sp" />
+                android:text="Large Text"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textColor="@android:color/black"
+                android:textSize="17sp"
+                android:textStyle="bold" />
 
             <TextView
+                android:id="@+id/amountTV"
                 android:layout_width="wrap_content"
                 android:layout_height="40dp"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:text="Large Text"
-                android:id="@+id/amountTV"
                 android:layout_below="@+id/receiverTV"
                 android:layout_alignParentStart="true"
+                android:text="Large Text"
+                android:textAppearance="?android:attr/textAppearanceLarge"
                 android:textColor="@android:color/black"
                 android:textSize="17sp" />
 
             <CheckBox
+                android:id="@+id/checkBox"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:id="@+id/checkBox"
-                android:layout_centerVertical="true"
                 android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
                 android:button="@drawable/checkbox_rutoken"
                 android:text="---------"
                 android:textColor="@android:color/transparent" />

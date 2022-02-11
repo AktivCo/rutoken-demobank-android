@@ -87,7 +87,6 @@ public class GostKeyPair {
         } catch (IOException exception) {
             throw new CertParsingException();
         }
-
     }
 
     private Signature.Type getKeyType(long session, long pubKeyHandle, Pkcs11 pkcs11)

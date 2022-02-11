@@ -273,7 +273,6 @@ public class Token {
                         final CmsSigner signer = new CmsSigner(cert.getGostKeyPair().getKeyType(),
                                 session.get().longValue());
 
-
                         try (OutputStream stream = signer.initSignature(keyHandle,
                                 cert.getCertificate().getCertificateHolder(), true)) {
 

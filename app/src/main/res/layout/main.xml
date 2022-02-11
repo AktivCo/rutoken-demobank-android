@@ -1,10 +1,9 @@
-<LinearLayout
-    android:orientation="vertical"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:baselineAligned="false"
     android:gravity="center"
-    android:baselineAligned="false">
+    android:orientation="vertical">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -45,9 +44,9 @@
             android:layout_centerHorizontal="true"
             android:layout_marginTop="10dp"
             android:layout_marginBottom="10dp"
-            android:textColor="@color/rutokenBlue"
             android:background="@android:color/transparent"
-            android:visibility="gone"/>
+            android:textColor="@color/rutokenBlue"
+            android:visibility="gone" />
 
         <ProgressBar
             android:id="@+id/tokenAddingProgressBar"
