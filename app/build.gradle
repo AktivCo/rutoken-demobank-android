@@ -93,7 +93,7 @@ preBuild.doLast {
         copyFile('pkcs11jna*.jar', '../external/pkcs11jna/java', 'libs')
         copyFile('rtserviceconnection*.aar', '../external/rtserviceconnection/java/', 'libs')
     } else { // SDK path
-        copyFile('pkcs11jna*.jar', "../../../../../../java/samples/lib", "libs")
+        copyFile('pkcs11jna*.jar', "../../../../../../java/samples/pkcs11/lib", "libs")
         copyFile('rtserviceconnection*.aar', "../../../../libs", "libs")
     }
 
