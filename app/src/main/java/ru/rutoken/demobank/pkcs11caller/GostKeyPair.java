@@ -26,7 +26,7 @@ import ru.rutoken.pkcs11jna.Pkcs11Constants;
 
 import static ru.rutoken.demobank.pkcs11caller.Utils.findKey;
 import static ru.rutoken.demobank.pkcs11caller.Utils.findObject;
-import static ru.rutoken.pkcs11jna.RtPkcs11Constants.CKA_GOSTR3411_PARAMS;
+import static ru.rutoken.pkcs11jna.Pkcs11Constants.CKA_GOSTR3411_PARAMS;
 
 public class GostKeyPair {
 

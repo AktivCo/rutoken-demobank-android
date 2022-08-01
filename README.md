@@ -10,7 +10,7 @@ Rutoken DemoBank is a demo application which shows typical usage scenarios of se
 Rutoken DemoBank should be built using:
 
 * Android Studio 3.6 or newer;
-* Android SDK Platform 29 or newer.
+* Android SDK Platform 30 or newer.
 
 External dependencies are located in [Rutoken SDK](https://www.rutoken.ru/developers/sdk/).
 
@@ -18,15 +18,14 @@ Required libraries:
 
 * librtpkcs11ecp.so (for following architectures: armeabi-v7a, arm64-v8a);
 * librtpcsc.so (for following architectures: armeabi-v7a, arm64-v8a);
-* rtserviceconnection\*.aar, where \* is library version (current version is '-1.1.0');
-* pkcs11jna\*.jar, where \* is library version (current version is '-1.1.2').
+* rtserviceconnection-\*.aar, where \* is library version.
 
 ## How to build
 
 Before building the project:
 
 * copy librtpkcs11ecp.so and librtpcsc.so libraries to `<project_root>/app/src/main/jniLibs/<arch>/`, where `<arch>` is library architecture;
-* copy pkcs11jna\*.jar and rtserviceconnection\*.aar to `<project_root>/app/libs/`.
+* copy rtserviceconnection-\*.aar to `<project_root>/app/libs/`.
 
 To build from console:
 

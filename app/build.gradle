@@ -49,7 +49,7 @@ dependencies {
     implementation 'com.google.android.material:material:1.1.0'
     implementation 'net.java.dev.jna:jna:5.7.0@aar'
     implementation 'org.bouncycastle:bcpkix-jdk15on:1.61'
-
+    implementation 'ru.rutoken:pkcs11jna:3.3.1@jar'
 }
 
 def requireFileInDirectory(String directory, String file) {
@@ -90,13 +90,10 @@ preBuild.doLast {
     copyJniLibs('arm64', 'arm64-v8a')
 
     if (new File("$rootDir/external").exists()) {
-        copyFile('pkcs11jna*.jar', '../external/pkcs11jna/java', 'libs')
         copyFile('rtserviceconnection*.aar', '../external/rtserviceconnection/java/', 'libs')
     } else { // SDK path
-        copyFile('pkcs11jna*.jar', "../../../../../../java/samples/pkcs11/lib", "libs")
         copyFile('rtserviceconnection*.aar', "../../../../libs", "libs")
     }
 
-    requireFileInDirectory('libs', 'pkcs11jna*.jar')
     requireFileInDirectory('libs', 'rtserviceconnection*.aar')
 }
