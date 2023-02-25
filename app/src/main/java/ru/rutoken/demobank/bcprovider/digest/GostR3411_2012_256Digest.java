@@ -1,15 +1,14 @@
 package ru.rutoken.demobank.bcprovider.digest;
 
-import static ru.rutoken.pkcs11jna.Pkcs11Tc26Constants.CKM_GOSTR3411_12_256;
-
 import ru.rutoken.pkcs11jna.Pkcs11;
+import ru.rutoken.pkcs11jna.RtPkcs11Constants;
 
 class GostR3411_2012_256Digest extends Pkcs11Digest {
     private static final byte[] ATTR_GOSTR3411_2012_256 =
             {0x06, 0x08, 0x2a, (byte) 0x85, 0x03, 0x07, 0x01, 0x01, 0x02, 0x02};
 
     GostR3411_2012_256Digest(Pkcs11 pkcs11, long sessionHandle) {
-        super(pkcs11, sessionHandle, CKM_GOSTR3411_12_256, ATTR_GOSTR3411_2012_256);
+        super(pkcs11, sessionHandle, RtPkcs11Constants.CKM_GOSTR3411_12_256, ATTR_GOSTR3411_2012_256);
     }
 
     @Override

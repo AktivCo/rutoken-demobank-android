@@ -1,12 +1,12 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 30
+    compileSdk 32
     ndkVersion "21.0.6113669"
     defaultConfig {
-        minSdkVersion 21
-        targetSdkVersion 30
-        versionName "1.4.2"
+        minSdkVersion 28
+        targetSdkVersion 31
+        versionName "1.4.1"
         versionCode 17
         ndk {
             abiFilters "armeabi-v7a", "arm64-v8a"
@@ -35,6 +35,7 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+    namespace 'ru.rutoken.demobank'
 }
 
 dependencies {
@@ -49,7 +50,11 @@ dependencies {
     implementation 'com.google.android.material:material:1.1.0'
     implementation 'net.java.dev.jna:jna:5.7.0@aar'
     implementation 'org.bouncycastle:bcpkix-jdk15on:1.61'
-    implementation 'ru.rutoken:pkcs11jna:3.3.1@jar'
+    implementation 'androidx.biometric:biometric:1.1.0'
+    annotationProcessor 'androidx.room:room-compiler:2.4.3'
+    implementation 'androidx.room:room-runtime:2.4.3'
+    implementation 'androidx.recyclerview:recyclerview:1.2.1'
+
 }
 
 def requireFileInDirectory(String directory, String file) {
@@ -90,10 +95,13 @@ preBuild.doLast {
     copyJniLibs('arm64', 'arm64-v8a')
 
     if (new File("$rootDir/external").exists()) {
+        copyFile('pkcs11jna*.jar', '../external/pkcs11jna/java', 'libs')
         copyFile('rtserviceconnection*.aar', '../external/rtserviceconnection/java/', 'libs')
     } else { // SDK path
+        copyFile('pkcs11jna*.jar', "../../../../../../java/samples/pkcs11/lib", "libs")
         copyFile('rtserviceconnection*.aar', "../../../../libs", "libs")
     }
 
+    requireFileInDirectory('libs', 'pkcs11jna*.jar')
     requireFileInDirectory('libs', 'rtserviceconnection*.aar')
 }

@@ -10,7 +10,7 @@
 Рутокен DemoBank может быть собран с использованием:
 
 * Android Studio 3.6 и старше;
-* Android SDK Platform 30 и старше.
+* Android SDK Platform 29 и старше.
 
 Внешние зависимости находятся в [Рутокен SDK](https://www.rutoken.ru/developers/sdk/).
 
@@ -18,14 +18,15 @@
 
 * librtpkcs11ecp.so (под следующие архитектуры: armeabi-v7a, arm64-v8a);
 * librtpcsc.so (под следующие архитектуры: armeabi-v7a, arm64-v8a);
-* rtserviceconnection-\*.aar, где \* — версия библиотеки.
+* rtserviceconnection\*.aar, где \* — версия библиотеки (текущая версия '-1.1.0');
+* pkcs11jna\*.jar, где \* — версия библиотеки (текущая версия '-1.1.2').
 
 ## Как собрать
 
 Прежде чем собирать проект:
 
 * положите библиотеки librtpkcs11ecp.so и librtpcsc.so в папку `<project_root>/app/src/main/jniLibs/<arch>/`, где `<arch>` — архитектура библиотеки;
-* положите rtserviceconnection-\*.aar в папку `<project_root>/app/libs/`.
+* положите pkcs11jna\*.jar и rtserviceconnection\*.aar в папку `<project_root>/app/libs/`.
 
 Для сборки из консоли:
 

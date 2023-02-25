@@ -19,6 +19,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
@@ -29,18 +30,35 @@ import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.asn1.x500.style.IETFUtils;
 
+import java.nio.charset.StandardCharsets;
+
 import ru.rutoken.demobank.R;
 import ru.rutoken.demobank.pkcs11caller.Token;
 import ru.rutoken.demobank.pkcs11caller.TokenManager;
+import ru.rutoken.demobank.pkcs11caller.Utils;
 import ru.rutoken.demobank.ui.ManagedActivity;
+import ru.rutoken.demobank.ui.Pkcs11CallerActivity;
 import ru.rutoken.demobank.ui.TokenManagerListener;
 import ru.rutoken.demobank.ui.login.LoginActivity;
 import ru.rutoken.demobank.utils.PcscChecker;
 import ru.rutoken.demobank.utils.TokenModelRecognizer;
+import ru.rutoken.pkcs11jna.CK_ATTRIBUTE;
+import ru.rutoken.pkcs11jna.CK_TOKEN_INFO;
+import ru.rutoken.pkcs11jna.CK_TOKEN_INFO_EXTENDED;
+import ru.rutoken.pkcs11jna.Pkcs11Constants;
+import ru.rutoken.pkcs11jna.RtPkcs11;
+import ru.rutoken.pkcs11jna.RtPkcs11Constants;
 
 public class MainActivity extends ManagedActivity {
+
     // Vars
-    public static final String EXTRA_TOKEN_SERIAL = "TOKEN_SERIAL";
+    public static final String EXTRA_TOKEN_SERIAL;
+    public static String TokenSerialNumber;
+
+    static {
+        EXTRA_TOKEN_SERIAL = "TOKEN_SERIAL";
+    }
+
     public static final String EXTRA_CERTIFICATE_FINGERPRINT = "CERTIFICATE_FINGERPRINT";
     public static final String IDENTIFIER = MainActivity.class.getName();
 
@@ -73,17 +91,16 @@ public class MainActivity extends ManagedActivity {
         return IDENTIFIER;
     }
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
-
         setupActionBar();
         setupUI();
-
         getLifecycle().addObserver(TokenManager.getInstance());
+
     }
 
     @Override
@@ -136,9 +153,9 @@ public class MainActivity extends ManagedActivity {
     public void startPINActivity() {
         Intent intent = new Intent(MainActivity.this, LoginActivity.class);
         intent.putExtra(EXTRA_TOKEN_SERIAL, TokenManagerListener.getInstance(this).getTokenSerial());
-        intent.putExtra(EXTRA_CERTIFICATE_FINGERPRINT,
-                TokenManagerListener.getInstance(this).getCertificateFingerprint());
+        intent.putExtra(EXTRA_CERTIFICATE_FINGERPRINT, TokenManagerListener.getInstance(this).getCertificateFingerprint());
         intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+        TokenSerialNumber = Token.getSerialNumber();
         startActivity(intent);
     }
 

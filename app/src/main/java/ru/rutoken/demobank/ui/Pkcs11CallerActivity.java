@@ -5,6 +5,8 @@
 
 package ru.rutoken.demobank.ui;
 
+import android.os.Bundle;
+
 import androidx.annotation.Nullable;
 
 import ru.rutoken.demobank.pkcs11caller.Token;
@@ -28,13 +30,11 @@ abstract public class Pkcs11CallerActivity extends ManagedActivity {
      * so a pin is assumed to be cached
      */
     protected void sign(Token token, String certificate, byte[] signData) {
-        token.loginAndSign(null, certificate, signData,
-                mPkcs11Callback, this);
+        token.loginAndSign(null, certificate, signData, mPkcs11Callback, this);
     }
 
     protected void login(Token token, String pin, String certificate, byte[] signData) {
-        token.loginAndSign(pin, certificate, signData,
-                mPkcs11Callback, this);
+        token.loginAndSign(pin, certificate, signData, mPkcs11Callback, this);
     }
 
     abstract protected void manageTokenOperationError(@Nullable Pkcs11Exception exception);
@@ -42,6 +42,12 @@ abstract public class Pkcs11CallerActivity extends ManagedActivity {
     abstract protected void manageTokenOperationCanceled();
 
     abstract protected void manageTokenOperationSucceed();
+
+    protected void onStart(Bundle savedInstanceState) {
+    }
+
+    protected void onResume(Bundle savedInstanceState) {
+    }
 
     public class Pkcs11Callback {
         public void execute(Pkcs11CallerException exception) {

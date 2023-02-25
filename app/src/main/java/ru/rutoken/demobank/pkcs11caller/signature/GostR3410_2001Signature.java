@@ -1,10 +1,9 @@
 package ru.rutoken.demobank.pkcs11caller.signature;
 
-import static ru.rutoken.pkcs11jna.Pkcs11Constants.CKM_GOSTR3410;
-
 import ru.rutoken.demobank.bcprovider.digest.Digest;
 import ru.rutoken.demobank.pkcs11caller.exception.Pkcs11Exception;
 import ru.rutoken.pkcs11jna.Pkcs11;
+import ru.rutoken.pkcs11jna.RtPkcs11Constants;
 
 class GostR3410_2001Signature extends AbstractSignature {
 
@@ -14,7 +13,7 @@ class GostR3410_2001Signature extends AbstractSignature {
 
     @Override
     public byte[] sign(final byte[] data) throws Pkcs11Exception {
-        return innerSign(makeMechanism(CKM_GOSTR3410), data);
+        return innerSign(makeMechanism(RtPkcs11Constants.CKM_GOSTR3410), data);
     }
 
     @Override

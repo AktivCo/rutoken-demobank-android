@@ -39,4 +39,16 @@
     <string name="continue_str">Понятно</string>
     <string name="rutoken_not_found">Рутокен не найден</string>
     <string name="privacy_policy">Политика конфиденциальности</string>
+    <string name="return_bio_dialog">Вернуть биометрическое окно</string>
+    <string name="add_bio_data">Добавьте биометрические данные</string>
+    <string name="watch_userlist">Посмотреть список токенов</string>
+    <string name="prohibit_biometric">Запретить биометрию в приложении</string>
+    <string name="password_changed">Ошибка в дешифровании или был изменен пароль. Попробуйте зайти с новым паролем.</string>
+    <string name="exit_table">Выйти из таблицы</string>
+    <string name="delete_table">Удалить таблицу</string>
+    <string name="error_authentication">Ошибка авторизации</string>
+    <string name="success_authentication">Успешная авторизация</string>
+    <string name="fail_authentication">Авторизация не удалась</string>
+    <string name="login_biometric">Вход по биометрии</string>
+    <string name="use_fingerprint">Используйте биометрические данные для входа</string>
 </resources>

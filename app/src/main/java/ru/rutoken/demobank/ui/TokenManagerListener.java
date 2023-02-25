@@ -33,7 +33,7 @@ public class TokenManagerListener implements TokenManager.Listener {
     private boolean mPaymentsCreated = false;
     private boolean mDoWait = false;
     private int mTokenAddingCounter = 0;
-    private String mTokenSerial = NO_TOKEN;
+    private static String mTokenSerial = NO_TOKEN;
     private Token mToken = null;
     private String mCertificateFingerprint = NO_FINGERPRINT;
 
@@ -216,7 +216,7 @@ public class TokenManagerListener implements TokenManager.Listener {
         onTokenRemoved(NO_TOKEN);
     }
 
-    public String getTokenSerial() {
+    public static String getTokenSerial() {
         return mTokenSerial;
     }
 

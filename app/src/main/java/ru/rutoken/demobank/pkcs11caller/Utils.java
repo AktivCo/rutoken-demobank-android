@@ -20,7 +20,7 @@ import ru.rutoken.pkcs11jna.CK_ATTRIBUTE;
 import ru.rutoken.pkcs11jna.Pkcs11;
 import ru.rutoken.pkcs11jna.Pkcs11Constants;
 
-class Utils {
+public class Utils {
     static String removeTrailingSpaces(byte[] string) {
         return new String(string, StandardCharsets.UTF_8).replaceAll(" *$", "");
     }

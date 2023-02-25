@@ -1,0 +1,79 @@
+Задание 1.
+
+private boolean isBiometricCompatibleDevice() {
+        if (biometricManager().canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG | BiometricManager.Authenticators.BIOMETRIC_WEAK) == BiometricManager.BIOMETRIC_SUCCESS) {
+            return true;
+        } else if((biometricManager().canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG | BiometricManager.Authenticators.BIOMETRIC_WEAK) == BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED)
+        || (biometricManager().canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG | BiometricManager.Authenticators.BIOMETRIC_WEAK) == BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE)){
+            deleteTable();
+            return false;
+        } else return false;
+    }
+    
+Если есть отпечаток пальца, то возвращает true. В иных случаях - false. В случаях когда: 1)на устройстве нет отпечатка пальцев, 2) оборудование
+для отпечатков недоступно, стираются данные (БД room). Это сделано как задел на 11 сценарий.
+
+if(isBiometricCompatibleDevice()){
+            mCheckBox.setVisibility(View.VISIBLE);
+        }
+        
+Если isBiometricCompatibleDevice() == true, то появится галочка для использования биометрии.
+
+
+Задание 2.
+
+protected void manageTokenOperationSucceed() {
+        Executor executor = ContextCompat.getMainExecutor(this);
+        if((ButtonChecked) && isBiometricCompatibleDevice())....
+
+ButtonChecked = true, когда пользователь нажал на кнопку входа. Биометрическое окно появится, когда ButtonChecked и isBiometricCompatibleDevice() будут истинны(true). 
+
+
+Задание 3.
+
+protected void manageTokenOperationError(@Nullable Pkcs11Exception exception) {
+        mToken.clearPin();
+        String message = (exception == null) ? getString(R.string.error) : Pkcs11ErrorTranslator.getInstance(this).messageForRV(exception.getErrorCode());
+
+        mAlertTextView.setText(message);
+        showLogonFinished();
+        mPinEditText.setText("");
+
+    }
+    
+Там можно было бы ничего не делать. Однако я решил добавить "очищение" строки при вводе неправильного пин-кода.
+
+Задание 4.
+В manageTokenOperationSucceed()
+public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
+                    super.onAuthenticationError(errorCode, errString);
+                    //сценарий 4: если код ошибки равен коду нажатия кнопки отмены, то переходим в меню
+                    if(errorCode == BiometricPrompt.ERROR_NEGATIVE_BUTTON){
+                        startActivity(new Intent(LoginActivity.this, PaymentsActivity.class)
+                                .putExtra(MainActivity.EXTRA_TOKEN_SERIAL, mTokenSerial)
+                                .putExtra(MainActivity.EXTRA_CERTIFICATE_FINGERPRINT, mCertificateFingerprint));
+                    }
+                    Toast.makeText(LoginActivity.this,"Ошибка авторизации: " + errString,Toast.LENGTH_SHORT).show();
+                }
+                
+BiometricPrompt.ERROR_NEGATIVE_BUTTON - значение, при котором пользователь нажимает кнопку отмены в биометрическом окне.
+
+Задание 5.
+Была реализована локальная БД room: в ru.rutoken.demobank появилась папка database(в ней расположены AppDataBase,User,UserDao), в ui создан usertable, в котором находятся UserTable,UserListAdapter.
+
+Функции, связанные с БД
+private void saveNewUser-сохраняет нового пользователя
+private boolean checkUser-сверяется, есть ли такой пользователь в таблице
+private void deleteTable-удаляет таблицу
+private String getUserCodename- получает пароль пользователя
+private void deleteUser- удаляет пользователя
+
+protected void onCreate(Bundle savedInstanceState) {
+....
+boolean checkedUser = checkUser(tokenSerialNumber);
+        if(checkedUser){
+            CodeName = getUserCodename(tokenSerialNumber);
+            Executor executor = ContextCompat.getMainExecutor(this);
+            BiometricPrompt biometricPromptUserExist = new BiometricPrompt(LoginActivity.this, executor, new BiometricPrompt.AuthenticationCallback() {
+            
+В методе onCreate если пользователь есть в таблице, то получаем его зашифрованный пароль и активируем окно для дешифрования.

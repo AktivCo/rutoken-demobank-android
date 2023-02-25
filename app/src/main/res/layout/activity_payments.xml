@@ -60,16 +60,16 @@
                     android:layout_alignParentEnd="true" />
 
                 <TextView
+                    android:id="@+id/modelTV"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="Рутокен ЭЦП Bluetooth"
-                    android:id="@+id/modelTV"
-                    android:layout_centerVertical="true"
                     android:layout_alignParentStart="true"
-                    android:textSize="15sp"
+                    android:layout_centerVertical="true"
+                    android:gravity="center"
+                    android:text="Рутокен ЭЦП Bluetooth"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
                     android:textColor="@android:color/black"
-                    android:gravity="center" />
+                    android:textSize="15sp" />
             </RelativeLayout>
         </LinearLayout>
 

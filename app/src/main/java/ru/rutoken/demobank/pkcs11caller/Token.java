@@ -49,7 +49,7 @@ public class Token {
     private String mPin = "";
     private String mLabel;
     private String mModel;
-    private String mSerialNumber;
+    private static String mSerialNumber;
     private String mShortDecSerialNumber;
     private String mHardwareVersion;
     private int mTotalMemory;
@@ -81,7 +81,7 @@ public class Token {
         return mModel;
     }
 
-    public String getSerialNumber() {
+    public static String getSerialNumber() {
         return mSerialNumber;
     }
 

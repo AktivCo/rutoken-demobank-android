@@ -44,7 +44,7 @@ public class NfcDetectCardFragment extends BottomSheetDialogFragment {
             @NonNull
             @Override
             public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
-                final Bundle arguments = Objects.requireNonNull(getArguments());
+                final Bundle arguments = requireArguments();
                 if (!arguments.containsKey(CONTROL_ID_ARGUMENT))
                     throw new IllegalArgumentException(CONTROL_ID_ARGUMENT + " is not specified");
                 return Objects.requireNonNull(modelClass.cast(new NfcDetectCardViewModel(
@@ -79,6 +79,6 @@ public class NfcDetectCardFragment extends BottomSheetDialogFragment {
     }
 
     private <T extends View> T findViewById(@IdRes int id) {
-        return Objects.requireNonNull(getView()).findViewById(id);
+        return requireView().findViewById(id);
     }
 }

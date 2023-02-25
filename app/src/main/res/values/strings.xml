@@ -40,4 +40,16 @@
     <string name="continue_str">Continue</string>
     <string name="rutoken_not_found">Rutoken not found</string>
     <string name="privacy_policy">Privacy policy</string>
+    <string name="return_bio_dialog">Return biometric dialog</string>
+    <string name="add_bio_data">Add Biometric Data</string>
+    <string name="watch_userlist">Watch table of saved tokens</string>
+    <string name="prohibit_biometric">Prohibit to use biometric data</string>
+    <string name="password_changed">Error in deciphering password or password changed. Please, try to login with new password.</string>
+    <string name="exit_table">Exit table</string>
+    <string name="delete_table">Delete table</string>
+    <string name="error_authentication">Authentication error</string>
+    <string name="success_authentication">Authentication success</string>
+    <string name="fail_authentication">Authentication failed</string>
+    <string name="login_biometric">Authenticate with biometrics</string>
+    <string name="use_fingerprint">Use biometric data(fingerprint) to login</string>
 </resources>

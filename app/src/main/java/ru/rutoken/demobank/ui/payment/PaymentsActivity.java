@@ -9,10 +9,12 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.Html;
 import android.text.Spanned;
 import android.view.Gravity;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,7 +41,9 @@ import ru.rutoken.demobank.pkcs11caller.TokenManager;
 import ru.rutoken.demobank.pkcs11caller.exception.Pkcs11Exception;
 import ru.rutoken.demobank.ui.Pkcs11CallerActivity;
 import ru.rutoken.demobank.ui.TokenManagerListener;
+import ru.rutoken.demobank.ui.login.LoginActivity;
 import ru.rutoken.demobank.ui.main.MainActivity;
+import ru.rutoken.demobank.ui.usertable.UserTable;
 import ru.rutoken.demobank.utils.Pkcs11ErrorTranslator;
 import ru.rutoken.demobank.utils.TokenBatteryCharge;
 import ru.rutoken.demobank.utils.TokenModelRecognizer;
@@ -166,11 +170,25 @@ public class PaymentsActivity extends Pkcs11CallerActivity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_payments, menu);
+        return true;
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+
         if (item.getItemId() == android.R.id.home) {
             onBackPressed();
             return true;
         }
+
+        if (item.getItemId() == R.id.UserCheck) {
+            Intent intentUserTable = new Intent(PaymentsActivity.this, UserTable.class);
+            startActivity(intentUserTable);
+            return true;
+        }
+
         return super.onOptionsItemSelected(item);
     }
 
