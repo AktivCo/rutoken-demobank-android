@@ -10,7 +10,7 @@ Rutoken DemoBank is a demo application which shows typical usage scenarios of se
 Rutoken DemoBank should be built using:
 
 * Android Studio 3.6 or newer;
-* Android SDK Platform 29 or newer.
+* Android SDK Platform 30 or newer.
 
 External dependencies are located in [Rutoken SDK](https://www.rutoken.ru/developers/sdk/).
 

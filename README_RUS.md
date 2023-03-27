@@ -10,7 +10,7 @@
 Рутокен DemoBank может быть собран с использованием:
 
 * Android Studio 3.6 и старше;
-* Android SDK Platform 29 и старше.
+* Android SDK Platform 30 и старше.
 
 Внешние зависимости находятся в [Рутокен SDK](https://www.rutoken.ru/developers/sdk/).
 
