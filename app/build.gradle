@@ -1,11 +1,12 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 33
+    namespace "ru.rutoken.demobank"
+    compileSdk 33
     ndkVersion "21.0.6113669"
     defaultConfig {
-        minSdkVersion 21
-        targetSdkVersion 33
+        minSdk 21
+        targetSdk 33
         versionName "1.5.0"
         versionCode 18
         ndk {
